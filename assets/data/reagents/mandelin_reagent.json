@@ -1,0 +1,65 @@
+{
+  "reagentName": "Mandelin",
+  "reagentName_ar": "مانديلين",
+  "description": "Identifies ketamine and PCP compounds",
+  "description_ar": "يحدد مركبات الكيتامين و PCP",
+  "safetyLevel": "EXTREME",
+  "safetyLevel_ar": "خطر شديد",
+  "testDuration": 1,
+  "chemicals": [
+    "Ammonium Metavanadate",
+    "Concentrated Sulfuric Acid"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "slow (dark) green",
+      "color_ar": "أخضر (داكن) بطيء"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "greenish brown",
+      "color_ar": "بني مخضر"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "short reddish",
+      "color_ar": "احمرار قصير"
+    },
+    {
+      "drugName": "DMT",
+      "color": "(faint) green > brown",
+      "color_ar": "أخضر (باهت) > بني"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "deep brownish orange/red",
+      "color_ar": "برتقالي بني داكن / أحمر"
+    },
+    {
+      "drugName": "LSD",
+      "color": "no instant reaction",
+      "color_ar": "لا يوجد تفاعل فوري"
+    },
+    {
+      "drugName": "MDA",
+      "color": "instant purple/blue > black",
+      "color_ar": "بنفسجي/أزرق فوري > أسود"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "instant purple/blue > black",
+      "color_ar": "بنفسجي/أزرق فوري > أسود"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "short reddish",
+      "color_ar": "احمرار قصير"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "slow (dark) green",
+      "color_ar": "أخضر (داكن) بطيء"
+    }
+  ]
+}

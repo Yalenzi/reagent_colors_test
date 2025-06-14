@@ -1,0 +1,59 @@
+{
+  "reagentName": "Robadope",
+  "reagentName_ar": "روبادوب",
+  "description": "Chemical reagent for substance identification",
+  "description_ar": "كاشف كيميائي لتحديد المواد",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 40,
+  "chemicals": [
+    "Chemical Reagent"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "pink",
+      "color_ar": "وردي"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "(slow) pink",
+      "color_ar": "وردي (بطيء)"
+    },
+    {
+      "drugName": "DMT",
+      "color": "no pink color change",
+      "color_ar": "لا يوجد تغير في اللون الوردي"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no pink color change",
+      "color_ar": "لا يوجد تغير في اللون الوردي"
+    },
+    {
+      "drugName": "LSD",
+      "color": "no pink color change",
+      "color_ar": "لا يوجد تغير في اللون الوردي"
+    },
+    {
+      "drugName": "MDA",
+      "color": "red orange",
+      "color_ar": "برتقالي محمر"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "no pink color change",
+      "color_ar": "لا يوجد تغير في اللون الوردي"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "no pink color change",
+      "color_ar": "لا يوجد تغير في اللون الوردي"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "no pink color change",
+      "color_ar": "لا يوجد تغير في اللون الوردي"
+    }
+  ]
+}

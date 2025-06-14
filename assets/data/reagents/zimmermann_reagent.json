@@ -1,0 +1,34 @@
+{
+  "reagentName": "Zimmermann",
+  "reagentName_ar": "زيمرمان",
+  "description": "Chemical reagent for substance identification",
+  "description_ar": "كاشف كيميائي لتحديد المواد",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 40,
+  "chemicals": [
+    "Chemical Reagent"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Cocaine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "possible violet spots",
+      "color_ar": "بقع بنفسجية محتملة"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "no change / faint yellow",
+      "color_ar": "لا تغيير / أصفر باهت"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "purple ring / brown",
+      "color_ar": "حلقة بنفسجية / بني"
+    }
+  ]
+}

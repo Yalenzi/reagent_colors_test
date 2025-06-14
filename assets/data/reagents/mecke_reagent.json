@@ -1,0 +1,70 @@
+{
+  "reagentName": "Mecke",
+  "reagentName_ar": "ميكي",
+  "description": "Secondary confirmation test for MDMA and amphetamines",
+  "description_ar": "اختبار تأكيد ثانوي لـ MDMA والأمفيتامينات",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 1,
+  "chemicals": [
+    "Selenous Acid",
+    "Concentrated Sulfuric Acid"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "yellow > olive brownish",
+      "color_ar": "أصفر > بني زيتوني"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "DMT",
+      "color": "brown / green",
+      "color_ar": "بني / أخضر"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "LSD",
+      "color": "no instant reaction",
+      "color_ar": "لا يوجد تفاعل فوري"
+    },
+    {
+      "drugName": "MDA",
+      "color": "instant green > blue/black",
+      "color_ar": "أخضر فوري > أزرق/أسود"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "instant green > blue/black",
+      "color_ar": "أخضر فوري > أزرق/أسود"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "yellow",
+      "color_ar": "أصفر"
+    },
+    {
+      "drugName": "Psilocybin",
+      "color": "yellow green > brownish",
+      "color_ar": "أخضر مصفر > بني"
+    }
+  ]
+}

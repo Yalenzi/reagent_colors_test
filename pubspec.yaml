@@ -1,0 +1,47 @@
+name: reagent_colors_test
+description: "A reagent testing app with Firebase integration."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: ^3.8.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # Firebase - Updated to latest 2025 versions (based on Firebase release notes)
+  firebase_core: ^3.8.0
+  firebase_auth: ^5.3.3
+  cloud_firestore: ^5.5.0
+  
+  # State Management
+  flutter_riverpod: ^2.4.9
+  
+  # Dependency Injection
+  get_it: ^7.6.4
+  
+  # Storage
+  shared_preferences: ^2.2.2
+  
+  # Internationalization
+  flutter_localizations:
+    sdk: flutter
+  freezed_annotation: ^3.0.0
+  google_sign_in: ^6.3.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.15
+  freezed: ^3.0.6
+  json_serializable: ^6.9.5
+
+flutter:
+  uses-material-design: true
+  generate: true
+  
+  assets:
+    - assets/images/
+    - assets/data/

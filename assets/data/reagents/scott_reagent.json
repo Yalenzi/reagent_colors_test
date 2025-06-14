@@ -1,0 +1,56 @@
+{
+  "reagentName": "Scott",
+  "reagentName_ar": "سكوت",
+  "description": "Cocaine-specific reagent test",
+  "description_ar": "اختبار كاشف محدد للكوكايين",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 40,
+  "chemicals": [
+    "Cobalt Thiocyanate",
+    "Hydrochloric Acid",
+    "Chloroform"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "bright blue",
+      "color_ar": "أزرق ساطع"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "MDA",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "blue spots",
+      "color_ar": "بقع زرقاء"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    }
+  ]
+}

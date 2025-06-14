@@ -1,0 +1,34 @@
+{
+  "reagentName": "Gallic",
+  "reagentName_ar": "غاليك",
+  "description": "Chemical reagent for substance identification",
+  "description_ar": "كاشف كيميائي لتحديد المواد",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 40,
+  "chemicals": [
+    "Chemical Reagent"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Ketamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "MDA",
+      "color": "green > brown (60 sec +)",
+      "color_ar": "أخضر > بني (60 ثانية +)"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "green>brown",
+      "color_ar": "أخضر > بني"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+{
+  "reagentName": "Folin",
+  "reagentName_ar": "فولين",
+  "description": "Chemical reagent for substance identification",
+  "description_ar": "كاشف كيميائي لتحديد المواد",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 40,
+  "chemicals": [
+    "Chemical Reagent"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "(light) orange",
+      "color_ar": "برتقالي (فاتح)"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "MDA",
+      "color": "None",
+      "color_ar": "لا يوجد"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "orange",
+      "color_ar": "برتقالي"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "orange or pink",
+      "color_ar": "برتقالي أو وردي"
+    }
+  ]
+}

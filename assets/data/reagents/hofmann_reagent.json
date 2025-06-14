@@ -1,0 +1,64 @@
+{
+  "reagentName": "Hofmann",
+  "reagentName_ar": "هوفمان",
+  "description": "Chemical reagent for substance identification",
+  "description_ar": "كاشف كيميائي لتحديد المواد",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 40,
+  "chemicals": [
+    "Chemical Reagent"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "DMT",
+      "color": "yellow",
+      "color_ar": "أصفر"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "LSD",
+      "color": "blue",
+      "color_ar": "أزرق"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Psilocybin",
+      "color": "yellow / green",
+      "color_ar": "أصفر / أخضر"
+    }
+  ]
+}

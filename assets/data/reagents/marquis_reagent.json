@@ -1,0 +1,70 @@
+{
+  "reagentName": "Marquis",
+  "reagentName_ar": "ماركيز",
+  "description": "Primary reagent for detecting MDMA, amphetamines, and opiates",
+  "description_ar": "الكاشف الأساسي لاكتشاف MDMA والأمفيتامينات والمواد الأفيونية",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 1,
+  "chemicals": [
+    "Formaldehyde",
+    "Concentrated Sulfuric Acid"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "orange > brownish",
+      "color_ar": "برتقالي > بني"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "yellow > green",
+      "color_ar": "أصفر > أخضر"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "DMT",
+      "color": "yellow > orange > brown",
+      "color_ar": "أصفر > برتقالي > بني"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "LSD",
+      "color": "no instant reaction",
+      "color_ar": "لا يوجد تفاعل فوري"
+    },
+    {
+      "drugName": "MDA",
+      "color": "instant purple/brown > black",
+      "color_ar": "بنفسجي/بني فوري > أسود"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "instant purple/brown > black",
+      "color_ar": "بنفسجي/بني فوري > أسود"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "no change or yellowish",
+      "color_ar": "لا تغيير أو مصفر"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "red-orange > brown",
+      "color_ar": "برتقالي محمر > بني"
+    },
+    {
+      "drugName": "Psilocybin",
+      "color": "orange",
+      "color_ar": "برتقالي"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "reagentName": "Simon's",
+  "reagentName_ar": "سايمون",
+  "description": "Specific test for secondary amines (MDMA)",
+  "description_ar": "اختبار محدد للأمينات الثانوية (MDMA)",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 1,
+  "chemicals": [
+    "Chemical Reagent"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "no blue color change",
+      "color_ar": "لا يوجد تغير في اللون الأزرق"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "no blue color change",
+      "color_ar": "لا يوجد تغير في اللون الأزرق"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "no blue color change",
+      "color_ar": "لا يوجد تغير في اللون الأزرق"
+    },
+    {
+      "drugName": "DMT",
+      "color": "Black precipitates with Simon A, no change with B",
+      "color_ar": "رواسب سوداء مع كاشف سايمون أ، لا تغيير مع ب"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no blue color change",
+      "color_ar": "لا يوجد تغير في اللون الأزرق"
+    },
+    {
+      "drugName": "LSD",
+      "color": "no blue color change",
+      "color_ar": "لا يوجد تغير في اللون الأزرق"
+    },
+    {
+      "drugName": "MDA",
+      "color": "no blue color change",
+      "color_ar": "لا يوجد تغير في اللون الأزرق"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "instant dark blue",
+      "color_ar": "أزرق داكن فوري"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "slow blue",
+      "color_ar": "أزرق بطيء"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "instant dark blue",
+      "color_ar": "أزرق داكن فوري"
+    }
+  ]
+}

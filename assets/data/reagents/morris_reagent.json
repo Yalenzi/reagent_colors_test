@@ -1,0 +1,59 @@
+{
+  "reagentName": "Morris",
+  "reagentName_ar": "موريس",
+  "description": "Secondary test for various stimulants",
+  "description_ar": "اختبار ثانوي لمختلف المنشطات",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 5,
+  "chemicals": [
+    "Chemical Reagent"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "pale green",
+      "color_ar": "أخضر باهت"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "pale green",
+      "color_ar": "أخضر باهت"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "bright blue",
+      "color_ar": "أزرق ساطع"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "violet / violet-blue",
+      "color_ar": "بنفسجي / أزرق بنفسجي"
+    },
+    {
+      "drugName": "LSD",
+      "color": "pale green",
+      "color_ar": "أخضر باهت"
+    },
+    {
+      "drugName": "MDA",
+      "color": "pale green",
+      "color_ar": "أخضر باهت"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "pale green",
+      "color_ar": "أخضر باهت"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "purple",
+      "color_ar": "بنفسجي"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "pale green",
+      "color_ar": "أخضر باهت"
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "reagentName": "Froehde",
+  "reagentName_ar": "فروهده",
+  "description": "Detects opiates and morphine derivatives",
+  "description_ar": "يكشف المواد الأفيونية ومشتقات المورفين",
+  "safetyLevel": "EXTREME",
+  "safetyLevel_ar": "خطر شديد",
+  "testDuration": 1,
+  "chemicals": [
+    "Chemical Reagent"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "clear or red",
+      "color_ar": "شفاف أو أحمر"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "yellow > green",
+      "color_ar": "أصفر > أخضر"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "DMT",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "LSD",
+      "color": "no instant reaction",
+      "color_ar": "لا يوجد تفاعل فوري"
+    },
+    {
+      "drugName": "MDA",
+      "color": "instant black",
+      "color_ar": "أسود فوري"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "instant black",
+      "color_ar": "أسود فوري"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "clear or red",
+      "color_ar": "شفاف أو أحمر"
+    }
+  ]
+}

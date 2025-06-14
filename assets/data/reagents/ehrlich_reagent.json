@@ -1,0 +1,66 @@
+{
+  "reagentName": "Ehrlich",
+  "reagentName_ar": "إيرليخ",
+  "description": "Detects psychedelics like LSD, DMT, and psilocybin",
+  "description_ar": "يكشف المهلوسات مثل LSD و DMT والسيلوسيبين",
+  "safetyLevel": "HIGH",
+  "safetyLevel_ar": "عالي",
+  "testDuration": 5,
+  "chemicals": [
+    "4-Dimethylaminobenzaldehyde",
+    "Hydrochloric Acid",
+    "Ethanol"
+  ],
+  "drugResults": [
+    {
+      "drugName": "Amphetamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "2C-B",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Cocaine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "DMT",
+      "color": "pink > magenta / red",
+      "color_ar": "وردي > أرجواني / أحمر"
+    },
+    {
+      "drugName": "Ketamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "LSD",
+      "color": "pink > purple",
+      "color_ar": "وردي > بنفسجي"
+    },
+    {
+      "drugName": "MDMA",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Mephedrone",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Methamphetamine",
+      "color": "no color change",
+      "color_ar": "لا يوجد تغير في اللون"
+    },
+    {
+      "drugName": "Psilocybin",
+      "color": "purple",
+      "color_ar": "بنفسجي"
+    }
+  ]
+}
