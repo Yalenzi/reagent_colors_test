@@ -2,12 +2,25 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Users collection rules
-    match /users/{userId} {
-      // Users can read and write their own user document
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-      
+    match /users/{documentId} {
       // Allow authenticated users to create user documents
-      allow create: if request.auth != null;
+      // Check that the uid field in the document matches the authenticated user
+      allow create: if request.auth != null && 
+                    request.resource.data.uid == request.auth.uid;
+      
+      // Users can read their own user document by checking the uid field
+      // Since document ID is now username_info, we check if the uid field matches the authenticated user
+      allow read: if request.auth != null && 
+                  resource.data.uid == request.auth.uid;
+      
+      // Users can update their own user document by checking the uid field
+      allow update: if request.auth != null && 
+                    resource.data.uid == request.auth.uid &&
+                    request.resource.data.uid == request.auth.uid;
+      
+      // Users can delete their own user document by checking the uid field
+      allow delete: if request.auth != null && 
+                    resource.data.uid == request.auth.uid;
       
       // Allow username availability checks (collection queries) - needed for registration
       // Use 'list' for collection queries with where clauses

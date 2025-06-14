@@ -44,7 +44,7 @@ class UserModel {
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>;
     return UserModel(
-      uid: doc.id,
+      uid: data['uid'] ?? '',
       email: data['email'] ?? '',
       username: data['username'] ?? '',
       registeredAt: (data['registeredAt'] as Timestamp).toDate(),
@@ -69,6 +69,7 @@ class UserModel {
 
   Map<String, dynamic> toFirestore() {
     return {
+      'uid': uid,
       'email': email,
       'username': username,
       'registeredAt': Timestamp.fromDate(registeredAt),

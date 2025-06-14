@@ -7,12 +7,21 @@ class FirestoreService {
   // Collection reference for users
   CollectionReference get _usersCollection => _firestore.collection('users');
 
-  // Create user profile in Firestore
+  // Generate custom document ID from username
+  String generateCustomDocumentId(String username) {
+    return '${username}_info';
+  }
+
+  // Create user profile in Firestore with custom document ID
   Future<void> createUserProfile(UserModel user) async {
     try {
       print('🔧 FirestoreService: Starting profile creation for ${user.uid}');
       print('🔧 FirestoreService: Email: ${user.email}');
       print('🔧 FirestoreService: Username: ${user.username}');
+
+      // Generate custom document ID
+      final customDocumentId = generateCustomDocumentId(user.username);
+      print('🔧 FirestoreService: Custom document ID: $customDocumentId');
 
       final userData = user.toFirestore();
       print('🔧 FirestoreService: Data to save: $userData');
@@ -21,11 +30,14 @@ class FirestoreService {
       print('🔧 FirestoreService: Firestore instance: $_firestore');
       print('🔧 FirestoreService: Users collection: $_usersCollection');
 
-      await _usersCollection.doc(user.uid).set(userData);
-      print('✅ FirestoreService: Profile created successfully for ${user.uid}');
+      // Use custom document ID instead of Firebase UID
+      await _usersCollection.doc(customDocumentId).set(userData);
+      print(
+        '✅ FirestoreService: Profile created successfully with ID: $customDocumentId',
+      );
 
       // Verify the document was created
-      final doc = await _usersCollection.doc(user.uid).get();
+      final doc = await _usersCollection.doc(customDocumentId).get();
       if (doc.exists) {
         print(
           '✅ FirestoreService: Document verification successful - document exists',
@@ -43,12 +55,17 @@ class FirestoreService {
     }
   }
 
-  // Get user profile from Firestore
+  // Get user profile from Firestore by Firebase UID
   Future<UserModel?> getUserProfile(String uid) async {
     try {
-      final doc = await _usersCollection.doc(uid).get();
-      if (doc.exists) {
-        return UserModel.fromFirestore(doc);
+      // Since document ID is now username_info, we need to query by uid field
+      final query = await _usersCollection
+          .where('uid', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        return UserModel.fromFirestore(query.docs.first);
       }
       return null;
     } catch (e) {
@@ -56,22 +73,56 @@ class FirestoreService {
     }
   }
 
-  // Update user profile in Firestore
+  // Get user profile from Firestore by username (using document ID)
+  Future<UserModel?> getUserProfileByUsername(String username) async {
+    try {
+      final customDocumentId = generateCustomDocumentId(username);
+      final doc = await _usersCollection.doc(customDocumentId).get();
+      if (doc.exists) {
+        return UserModel.fromFirestore(doc);
+      }
+      return null;
+    } catch (e) {
+      throw Exception('Failed to get user profile by username: $e');
+    }
+  }
+
+  // Update user profile in Firestore by Firebase UID
   Future<void> updateUserProfile(String uid, Map<String, dynamic> data) async {
     try {
-      await _usersCollection.doc(uid).update(data);
+      // Find the document by uid field first
+      final query = await _usersCollection
+          .where('uid', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        await query.docs.first.reference.update(data);
+      } else {
+        throw Exception('User profile not found for uid: $uid');
+      }
     } catch (e) {
       throw Exception('Failed to update user profile: $e');
     }
   }
 
-  // Update user's last sign-in time
+  // Update user's last sign-in time by Firebase UID
   Future<void> updateUserLastSignIn(String uid) async {
     try {
-      await _usersCollection.doc(uid).update({
-        'lastSignInAt': Timestamp.now(),
-        'lastUpdatedAt': Timestamp.now(),
-      });
+      // Find the document by uid field first
+      final query = await _usersCollection
+          .where('uid', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        await query.docs.first.reference.update({
+          'lastSignInAt': Timestamp.now(),
+          'lastUpdatedAt': Timestamp.now(),
+        });
+      } else {
+        throw Exception('User profile not found for uid: $uid');
+      }
     } catch (e) {
       throw Exception('Failed to update last sign-in time: $e');
     }
@@ -90,23 +141,37 @@ class FirestoreService {
     }
   }
 
-  // Delete user profile
+  // Delete user profile by Firebase UID
   Future<void> deleteUserProfile(String uid) async {
     try {
-      await _usersCollection.doc(uid).delete();
+      // Find the document by uid field first
+      final query = await _usersCollection
+          .where('uid', isEqualTo: uid)
+          .limit(1)
+          .get();
+
+      if (query.docs.isNotEmpty) {
+        await query.docs.first.reference.delete();
+      } else {
+        throw Exception('User profile not found for uid: $uid');
+      }
     } catch (e) {
       throw Exception('Failed to delete user profile: $e');
     }
   }
 
-  // Stream user profile changes
+  // Stream user profile changes by Firebase UID
   Stream<UserModel?> streamUserProfile(String uid) {
-    return _usersCollection.doc(uid).snapshots().map((doc) {
-      if (doc.exists) {
-        return UserModel.fromFirestore(doc);
-      }
-      return null;
-    });
+    return _usersCollection
+        .where('uid', isEqualTo: uid)
+        .limit(1)
+        .snapshots()
+        .map((snapshot) {
+          if (snapshot.docs.isNotEmpty) {
+            return UserModel.fromFirestore(snapshot.docs.first);
+          }
+          return null;
+        });
   }
 
   // Debug method to test Firestore connectivity
