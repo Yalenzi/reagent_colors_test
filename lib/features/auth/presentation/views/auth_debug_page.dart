@@ -147,7 +147,7 @@ class _AuthDebugPageState extends ConsumerState<AuthDebugPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('🔧 Firestore Debug'),
-        backgroundColor: Colors.orange.withOpacity(0.1),
+        backgroundColor: Colors.orange.withValues(alpha: 0.1),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

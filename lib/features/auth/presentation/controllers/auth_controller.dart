@@ -1,15 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import '../../../../core/services/auth_service.dart';
+import '../../../../core/services/notification_service.dart';
 import '../../../../core/config/get_it_config.dart';
 import '../states/auth_state.dart';
 import '../../domain/entities/user_entity.dart';
 
 class AuthController extends StateNotifier<AuthState> {
   final AuthService _authService;
+  BuildContext? _context;
 
   AuthController(this._authService) : super(const AuthInitial()) {
     _initializeAuthState();
+  }
+
+  // Set context for notifications
+  void setContext(BuildContext context) {
+    _context = context;
   }
 
   // Initialize auth state by listening to auth changes
@@ -32,7 +40,7 @@ class AuthController extends StateNotifier<AuthState> {
     });
   }
 
-  // Sign in with email and password
+  // Sign in with email and password - OPTIMIZED
   Future<void> signInWithEmailAndPassword({
     required String email,
     required String password,
@@ -45,16 +53,19 @@ class AuthController extends StateNotifier<AuthState> {
       );
 
       if (result?.user != null) {
-        // Show success message first
-        state = const AuthSuccess('✅ Welcome back! Signed in successfully!');
-
-        // Wait a moment for user to see the success message
-        await Future.delayed(const Duration(seconds: 1));
-
+        // Get user profile immediately without artificial delays
         final userProfile = await _authService.getUserProfile(
           result!.user!.uid,
         );
         if (userProfile != null) {
+          // Show login success notification
+          if (_context != null) {
+            NotificationService.showLoginSuccess(
+              context: _context!,
+              username: userProfile.username,
+            );
+          }
+
           state = AuthAuthenticated(userProfile.toEntity());
         } else {
           state = const AuthError('User profile not found');
@@ -65,7 +76,7 @@ class AuthController extends StateNotifier<AuthState> {
     }
   }
 
-  // Create user with email and password
+  // Create user with email and password - OPTIMIZED
   Future<void> createUserWithEmailAndPassword({
     required String email,
     required String password,
@@ -92,20 +103,21 @@ class AuthController extends StateNotifier<AuthState> {
           '✅ AuthController: Firebase Auth user created: ${result!.user!.uid}',
         );
 
-        // Show success message first
-        state = const AuthSuccess(
-          '🎉 Account created successfully! Welcome aboard!',
-        );
-
-        // Wait a moment for user to see the success message
-        await Future.delayed(const Duration(seconds: 2));
-
         print('🔧 AuthController: Loading user profile from Firestore...');
-        // Then load user profile and set authenticated state
+        // Load user profile immediately without delays
         final userProfile = await _authService.getUserProfile(result.user!.uid);
 
         if (userProfile != null) {
           print('✅ AuthController: User profile loaded successfully');
+
+          // Show success notification
+          if (_context != null) {
+            NotificationService.showRegistrationSuccess(
+              context: _context!,
+              username: userProfile.username,
+            );
+          }
+
           state = AuthAuthenticated(userProfile.toEntity());
         } else {
           print('❌ AuthController: User profile NOT found in Firestore');
@@ -117,27 +129,42 @@ class AuthController extends StateNotifier<AuthState> {
     } catch (e, stackTrace) {
       print('❌ AuthController: Error during registration: $e');
       print('❌ AuthController: Stack trace: $stackTrace');
+
+      // Show error notification
+      if (_context != null) {
+        NotificationService.showError(
+          context: _context!,
+          title: '❌ Registration Failed',
+          message: 'Unable to create account. Please try again.',
+        );
+      }
+
       state = AuthError(e.toString());
     }
   }
 
-  // Sign in with Google
+  // Sign in with Google - OPTIMIZED
   Future<void> signInWithGoogle() async {
     state = const AuthLoading();
     try {
       final result = await _authService.signInWithGoogle();
 
       if (result?.user != null) {
-        // Show success message first
-        state = const AuthSuccess('🚀 Google Sign-In successful! Welcome!');
-
-        // Wait a moment for user to see the success message
-        await Future.delayed(const Duration(seconds: 1));
-
+        // Get user profile immediately without artificial delays
         final userProfile = await _authService.getUserProfile(
           result!.user!.uid,
         );
         if (userProfile != null) {
+          // Show Google sign-in success notification
+          if (_context != null) {
+            NotificationService.showSuccess(
+              context: _context!,
+              title: '🚀 Google Sign-In Success',
+              message:
+                  'Welcome back ${userProfile.username}! Ready to continue testing?',
+            );
+          }
+
           state = AuthAuthenticated(userProfile.toEntity());
         } else {
           state = const AuthError('Failed to load user profile');
@@ -180,6 +207,14 @@ class AuthController extends StateNotifier<AuthState> {
     if (state is AuthError || state is AuthSuccess) {
       state = const AuthUnauthenticated();
     }
+  }
+
+  // Show temporary success message then return to authenticated state
+  void showSuccessMessage(String message, UserEntity user) async {
+    state = AuthSuccess(message);
+    // Brief success message display
+    await Future.delayed(const Duration(milliseconds: 800));
+    state = AuthAuthenticated(user);
   }
 }
 

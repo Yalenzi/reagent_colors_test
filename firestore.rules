@@ -13,6 +13,10 @@ service cloud.firestore {
       allow read: if request.auth != null && 
                   resource.data.uid == request.auth.uid;
       
+      // Allow anyone to check if a username document exists (for availability checks)
+      // This is needed for registration to work
+      allow read: if request.auth == null;
+      
       // Users can update their own user document by checking the uid field
       allow update: if request.auth != null && 
                     resource.data.uid == request.auth.uid &&
@@ -23,8 +27,14 @@ service cloud.firestore {
                     resource.data.uid == request.auth.uid;
       
       // Allow username availability checks (collection queries) - needed for registration
-      // Use 'list' for collection queries with where clauses
-      allow list: if true; // Allow both authenticated and unauthenticated users
+      // This allows both authenticated and unauthenticated users to check username availability
+      // Uses 'list' for collection queries with where clauses (e.g., where username == "xyz")
+      allow list: if true;
+    }
+    
+    // Test collection for debugging (can be removed in production)
+    match /test/{document} {
+      allow read, write: if true;
     }
   }
 } 

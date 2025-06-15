@@ -167,6 +167,8 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     try {
+      // Clear Firestore cache on logout
+      _firestoreService.clearAllCache();
       await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
     } catch (e) {
       throw Exception('Failed to sign out: $e');
