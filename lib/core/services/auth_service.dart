@@ -5,7 +5,7 @@ import 'firestore_service.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn();
+  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
   final FirestoreService _firestoreService = FirestoreService();
 
   // Get current user
@@ -135,25 +135,48 @@ class AuthService {
 
       // Check if this is a new user and create profile if needed
       if (result.additionalUserInfo?.isNewUser == true && result.user != null) {
-        // Generate username from email or display name
-        String username = _generateUsernameFromEmail(result.user!.email ?? '');
-
-        // Ensure username is unique
-        username = await _ensureUniqueUsername(username);
-
-        final userModel = UserModel.fromFirebaseUser(
-          uid: result.user!.uid,
-          email: result.user!.email ?? '',
-          username: username,
-          photoUrl: result.user!.photoURL,
-          displayName: result.user!.displayName,
-          isEmailVerified: result.user!.emailVerified,
-          phoneNumber: result.user!.phoneNumber,
-          signInMethods: ['google.com'],
+        print(
+          '🔧 AuthService: New Google user detected, creating profile for ${result.user!.uid}',
         );
+        print('🔧 AuthService: User email: ${result.user!.email}');
 
-        await _firestoreService.createUserProfile(userModel);
+        try {
+          // Generate username from display name (first name + last name)
+          String username = _generateUsernameFromDisplayName(
+            result.user!.displayName ?? result.user!.email ?? '',
+          );
+          print('🔧 AuthService: Generated username: $username');
+
+          final userModel = UserModel.fromFirebaseUser(
+            uid: result.user!.uid,
+            email: result.user!.email ?? '',
+            username: username,
+            photoUrl: result.user!.photoURL,
+            displayName: result.user!.displayName,
+            isEmailVerified: result.user!.emailVerified,
+            phoneNumber: result.user!.phoneNumber,
+            signInMethods: ['google.com'],
+          );
+
+          print(
+            '🔧 AuthService: User model created, calling FirestoreService.createUserProfile...',
+          );
+          await _firestoreService.createUserProfile(userModel);
+          print(
+            '✅ AuthService: Google user profile created successfully in Firestore',
+          );
+        } catch (e, stackTrace) {
+          print('❌ AuthService: Error creating Google user profile: $e');
+          print('❌ AuthService: Stack trace: $stackTrace');
+          // Don't throw here, let the user be signed in even if Firestore fails
+          print(
+            '⚠️ AuthService: Google user signed in but Firestore profile creation failed',
+          );
+        }
       } else if (result.user != null) {
+        print(
+          '🔧 AuthService: Existing Google user, updating last sign-in time',
+        );
         // Update last sign in time for existing users
         await _updateUserLastSignIn(result.user!.uid);
       }
@@ -194,26 +217,50 @@ class AuthService {
     return _firestoreService.streamUserProfile(uid);
   }
 
-  // Helper method to generate username from email
-  String _generateUsernameFromEmail(String email) {
-    final emailParts = email.split('@');
-    if (emailParts.isNotEmpty) {
-      return emailParts[0].toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+  // Helper method to generate username from display name (first name + last name)
+  String _generateUsernameFromDisplayName(String displayName) {
+    if (displayName.isEmpty) {
+      return 'user${DateTime.now().millisecondsSinceEpoch}';
     }
+
+    // Split display name into parts (first name, last name, etc.)
+    final nameParts = displayName.trim().split(' ');
+
+    if (nameParts.length >= 2) {
+      // Use first name + underscore + last name format
+      final firstName = nameParts[0].toLowerCase();
+      final lastName = nameParts[1].toLowerCase();
+
+      // Clean the names (remove special characters, keep only letters)
+      final cleanFirstName = firstName.replaceAll(RegExp(r'[^a-z]'), '');
+      final cleanLastName = lastName.replaceAll(RegExp(r'[^a-z]'), '');
+
+      if (cleanFirstName.isNotEmpty && cleanLastName.isNotEmpty) {
+        // Capitalize first letter of each name
+        final formattedFirstName =
+            cleanFirstName[0].toUpperCase() +
+            (cleanFirstName.length > 1 ? cleanFirstName.substring(1) : '');
+        final formattedLastName =
+            cleanLastName[0].toUpperCase() +
+            (cleanLastName.length > 1 ? cleanLastName.substring(1) : '');
+
+        return '${formattedFirstName}_$formattedLastName';
+      }
+    }
+
+    // Fallback: use the whole display name, cleaned up
+    final cleanedName = displayName
+        .toLowerCase()
+        .replaceAll(RegExp(r'[^a-z0-9]'), '')
+        .trim();
+
+    if (cleanedName.isNotEmpty) {
+      // Capitalize first letter
+      return cleanedName[0].toUpperCase() +
+          (cleanedName.length > 1 ? cleanedName.substring(1) : '');
+    }
+
     return 'user${DateTime.now().millisecondsSinceEpoch}';
-  }
-
-  // Helper method to ensure username is unique
-  Future<String> _ensureUniqueUsername(String baseUsername) async {
-    String username = baseUsername;
-    int counter = 1;
-
-    while (!(await _firestoreService.isUsernameAvailable(username))) {
-      username = '$baseUsername$counter';
-      counter++;
-    }
-
-    return username;
   }
 
   // Helper method to update user's last sign-in time

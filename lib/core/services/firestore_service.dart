@@ -195,15 +195,31 @@ class FirestoreService {
   // Check if username is available - REVERTED TO WORKING VERSION
   Future<bool> isUsernameAvailable(String username) async {
     try {
+      print(
+        '🔧 FirestoreService: Checking username availability for: "$username"',
+      );
+
       // Direct document check using custom document ID
       final customDocumentId = generateCustomDocumentId(username);
+      print('🔧 FirestoreService: Generated document ID: "$customDocumentId"');
+
       final doc = await _usersCollection
           .doc(customDocumentId)
           .get(const GetOptions(source: Source.serverAndCache));
 
-      return !doc.exists;
-    } catch (e) {
+      final isAvailable = !doc.exists;
+      print(
+        '🔧 FirestoreService: Document exists: ${doc.exists}, Username available: $isAvailable',
+      );
+
+      if (doc.exists) {
+        print('🔧 FirestoreService: Existing document data: ${doc.data()}');
+      }
+
+      return isAvailable;
+    } catch (e, stackTrace) {
       print('❌ FirestoreService: Username availability check failed: $e');
+      print('❌ FirestoreService: Stack trace: $stackTrace');
       throw Exception('Failed to check username availability: $e');
     }
   }
