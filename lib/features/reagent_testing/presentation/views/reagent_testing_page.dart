@@ -1,0 +1,260 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
+import '../providers/reagent_testing_providers.dart';
+import '../states/reagent_testing_state.dart';
+import '../widgets/reagent_card.dart';
+import 'reagent_detail_page.dart';
+
+class ReagentTestingPage extends ConsumerStatefulWidget {
+  const ReagentTestingPage({super.key});
+
+  @override
+  ConsumerState<ReagentTestingPage> createState() => _ReagentTestingPageState();
+}
+
+class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = ref.watch(reagentTestingControllerProvider);
+    final controller = ref.read(reagentTestingControllerProvider.notifier);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('🧪 Reagent Testing'),
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => controller.refresh(),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          _buildSearchAndFilter(controller),
+          Expanded(child: _buildContent(state, controller)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSearchAndFilter(controller) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: _buildSearchBar(controller),
+    );
+  }
+
+  Widget _buildSearchBar(controller) {
+    return TextField(
+      controller: _searchController,
+      decoration: InputDecoration(
+        hintText: 'Search reagents...',
+        prefixIcon: const Icon(Icons.search),
+        suffixIcon: _searchController.text.isNotEmpty
+            ? IconButton(
+                icon: const Icon(Icons.clear),
+                onPressed: () {
+                  _searchController.clear();
+                  controller.clearFilters();
+                },
+              )
+            : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        filled: true,
+        fillColor: Theme.of(
+          context,
+        ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+      ),
+      onChanged: (value) {
+        setState(() {});
+        if (value.trim().isEmpty) {
+          controller.clearFilters();
+        } else {
+          controller.searchReagents(value);
+        }
+      },
+    );
+  }
+
+  Widget _buildContent(ReagentTestingState state, controller) {
+    if (state is ReagentTestingInitial) {
+      return _buildInitialState();
+    } else if (state is ReagentTestingLoading) {
+      return _buildLoadingState();
+    } else if (state is ReagentTestingLoaded) {
+      return _buildLoadedState(state);
+    } else if (state is ReagentTestingError) {
+      return _buildErrorState(state, controller);
+    } else if (state is ReagentTestingEmpty) {
+      return _buildEmptyState(state, controller);
+    } else {
+      return _buildErrorState(
+        const ReagentTestingError('Unknown state'),
+        controller,
+      );
+    }
+  }
+
+  Widget _buildInitialState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.science, size: 64, color: Colors.grey),
+          SizedBox(height: 16),
+          Text(
+            'Initializing reagent data...',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingState() {
+    return const Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Loading reagents...', style: TextStyle(fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadedState(ReagentTestingLoaded state) {
+    return RefreshIndicator(
+      onRefresh: () =>
+          ref.read(reagentTestingControllerProvider.notifier).refresh(),
+      child: GridView.builder(
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          crossAxisSpacing: 16,
+          mainAxisSpacing: 16,
+          childAspectRatio: 0.85,
+        ),
+        itemCount: state.reagents.length,
+        itemBuilder: (context, index) {
+          final reagent = state.reagents[index];
+          return ReagentCard(
+            reagent: reagent,
+            onTap: () => _navigateToDetail(context, reagent),
+          );
+        },
+      ),
+    );
+  }
+
+  void _navigateToDetail(BuildContext context, ReagentEntity reagent) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ReagentDetailPage(reagent: reagent),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(ReagentTestingError state, controller) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Theme.of(context).colorScheme.error,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Error Loading Reagents',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.error,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              state.message,
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => controller.refresh(),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try Again'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState(ReagentTestingEmpty state, controller) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.science_outlined, size: 64, color: Colors.grey.shade400),
+            const SizedBox(height: 16),
+            Text(
+              'No Reagents Available',
+              style: Theme.of(
+                context,
+              ).textTheme.headlineSmall?.copyWith(color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Unable to load reagent data from assets.\nPlease check your internet connection and try again.',
+              textAlign: TextAlign.center,
+              style: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: () => controller.refresh(),
+              icon: const Icon(Icons.refresh),
+              label: const Text('Retry Loading'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

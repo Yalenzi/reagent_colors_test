@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../features/profile/presentation/views/profile_page.dart';
+import '../../features/settings/presentation/views/settings_page.dart';
+import '../../features/reagent_testing/presentation/views/reagent_testing_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
@@ -52,31 +54,6 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 }
 
 // Placeholder Pages - Will be implemented in their respective features
-class ReagentTestingPage extends StatelessWidget {
-  const ReagentTestingPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('🧪 Reagent Testing')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.science, size: 64, color: Colors.blue),
-            SizedBox(height: 16),
-            Text(
-              'Reagent Testing Page',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text('Select reagents and test samples'),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class ResultsPage extends StatelessWidget {
   const ResultsPage({super.key});
@@ -97,32 +74,6 @@ class ResultsPage extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text('View your test results and history'),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class SettingsPage extends StatelessWidget {
-  const SettingsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('⚙️ Settings')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.settings, size: 64, color: Colors.orange),
-            SizedBox(height: 16),
-            Text(
-              'Settings',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text('Configure app preferences'),
           ],
         ),
       ),

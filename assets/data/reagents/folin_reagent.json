@@ -40,5 +40,35 @@
       "color": "orange or pink",
       "color_ar": "برتقالي أو وردي"
     }
+  ],
+  "equipment": [
+    "Chemical-resistant safety goggles",
+    "Chemical-resistant gloves (nitrile or neoprene)",
+    "Lab coat with long sleeves",
+    "Closed-toe chemical-resistant shoes",
+    "Respirator when necessary"
+  ],
+  "handlingProcedures": [
+    "Work under fume hood mandatory",
+    "Wear acid-resistant gloves",
+    "Use safety goggles and face shield",
+    "Keep sodium bicarbonate handy for neutralization",
+    "Use only small drops"
+  ],
+  "specificHazards": [
+    "Corrosive",
+    "Handle with care"
+  ],
+  "storage": [
+    "Store in cool, dry place",
+    "Away from flammable materials",
+    "Label with clear warning"
+  ],
+  "instructions": [
+    "Place a small sample into a test tube",
+    "Add 1 drop of Folin A",
+    "Add 1 drop of Folin B and observe color change",
+    "Compare the resulting color with expected results",
+    "Record your observations and dispose of materials safely"
   ]
 }
