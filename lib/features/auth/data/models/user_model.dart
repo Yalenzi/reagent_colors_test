@@ -12,7 +12,6 @@ class UserModel {
 
   // Additional recommended fields based on Firebase best practices
   final String? phoneNumber; // From Firebase Auth
-  final DateTime? lastSignInAt; // User activity tracking
   final List<String>
   signInMethods; // Track how user signed in (email, google, etc.)
   final String? preferredLanguage; // For localization
@@ -20,7 +19,6 @@ class UserModel {
   final bool isActive; // Account status
   final String? timezone; // User timezone
   final Map<String, dynamic>? preferences; // User app preferences
-  final DateTime? lastUpdatedAt; // Profile update tracking
 
   const UserModel({
     required this.uid,
@@ -31,14 +29,12 @@ class UserModel {
     this.displayName,
     this.isEmailVerified = false,
     this.phoneNumber,
-    this.lastSignInAt,
     this.signInMethods = const [],
     this.preferredLanguage,
     this.customClaims,
     this.isActive = true,
     this.timezone,
     this.preferences,
-    this.lastUpdatedAt,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
@@ -52,18 +48,12 @@ class UserModel {
       displayName: data['displayName'],
       isEmailVerified: data['isEmailVerified'] ?? false,
       phoneNumber: data['phoneNumber'],
-      lastSignInAt: data['lastSignInAt'] != null
-          ? (data['lastSignInAt'] as Timestamp).toDate()
-          : null,
       signInMethods: List<String>.from(data['signInMethods'] ?? []),
       preferredLanguage: data['preferredLanguage'],
       customClaims: data['customClaims'],
       isActive: data['isActive'] ?? true,
       timezone: data['timezone'],
       preferences: data['preferences'],
-      lastUpdatedAt: data['lastUpdatedAt'] != null
-          ? (data['lastUpdatedAt'] as Timestamp).toDate()
-          : null,
     );
   }
 
@@ -77,18 +67,12 @@ class UserModel {
       'displayName': displayName,
       'isEmailVerified': isEmailVerified,
       'phoneNumber': phoneNumber,
-      'lastSignInAt': lastSignInAt != null
-          ? Timestamp.fromDate(lastSignInAt!)
-          : null,
       'signInMethods': signInMethods,
       'preferredLanguage': preferredLanguage,
       'customClaims': customClaims,
       'isActive': isActive,
       'timezone': timezone,
       'preferences': preferences,
-      'lastUpdatedAt': lastUpdatedAt != null
-          ? Timestamp.fromDate(lastUpdatedAt!)
-          : null,
     };
   }
 
@@ -102,14 +86,12 @@ class UserModel {
       displayName: displayName,
       isEmailVerified: isEmailVerified,
       phoneNumber: phoneNumber,
-      lastSignInAt: lastSignInAt,
       signInMethods: signInMethods,
       preferredLanguage: preferredLanguage,
       customClaims: customClaims,
       isActive: isActive,
       timezone: timezone,
       preferences: preferences,
-      lastUpdatedAt: lastUpdatedAt,
     );
   }
 
@@ -123,14 +105,12 @@ class UserModel {
       displayName: entity.displayName,
       isEmailVerified: entity.isEmailVerified,
       phoneNumber: entity.phoneNumber,
-      lastSignInAt: entity.lastSignInAt,
       signInMethods: entity.signInMethods,
       preferredLanguage: entity.preferredLanguage,
       customClaims: entity.customClaims,
       isActive: entity.isActive,
       timezone: entity.timezone,
       preferences: entity.preferences,
-      lastUpdatedAt: entity.lastUpdatedAt,
     );
   }
 
@@ -157,12 +137,10 @@ class UserModel {
       displayName: displayName,
       isEmailVerified: isEmailVerified,
       phoneNumber: phoneNumber,
-      lastSignInAt: now,
       signInMethods: signInMethods,
       preferredLanguage: preferredLanguage,
       isActive: true,
       timezone: timezone,
-      lastUpdatedAt: now,
     );
   }
 
@@ -176,14 +154,12 @@ class UserModel {
     String? displayName,
     bool? isEmailVerified,
     String? phoneNumber,
-    DateTime? lastSignInAt,
     List<String>? signInMethods,
     String? preferredLanguage,
     Map<String, dynamic>? customClaims,
     bool? isActive,
     String? timezone,
     Map<String, dynamic>? preferences,
-    DateTime? lastUpdatedAt,
   }) {
     return UserModel(
       uid: uid ?? this.uid,
@@ -194,14 +170,12 @@ class UserModel {
       displayName: displayName ?? this.displayName,
       isEmailVerified: isEmailVerified ?? this.isEmailVerified,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      lastSignInAt: lastSignInAt ?? this.lastSignInAt,
       signInMethods: signInMethods ?? this.signInMethods,
       preferredLanguage: preferredLanguage ?? this.preferredLanguage,
       customClaims: customClaims ?? this.customClaims,
       isActive: isActive ?? this.isActive,
       timezone: timezone ?? this.timezone,
       preferences: preferences ?? this.preferences,
-      lastUpdatedAt: lastUpdatedAt ?? this.lastUpdatedAt,
     );
   }
 }

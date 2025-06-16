@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/data/models/user_model.dart';
 import 'firestore_service.dart';
 
@@ -26,6 +27,9 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      // 🔥 CRITICAL: Clear any existing local data before signing in existing user
+      await _clearAllLocalData();
 
       // Update last sign-in time
       if (result.user != null) {
@@ -59,6 +63,9 @@ class AuthService {
         email: email,
         password: password,
       );
+
+      // 🔥 CRITICAL: Clear any existing local data before creating new user
+      await _clearAllLocalData();
 
       // Create user profile in Firestore
       if (result.user != null) {
@@ -134,51 +141,69 @@ class AuthService {
       );
 
       // Check if this is a new user and create profile if needed
-      if (result.additionalUserInfo?.isNewUser == true && result.user != null) {
+      if (result.user != null) {
+        // First, check if user profile exists in Firestore
         print(
-          '🔧 AuthService: New Google user detected, creating profile for ${result.user!.uid}',
+          '🔧 AuthService: Checking if user profile exists for ${result.user!.uid}',
         );
-        print('🔧 AuthService: User email: ${result.user!.email}');
+        final existingProfile = await _firestoreService.getUserProfile(
+          result.user!.uid,
+        );
 
-        try {
-          // Generate username from display name (first name + last name)
-          String username = _generateUsernameFromDisplayName(
-            result.user!.displayName ?? result.user!.email ?? '',
+        if (existingProfile == null) {
+          // No profile exists - create one (could be new or existing user without profile)
+          print(
+            '🔧 AuthService: No profile found, creating profile for ${result.user!.uid}',
           );
-          print('🔧 AuthService: Generated username: $username');
+          print('🔧 AuthService: User email: ${result.user!.email}');
 
-          final userModel = UserModel.fromFirebaseUser(
-            uid: result.user!.uid,
-            email: result.user!.email ?? '',
-            username: username,
-            photoUrl: result.user!.photoURL,
-            displayName: result.user!.displayName,
-            isEmailVerified: result.user!.emailVerified,
-            phoneNumber: result.user!.phoneNumber,
-            signInMethods: ['google.com'],
+          // 🔥 CRITICAL: Clear any existing local data before creating new user profile
+          await _clearAllLocalData();
+
+          try {
+            // Generate username from display name (first name + last name)
+            String username = _generateUsernameFromDisplayName(
+              result.user!.displayName ?? result.user!.email ?? '',
+            );
+            print('🔧 AuthService: Generated username: $username');
+
+            final userModel = UserModel.fromFirebaseUser(
+              uid: result.user!.uid,
+              email: result.user!.email ?? '',
+              username: username,
+              photoUrl: result.user!.photoURL,
+              displayName: result.user!.displayName,
+              isEmailVerified: result.user!.emailVerified,
+              phoneNumber: result.user!.phoneNumber,
+              signInMethods: ['google.com'],
+            );
+
+            print(
+              '🔧 AuthService: User model created, calling FirestoreService.createUserProfile...',
+            );
+            await _firestoreService.createUserProfile(userModel);
+            print(
+              '✅ AuthService: Google user profile created successfully in Firestore',
+            );
+          } catch (e, stackTrace) {
+            print('❌ AuthService: Error creating Google user profile: $e');
+            print('❌ AuthService: Stack trace: $stackTrace');
+            // Don't throw here, let the user be signed in even if Firestore fails
+            print(
+              '⚠️ AuthService: Google user signed in but Firestore profile creation failed',
+            );
+          }
+        } else {
+          print(
+            '🔧 AuthService: Existing Google user with profile, updating last sign-in time',
           );
 
-          print(
-            '🔧 AuthService: User model created, calling FirestoreService.createUserProfile...',
-          );
-          await _firestoreService.createUserProfile(userModel);
-          print(
-            '✅ AuthService: Google user profile created successfully in Firestore',
-          );
-        } catch (e, stackTrace) {
-          print('❌ AuthService: Error creating Google user profile: $e');
-          print('❌ AuthService: Stack trace: $stackTrace');
-          // Don't throw here, let the user be signed in even if Firestore fails
-          print(
-            '⚠️ AuthService: Google user signed in but Firestore profile creation failed',
-          );
+          // 🔥 CRITICAL: Clear any existing local data before signing in existing user
+          await _clearAllLocalData();
+
+          // Update last sign in time for existing users
+          await _updateUserLastSignIn(result.user!.uid);
         }
-      } else if (result.user != null) {
-        print(
-          '🔧 AuthService: Existing Google user, updating last sign-in time',
-        );
-        // Update last sign in time for existing users
-        await _updateUserLastSignIn(result.user!.uid);
       }
 
       return result;
@@ -192,9 +217,37 @@ class AuthService {
     try {
       // Clear Firestore cache on logout
       _firestoreService.clearAllCache();
+
+      // 🔥 CRITICAL: Clear all local storage to prevent data bleeding between users
+      await _clearAllLocalData();
+
       await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
     } catch (e) {
       throw Exception('Failed to sign out: $e');
+    }
+  }
+
+  // Clear all local data on logout to prevent user data bleeding
+  Future<void> _clearAllLocalData() async {
+    try {
+      // Import and clear test results local storage
+      // Note: We can't directly import TestResultHistoryRepository here due to circular dependency
+      // So we'll clear the SharedPreferences keys directly
+      final prefs = await SharedPreferences.getInstance();
+
+      // Clear test results
+      await prefs.remove('test_result_history');
+
+      // Clear sync queue
+      await prefs.remove('sync_queue');
+
+      // Clear last sync timestamp
+      await prefs.remove('last_firestore_sync');
+
+      print('✅ AuthService: All local data cleared on logout');
+    } catch (e) {
+      print('❌ AuthService: Failed to clear local data: $e');
+      // Don't throw error, logout should still proceed
     }
   }
 

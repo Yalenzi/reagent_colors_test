@@ -152,4 +152,23 @@ class TestResultHistoryController
   Future<void> refresh() async {
     await loadTestResults();
   }
+
+  // 🔥 CRITICAL: Clear all data and refresh (for user switching)
+  Future<void> clearAndRefresh() async {
+    try {
+      // Clear all local storage
+      await _repository.clearAllLocalStorage();
+
+      // Reset state to initial
+      state = const TestResultHistoryInitial();
+
+      // Reload results for current user
+      await loadTestResults();
+
+      print('✅ TestResultHistoryController: Data cleared and refreshed');
+    } catch (e) {
+      print('❌ TestResultHistoryController: Failed to clear and refresh: $e');
+      state = TestResultHistoryError(message: e.toString());
+    }
+  }
 }

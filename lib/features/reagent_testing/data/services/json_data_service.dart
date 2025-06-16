@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/reagent_model.dart';
 import '../models/drug_result_model.dart';
+import 'remote_config_service.dart';
 
 class JsonDataService {
   static const List<String> _reagentFiles = [
@@ -21,8 +22,50 @@ class JsonDataService {
     'assets/data/reagents/robadope_reagent.json',
   ];
 
-  // Load all reagents from JSON files
+  final RemoteConfigService _remoteConfigService;
+
+  JsonDataService({RemoteConfigService? remoteConfigService})
+    : _remoteConfigService = remoteConfigService ?? RemoteConfigService();
+
+  /// Initialize the service (sets up Remote Config)
+  Future<void> initialize() async {
+    try {
+      await _remoteConfigService.initialize();
+      print('✅ JsonDataService initialized with Remote Config');
+    } catch (e) {
+      print(
+        '⚠️ Remote Config initialization failed, will use local assets: $e',
+      );
+    }
+  }
+
+  /// Load all reagents (Remote Config first, then local assets fallback)
   Future<List<ReagentModel>> loadAllReagents() async {
+    try {
+      // Try Remote Config first
+      if (_remoteConfigService.hasReagentData()) {
+        print('📡 Loading reagents from Remote Config...');
+        final remoteReagents = await _remoteConfigService.getReagents();
+        if (remoteReagents.isNotEmpty) {
+          print(
+            '✅ Loaded ${remoteReagents.length} reagents from Remote Config',
+          );
+          return remoteReagents;
+        }
+      }
+
+      // Fallback to local assets
+      print('📁 Falling back to local asset files...');
+      return await _loadReagentsFromAssets();
+    } catch (e) {
+      print('❌ Error in loadAllReagents: $e');
+      // Final fallback to local assets
+      return await _loadReagentsFromAssets();
+    }
+  }
+
+  /// Load reagents from local asset files
+  Future<List<ReagentModel>> _loadReagentsFromAssets() async {
     final List<ReagentModel> reagents = [];
 
     for (final filePath in _reagentFiles) {
@@ -37,16 +80,41 @@ class JsonDataService {
       }
     }
 
-    // If no reagents loaded from files, return mock data
+    // If no reagents loaded from files, return empty list
     if (reagents.isEmpty) {
       print('⚠️ No reagents loaded from assets');
+    } else {
+      print('✅ Loaded ${reagents.length} reagents from local assets');
     }
 
     return reagents;
   }
 
-  // Load a specific reagent by name
+  /// Load a specific reagent by name (Remote Config first, then local assets)
   Future<ReagentModel?> loadReagentByName(String reagentName) async {
+    try {
+      // Try Remote Config first
+      if (_remoteConfigService.hasReagentData()) {
+        final remoteReagent = await _remoteConfigService.getReagentByName(
+          reagentName,
+        );
+        if (remoteReagent != null) {
+          print('✅ Loaded $reagentName from Remote Config');
+          return remoteReagent;
+        }
+      }
+
+      // Fallback to local assets
+      print('📁 Loading $reagentName from local assets...');
+      return await _loadReagentFromAssetsByName(reagentName);
+    } catch (e) {
+      print('❌ Error loading reagent $reagentName: $e');
+      return await _loadReagentFromAssetsByName(reagentName);
+    }
+  }
+
+  /// Load reagent from local assets by name
+  Future<ReagentModel?> _loadReagentFromAssetsByName(String reagentName) async {
     final fileName =
         '${reagentName.toLowerCase().replaceAll("'", "")}_reagent.json';
     final filePath = 'assets/data/reagents/$fileName';
@@ -54,12 +122,12 @@ class JsonDataService {
     try {
       return await _loadReagentFromFile(filePath);
     } catch (e) {
-      print('Error loading reagent $reagentName: $e');
+      print('Error loading reagent $reagentName from assets: $e');
       return null;
     }
   }
 
-  // Private method to load reagent from a specific file
+  /// Private method to load reagent from a specific file
   Future<ReagentModel?> _loadReagentFromFile(String filePath) async {
     try {
       print('🔄 Attempting to load asset: $filePath');
@@ -85,7 +153,35 @@ class JsonDataService {
     }
   }
 
-  // Search reagents by name or description
+  /// Refresh data from Remote Config
+  Future<bool> refreshFromRemoteConfig() async {
+    try {
+      final updated = await _remoteConfigService.fetchAndActivate();
+      if (updated) {
+        print('✅ Remote Config data refreshed successfully');
+      }
+      return updated;
+    } catch (e) {
+      print('❌ Error refreshing Remote Config: $e');
+      return false;
+    }
+  }
+
+  /// Check if using Remote Config data
+  bool isUsingRemoteConfig() {
+    return _remoteConfigService.hasReagentData();
+  }
+
+  /// Get current data source version
+  String getDataVersion() {
+    if (isUsingRemoteConfig()) {
+      return 'Remote Config v${_remoteConfigService.getReagentVersion()}';
+    } else {
+      return 'Local Assets v1.0.0';
+    }
+  }
+
+  /// Search reagents by name or description
   Future<List<ReagentModel>> searchReagents(String query) async {
     final allReagents = await loadAllReagents();
     final lowercaseQuery = query.toLowerCase();
@@ -99,7 +195,7 @@ class JsonDataService {
     }).toList();
   }
 
-  // Filter reagents by safety level
+  /// Filter reagents by safety level
   Future<List<ReagentModel>> getReagentsBySafetyLevel(
     String safetyLevel,
   ) async {
@@ -109,7 +205,7 @@ class JsonDataService {
         .toList();
   }
 
-  // Get available safety levels
+  /// Get available safety levels
   Future<List<String>> getAvailableSafetyLevels() async {
     final allReagents = await loadAllReagents();
     final safetyLevels = allReagents
@@ -120,7 +216,7 @@ class JsonDataService {
     return safetyLevels;
   }
 
-  // Get all unique drug names that can be tested
+  /// Get all unique drug names that can be tested
   Future<List<String>> getAllTestableDrugs() async {
     final allReagents = await loadAllReagents();
     final Set<String> drugNames = {};
@@ -136,7 +232,7 @@ class JsonDataService {
     return sortedDrugs;
   }
 
-  // Get reagents that can test a specific drug
+  /// Get reagents that can test a specific drug
   Future<List<ReagentModel>> getReagentsForDrug(String drugName) async {
     final allReagents = await loadAllReagents();
     return allReagents.where((reagent) {
@@ -144,5 +240,18 @@ class JsonDataService {
         (drugResult) => drugResult.drugName == drugName,
       );
     }).toList();
+  }
+
+  /// Listen for real-time Remote Config updates
+  Stream<void> onDataUpdated() async* {
+    await for (final update in _remoteConfigService.onConfigUpdated()) {
+      print('🔄 Remote Config updated: ${update.updatedKeys}');
+      if (update.updatedKeys.contains('reagent_data') ||
+          update.updatedKeys.contains('available_reagents')) {
+        // Activate the new config
+        await _remoteConfigService.activate();
+        yield null; // Emit update signal
+      }
+    }
   }
 }

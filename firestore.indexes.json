@@ -1,11 +1,11 @@
 {
   "indexes": [
     {
-      "collectionGroup": "result_history_db",
+      "collectionGroup": "tests",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "userId",
+          "fieldPath": "reagentName",
           "order": "ASCENDING"
         },
         {

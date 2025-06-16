@@ -76,6 +76,9 @@ class FirestoreService {
 
       print('🔧 FirestoreService: Fetching profile from database for $uid');
 
+      // Add small delay to ensure authentication state is established
+      await Future.delayed(const Duration(milliseconds: 100));
+
       // Since document ID is now username_info, we need to query by uid field
       final query = await _usersCollection
           .where('uid', isEqualTo: uid)
@@ -94,9 +97,47 @@ class FirestoreService {
         print('✅ FirestoreService: Profile cached for $uid');
         return userModel;
       }
+
+      print('⚠️ FirestoreService: No profile found for uid: $uid');
       return null;
     } catch (e) {
       print('❌ FirestoreService: Error getting profile: $e');
+
+      // If permission denied, it might be an authentication timing issue
+      if (e.toString().contains('permission-denied')) {
+        print(
+          '🔧 FirestoreService: Permission denied - checking authentication state...',
+        );
+
+        // Wait a bit longer and retry once
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        try {
+          final retryQuery = await _usersCollection
+              .where('uid', isEqualTo: uid)
+              .limit(1)
+              .get();
+
+          if (retryQuery.docs.isNotEmpty) {
+            final userModel = UserModel.fromFirestore(retryQuery.docs.first);
+            _userCache[uid] = userModel;
+            _cacheTimestamps[uid] = DateTime.now();
+            print('✅ FirestoreService: Profile retrieved on retry for $uid');
+            return userModel;
+          }
+        } catch (retryError) {
+          print('❌ FirestoreService: Retry also failed: $retryError');
+        }
+      }
+
+      // Don't throw for permission errors during Google Sign-In flow
+      if (e.toString().contains('permission-denied')) {
+        print(
+          '⚠️ FirestoreService: Returning null due to permission denied (likely timing issue)',
+        );
+        return null;
+      }
+
       throw Exception('Failed to get user profile: $e');
     }
   }
@@ -148,8 +189,19 @@ class FirestoreService {
     }
   }
 
-  // Update user's last sign-in time by Firebase UID - OPTIMIZED
+  // Update user's last sign-in time by Firebase UID
   Future<void> updateUserLastSignIn(String uid) async {
+    try {
+      // Skip timestamp updates - not needed for app functionality
+      print('FirestoreService: Skipping lastSignInAt update');
+    } catch (e) {
+      print('❌ FirestoreService: Error updating last sign-in: $e');
+      rethrow;
+    }
+  }
+
+  // Optional: Batch timestamp updates (cost-efficient)
+  Future<void> _updateTimestampsOptimized(String uid) async {
     try {
       // Get cached user first to avoid extra query
       UserModel? cachedUser;
@@ -166,30 +218,28 @@ class FirestoreService {
         });
 
         // Update cache
-        final updatedUser = cachedUser.copyWith(
-          lastSignInAt: DateTime.now(),
-          lastUpdatedAt: DateTime.now(),
-        );
+        final updatedUser = cachedUser.copyWith();
         _userCache[uid] = updatedUser;
         _cacheTimestamps[uid] = DateTime.now();
-      } else {
-        // Fallback to query method
-        final query = await _usersCollection
-            .where('uid', isEqualTo: uid)
-            .limit(1)
-            .get();
 
-        if (query.docs.isNotEmpty) {
-          await query.docs.first.reference.update({
-            'lastSignInAt': Timestamp.now(),
-            'lastUpdatedAt': Timestamp.now(),
-          });
-        }
+        print(
+          '💰 FirestoreService: Batch timestamp update completed (1 write saved)',
+        );
       }
     } catch (e) {
-      print('⚠️ FirestoreService: Failed to update last sign-in time: $e');
-      // Don't throw error for this non-critical operation
+      print('⚠️ FirestoreService: Batch timestamp update failed: $e');
     }
+  }
+
+  // Cache for timestamp update tracking
+  final Map<String, DateTime> _timestampUpdateCache = {};
+
+  DateTime? _getLastTimestampUpdate(String uid) {
+    return _timestampUpdateCache[uid];
+  }
+
+  void _setLastTimestampUpdate(String uid, DateTime timestamp) {
+    _timestampUpdateCache[uid] = timestamp;
   }
 
   // Check if username is available - REVERTED TO WORKING VERSION

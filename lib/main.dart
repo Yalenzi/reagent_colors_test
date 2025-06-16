@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/config/get_it_config.dart';
-import 'core/navigation/main_navigation_page.dart';
+import 'core/navigation/auth_wrapper.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -69,7 +69,7 @@ class ReagentTestingApp extends StatelessWidget {
           fillColor: const Color(0xFFF8FAFC),
         ),
       ),
-      home: const MainNavigationPage(),
+      home: const AuthWrapper(),
       debugShowCheckedModeBanner: false,
     );
   }

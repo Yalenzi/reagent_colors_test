@@ -1,65 +1,83 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Users collection rules
+    // Users collection rules - for authentication and user registration
     match /users/{documentId} {
-      // Allow authenticated users to create user documents
-      // Check that the uid field in the document matches the authenticated user
-      allow create: if request.auth != null && 
-                    request.resource.data.uid == request.auth.uid;
+      // Allow reading documents for username availability checks (even without auth)
+      // This is essential for registration flow where we check if username exists BEFORE creating account
+      allow read: if true;
       
-      // Users can read their own user document by checking the uid field
-      // Since document ID is now username_info, we check if the uid field matches the authenticated user
-      allow read: if request.auth != null && 
-                  resource.data.uid == request.auth.uid;
-      
-      // Allow anyone to check if a username document exists (for availability checks)
-      // This is needed for registration to work
-      allow read: if request.auth == null;
-      
-      // Users can update their own user document by checking the uid field
+      // Allow updating user's own document only (requires authentication)
       allow update: if request.auth != null && 
+                    resource != null &&
                     resource.data.uid == request.auth.uid &&
                     request.resource.data.uid == request.auth.uid;
       
-      // Users can delete their own user document by checking the uid field
+      // Allow creating user documents during registration (requires authentication)
+      // Must match authenticated user's UID
+      allow create: if request.auth != null && 
+                    request.resource.data.uid == request.auth.uid;
+      
+      // Allow deleting user's own document only (requires authentication)
       allow delete: if request.auth != null && 
+                    resource != null &&
                     resource.data.uid == request.auth.uid;
       
-      // Allow username availability checks (collection queries) - needed for registration
-      // This allows both authenticated and unauthenticated users to check username availability
-      // Uses 'list' for collection queries with where clauses (e.g., where username == "xyz")
+      // Allow listing for username availability checks (even without auth)
       allow list: if true;
     }
-    
-    // Test result history collection rules
-    match /result_history_db/{documentId} {
-      // Allow authenticated users to create test result documents
-      // Check that the userId field in the document matches the authenticated user
+
+    // Result History collection rules - using email as document ID for test data
+    match /resultHistory/{userEmail} {
+      // Allow authenticated users to create their own user document
+      // Check that the document ID (userEmail) matches their authenticated email
       allow create: if request.auth != null && 
-                    request.resource.data.userId == request.auth.uid;
+                    userEmail == request.auth.token.email &&
+                    request.resource.data.uid == request.auth.uid;
       
-      // Users can read their own test result documents
+      // Users can read their own user document
+      // Check that the document ID (userEmail) matches their authenticated email
       allow read: if request.auth != null && 
-                  resource.data.userId == request.auth.uid;
+                  userEmail == request.auth.token.email;
       
-      // Users can update their own test result documents
+      // Users can update their own user document
       allow update: if request.auth != null && 
-                    resource.data.userId == request.auth.uid &&
-                    request.resource.data.userId == request.auth.uid;
+                    userEmail == request.auth.token.email &&
+                    request.resource.data.uid == request.auth.uid;
       
-      // Users can delete their own test result documents
+      // Users can delete their own user document
       allow delete: if request.auth != null && 
-                    resource.data.userId == request.auth.uid;
-      
-      // Allow users to list their own test results (for queries)
-      allow list: if request.auth != null && 
-                  request.query.filters.hasAny([['userId', '==', request.auth.uid]]);
+                    userEmail == request.auth.token.email;
+
+      // Tests subcollection rules
+      match /tests/{testId} {
+        // Users can create tests in their own subcollection
+        allow create: if request.auth != null && 
+                      userEmail == request.auth.token.email;
+        
+        // Users can read tests from their own subcollection
+        allow read: if request.auth != null && 
+                    userEmail == request.auth.token.email;
+        
+        // Users can update tests in their own subcollection
+        allow update: if request.auth != null && 
+                      userEmail == request.auth.token.email;
+        
+        // Users can delete tests from their own subcollection
+        allow delete: if request.auth != null && 
+                      userEmail == request.auth.token.email;
+      }
     }
     
     // Test collection for debugging (can be removed in production)
     match /test/{document} {
       allow read, write: if true;
+    }
+    
+    // Temporary debug rules for Google Sign-In troubleshooting
+    // TODO: Remove in production
+    match /debug/{document} {
+      allow read, write: if request.auth != null;
     }
   }
 } 
