@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../features/profile/presentation/views/profile_page.dart';
 import '../../features/settings/presentation/views/settings_page.dart';
 import '../../features/reagent_testing/presentation/views/reagent_testing_page.dart';
+import '../../features/reagent_testing/presentation/views/test_result_history_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
@@ -15,7 +16,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 
   final List<Widget> _pages = [
     const ReagentTestingPage(),
-    const ResultsPage(),
+    const TestResultHistoryPage(),
     const SettingsPage(),
     const ProfilePage(),
   ];
@@ -38,10 +39,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
         unselectedItemColor: Colors.grey,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.science), label: 'Testing'),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
-            label: 'Results',
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.history), label: 'History'),
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             label: 'Settings',
@@ -54,29 +52,3 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
 }
 
 // Placeholder Pages - Will be implemented in their respective features
-
-class ResultsPage extends StatelessWidget {
-  const ResultsPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('📊 Test Results')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.bar_chart, size: 64, color: Colors.green),
-            SizedBox(height: 16),
-            Text(
-              'Results History',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 8),
-            Text('View your test results and history'),
-          ],
-        ),
-      ),
-    );
-  }
-}

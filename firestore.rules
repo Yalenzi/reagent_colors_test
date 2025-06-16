@@ -32,6 +32,31 @@ service cloud.firestore {
       allow list: if true;
     }
     
+    // Test result history collection rules
+    match /result_history_db/{documentId} {
+      // Allow authenticated users to create test result documents
+      // Check that the userId field in the document matches the authenticated user
+      allow create: if request.auth != null && 
+                    request.resource.data.userId == request.auth.uid;
+      
+      // Users can read their own test result documents
+      allow read: if request.auth != null && 
+                  resource.data.userId == request.auth.uid;
+      
+      // Users can update their own test result documents
+      allow update: if request.auth != null && 
+                    resource.data.userId == request.auth.uid &&
+                    request.resource.data.userId == request.auth.uid;
+      
+      // Users can delete their own test result documents
+      allow delete: if request.auth != null && 
+                    resource.data.userId == request.auth.uid;
+      
+      // Allow users to list their own test results (for queries)
+      allow list: if request.auth != null && 
+                  request.query.filters.hasAny([['userId', '==', request.auth.uid]]);
+    }
+    
     // Test collection for debugging (can be removed in production)
     match /test/{document} {
       allow read, write: if true;

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reagent_colors_test/features/reagent_testing/presentation/controllers/reagent_detail_controller.dart';
 import '../../domain/entities/reagent_entity.dart';
+import 'test_execution_page.dart';
 
 class ReagentDetailPage extends ConsumerWidget {
   final ReagentEntity reagent;
@@ -650,12 +651,9 @@ class ReagentDetailPage extends ConsumerWidget {
           ),
           onPressed: isAcknowledged
               ? () {
-                  // TODO: Navigate to the actual test screen
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                        'Navigation to test screen not implemented yet.',
-                      ),
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => TestExecutionPage(reagent: reagent),
                     ),
                   );
                 }
