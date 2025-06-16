@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import '../models/reagent_model.dart';
+import '../../../../core/utils/logger.dart';
 
 class RemoteConfigService {
   static const String _reagentDataKey = 'reagent_data';
@@ -33,9 +34,9 @@ class RemoteConfigService {
       // Fetch and activate
       await fetchAndActivate();
 
-      print('✅ Remote Config initialized successfully');
+      Logger.info('✅ Remote Config initialized successfully');
     } catch (e) {
-      print('❌ Error initializing Remote Config: $e');
+      Logger.info('❌ Error initializing Remote Config: $e');
       rethrow;
     }
   }
@@ -45,11 +46,11 @@ class RemoteConfigService {
     try {
       final bool updated = await _remoteConfig.fetchAndActivate();
       if (updated) {
-        print('🔄 Remote Config updated with new values');
+        Logger.info('🔄 Remote Config updated with new values');
       }
       return updated;
     } catch (e) {
-      print('❌ Error fetching Remote Config: $e');
+      Logger.info('❌ Error fetching Remote Config: $e');
       return false;
     }
   }
@@ -63,7 +64,7 @@ class RemoteConfigService {
       );
 
       if (reagentDataJson.isEmpty || reagentDataJson == '{}') {
-        print('⚠️ No reagent data in Remote Config, using fallback');
+        Logger.info('⚠️ No reagent data in Remote Config, using fallback');
         return [];
       }
 
@@ -81,19 +82,19 @@ class RemoteConfigService {
                 reagentData[reagentName] as Map<String, dynamic>;
             final reagent = ReagentModel.fromJson(reagentJson);
             reagents.add(reagent);
-            print(
+            Logger.info(
               '✅ Loaded reagent from Remote Config: ${reagent.reagentName}',
             );
           } catch (e) {
-            print('❌ Error parsing reagent $reagentName: $e');
+            Logger.info('❌ Error parsing reagent $reagentName: $e');
           }
         }
       }
 
-      print('📊 Loaded ${reagents.length} reagents from Remote Config');
+      Logger.info('📊 Loaded ${reagents.length} reagents from Remote Config');
       return reagents;
     } catch (e) {
-      print('❌ Error getting reagents from Remote Config: $e');
+      Logger.info('❌ Error getting reagents from Remote Config: $e');
       return [];
     }
   }
@@ -108,7 +109,7 @@ class RemoteConfigService {
         orElse: () => throw StateError('Reagent not found'),
       );
     } catch (e) {
-      print('❌ Reagent $reagentName not found in Remote Config: $e');
+      Logger.info('❌ Reagent $reagentName not found in Remote Config: $e');
       return null;
     }
   }
@@ -135,7 +136,7 @@ class RemoteConfigService {
       }
       return List<String>.from(json.decode(availableReagentsJson));
     } catch (e) {
-      print('❌ Error getting available reagent names: $e');
+      Logger.info('❌ Error getting available reagent names: $e');
       return [];
     }
   }
@@ -150,7 +151,7 @@ class RemoteConfigService {
     try {
       return await _remoteConfig.activate();
     } catch (e) {
-      print('❌ Error activating Remote Config: $e');
+      Logger.info('❌ Error activating Remote Config: $e');
       return false;
     }
   }

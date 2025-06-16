@@ -8,6 +8,7 @@ import '../../../../core/config/get_it_config.dart';
 import '../states/auth_state.dart';
 import '../../domain/entities/user_entity.dart';
 import '../../data/models/user_model.dart';
+import '../../../../core/utils/logger.dart';
 
 class AuthController extends StateNotifier<AuthState> {
   final AuthService _authService;
@@ -27,16 +28,45 @@ class AuthController extends StateNotifier<AuthState> {
     _authService.authStateChanges.listen((User? user) async {
       if (user != null) {
         try {
+          // Wait a moment for Firebase to fully initialize
+          await Future.delayed(const Duration(milliseconds: 300));
+
           // 🔥 CRITICAL: Clear all local data when user authentication state changes
           await _clearAllLocalDataOnAuthChange();
 
-          final userProfile = await _authService.getUserProfile(user.uid);
+          // Retry logic for loading user profile
+          UserModel? userProfile;
+          int retryCount = 0;
+          const maxRetries = 3;
+
+          while (userProfile == null && retryCount < maxRetries) {
+            try {
+              userProfile = await _authService.getUserProfile(user.uid);
+              if (userProfile != null) {
+                break;
+              }
+            } catch (e) {
+              Logger.info(
+                '⚠️ AuthController: Profile load attempt ${retryCount + 1} failed: $e',
+              );
+            }
+
+            retryCount++;
+            if (retryCount < maxRetries) {
+              await Future.delayed(Duration(milliseconds: 500 * retryCount));
+            }
+          }
+
           if (userProfile != null) {
             state = AuthAuthenticated(userProfile.toEntity());
           } else {
+            Logger.info(
+              '❌ AuthController: Could not load user profile after $maxRetries attempts',
+            );
             state = const AuthUnauthenticated();
           }
         } catch (e) {
+          Logger.info('❌ AuthController: Error in auth state change: $e');
           state = AuthError('Failed to load user profile: $e');
         }
       } else {
@@ -63,9 +93,13 @@ class AuthController extends StateNotifier<AuthState> {
       // Clear last sync timestamp
       await prefs.remove('last_firestore_sync');
 
-      print('✅ AuthController: All local data cleared on auth state change');
+      Logger.info(
+        '✅ AuthController: All local data cleared on auth state change',
+      );
     } catch (e) {
-      print('❌ AuthController: Failed to clear local data on auth change: $e');
+      Logger.info(
+        '❌ AuthController: Failed to clear local data on auth change: $e',
+      );
       // Don't throw error, auth state change should still proceed
     }
   }
@@ -114,11 +148,11 @@ class AuthController extends StateNotifier<AuthState> {
   }) async {
     state = const AuthLoading();
     try {
-      print('🔧 AuthController: Starting user registration');
-      print('🔧 AuthController: Email: $email');
-      print('🔧 AuthController: Username: $username');
+      Logger.info('🔧 AuthController: Starting user registration');
+      Logger.info('🔧 AuthController: Email: $email');
+      Logger.info('🔧 AuthController: Username: $username');
 
-      print(
+      Logger.info(
         '🔧 AuthController: Calling AuthService.createUserWithEmailAndPassword...',
       );
       final result = await _authService.createUserWithEmailAndPassword(
@@ -126,19 +160,21 @@ class AuthController extends StateNotifier<AuthState> {
         password: password,
         username: username,
       );
-      print('🔧 AuthController: AuthService call completed');
+      Logger.info('🔧 AuthController: AuthService call completed');
 
       if (result?.user != null) {
-        print(
+        Logger.info(
           '✅ AuthController: Firebase Auth user created: ${result!.user!.uid}',
         );
 
-        print('🔧 AuthController: Loading user profile from Firestore...');
+        Logger.info(
+          '🔧 AuthController: Loading user profile from Firestore...',
+        );
         // Load user profile immediately without delays
         final userProfile = await _authService.getUserProfile(result.user!.uid);
 
         if (userProfile != null) {
-          print('✅ AuthController: User profile loaded successfully');
+          Logger.info('✅ AuthController: User profile loaded successfully');
 
           // Show success notification
           if (_context != null) {
@@ -150,15 +186,17 @@ class AuthController extends StateNotifier<AuthState> {
 
           state = AuthAuthenticated(userProfile.toEntity());
         } else {
-          print('❌ AuthController: User profile NOT found in Firestore');
+          Logger.info('❌ AuthController: User profile NOT found in Firestore');
           state = const AuthError('Failed to create user profile');
         }
       } else {
-        print('❌ AuthController: Firebase Auth user creation returned null');
+        Logger.info(
+          '❌ AuthController: Firebase Auth user creation returned null',
+        );
       }
     } catch (e, stackTrace) {
-      print('❌ AuthController: Error during registration: $e');
-      print('❌ AuthController: Stack trace: $stackTrace');
+      Logger.info('❌ AuthController: Error during registration: $e');
+      Logger.info('❌ AuthController: Stack trace: $stackTrace');
 
       // Show error notification
       if (_context != null) {
@@ -177,11 +215,11 @@ class AuthController extends StateNotifier<AuthState> {
   Future<void> signInWithGoogle() async {
     state = const AuthLoading();
     try {
-      print('🔧 AuthController: Starting Google Sign-In');
+      Logger.info('🔧 AuthController: Starting Google Sign-In');
       final result = await _authService.signInWithGoogle();
 
       if (result?.user != null) {
-        print(
+        Logger.info(
           '✅ AuthController: Google Sign-In successful for ${result!.user!.uid}',
         );
 
@@ -197,11 +235,13 @@ class AuthController extends StateNotifier<AuthState> {
           try {
             userProfile = await _authService.getUserProfile(result.user!.uid);
             if (userProfile != null) {
-              print('✅ AuthController: User profile loaded successfully');
+              Logger.info('✅ AuthController: User profile loaded successfully');
               break;
             }
           } catch (e) {
-            print('⚠️ AuthController: Attempt ${retryCount + 1} failed: $e');
+            Logger.info(
+              '⚠️ AuthController: Attempt ${retryCount + 1} failed: $e',
+            );
           }
 
           retryCount++;
@@ -223,7 +263,7 @@ class AuthController extends StateNotifier<AuthState> {
 
           state = AuthAuthenticated(userProfile.toEntity());
         } else {
-          print(
+          Logger.info(
             '❌ AuthController: Could not load user profile after $maxRetries attempts',
           );
           // For new Google users, the profile might not exist yet - this is OK
@@ -234,11 +274,11 @@ class AuthController extends StateNotifier<AuthState> {
         }
       } else {
         // User canceled sign-in
-        print('⚠️ AuthController: User canceled Google Sign-In');
+        Logger.info('⚠️ AuthController: User canceled Google Sign-In');
         state = const AuthUnauthenticated();
       }
     } catch (e) {
-      print('❌ AuthController: Google Sign-In error: $e');
+      Logger.info('❌ AuthController: Google Sign-In error: $e');
       state = AuthError('Google Sign-In failed: ${e.toString()}');
     }
   }

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../../../core/services/firestore_service.dart';
-import '../../../../core/config/get_it_config.dart';
 
 class AuthDebugPage extends ConsumerStatefulWidget {
   const AuthDebugPage({super.key});
@@ -13,7 +11,6 @@ class AuthDebugPage extends ConsumerStatefulWidget {
 }
 
 class _AuthDebugPageState extends ConsumerState<AuthDebugPage> {
-  final FirestoreService _firestoreService = getIt<FirestoreService>();
   String _debugOutput = '';
   bool _isLoading = false;
 

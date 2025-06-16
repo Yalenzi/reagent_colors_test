@@ -176,7 +176,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          bottom: BorderSide(color: theme.colorScheme.outline.withOpacity(0.2)),
+          bottom: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
         ),
       ),
       child: Column(
@@ -492,7 +492,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
               flex: 3,
               child: LinearProgressIndicator(
                 value: entry.value / total,
-                backgroundColor: theme.colorScheme.surfaceVariant,
+                backgroundColor: theme.colorScheme.surfaceContainerHighest,
                 valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary),
               ),
             ),

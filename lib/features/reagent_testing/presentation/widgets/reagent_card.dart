@@ -63,16 +63,16 @@ class ReagentCard extends StatelessWidget {
     Color iconBackgroundColor;
     switch (reagent.safetyLevel.toUpperCase()) {
       case 'EXTREME':
-        iconBackgroundColor = Colors.red.withOpacity(0.1);
+        iconBackgroundColor = Colors.red.withValues(alpha: 0.1);
         break;
       case 'HIGH':
-        iconBackgroundColor = Colors.orange.withOpacity(0.1);
+        iconBackgroundColor = Colors.orange.withValues(alpha: 0.1);
         break;
       case 'MEDIUM':
-        iconBackgroundColor = Colors.yellow.withOpacity(0.1);
+        iconBackgroundColor = Colors.yellow.withValues(alpha: 0.1);
         break;
       default:
-        iconBackgroundColor = Colors.grey.withOpacity(0.1);
+        iconBackgroundColor = Colors.grey.withValues(alpha: 0.1);
     }
 
     return Container(
@@ -113,7 +113,7 @@ class ReagentCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity(0.15),
+        color: badgeColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

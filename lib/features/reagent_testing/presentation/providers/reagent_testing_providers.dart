@@ -3,6 +3,7 @@ import '../../data/repositories/reagent_testing_repository_impl.dart';
 import '../../data/repositories/test_result_history_repository.dart';
 import '../../data/services/json_data_service.dart';
 import '../../data/services/remote_config_service.dart';
+import '../../../../core/utils/logger.dart';
 import '../../domain/repositories/reagent_testing_repository.dart';
 import '../controllers/reagent_testing_controller.dart';
 import '../controllers/test_execution_controller.dart';
@@ -61,13 +62,13 @@ Future<void> _initializeRemoteConfig(
 
     // Listen for real-time updates
     jsonDataService.onDataUpdated().listen((_) {
-      print('🔄 Reagent data updated from Remote Config, reloading...');
+      Logger.info('🔄 Reagent data updated from Remote Config, reloading...');
       controller.loadAllReagents();
     });
 
-    print('✅ Remote Config initialization complete');
+    Logger.info('✅ Remote Config initialization complete');
   } catch (e) {
-    print('⚠️ Remote Config initialization failed, using local data: $e');
+    Logger.info('⚠️ Remote Config initialization failed, using local data: $e');
     // Still load local data as fallback
     controller.loadAllReagents();
   }

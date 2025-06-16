@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/test_result_history_repository.dart';
 import '../../domain/entities/test_result_entity.dart';
 import '../states/test_result_history_state.dart';
+import '../../../../core/utils/logger.dart';
 
 class TestResultHistoryController
     extends StateNotifier<TestResultHistoryState> {
@@ -165,9 +166,11 @@ class TestResultHistoryController
       // Reload results for current user
       await loadTestResults();
 
-      print('✅ TestResultHistoryController: Data cleared and refreshed');
+      Logger.info('✅ TestResultHistoryController: Data cleared and refreshed');
     } catch (e) {
-      print('❌ TestResultHistoryController: Failed to clear and refresh: $e');
+      Logger.info(
+        '❌ TestResultHistoryController: Failed to clear and refresh: $e',
+      );
       state = TestResultHistoryError(message: e.toString());
     }
   }

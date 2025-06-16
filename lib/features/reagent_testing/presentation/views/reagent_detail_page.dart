@@ -111,7 +111,9 @@ class ReagentDetailPage extends ConsumerWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -139,7 +141,9 @@ class ReagentDetailPage extends ConsumerWidget {
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceVariant.withOpacity(0.5),
+                    color: theme.colorScheme.surfaceContainerHighest.withValues(
+                      alpha: 0.5,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -242,9 +246,11 @@ class ReagentDetailPage extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: theme.colorScheme.error.withOpacity(0.05),
+            color: theme.colorScheme.error.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: theme.colorScheme.error.withOpacity(0.3)),
+            border: Border.all(
+              color: theme.colorScheme.error.withValues(alpha: 0.3),
+            ),
           ),
           child: Column(
             children: mandatoryRequirements
@@ -305,9 +311,9 @@ class ReagentDetailPage extends ConsumerWidget {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.05),
+            color: Colors.orange.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.orange.withOpacity(0.3)),
+            border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
           ),
           child: Column(
             children: reagent.equipment
@@ -351,9 +357,11 @@ class ReagentDetailPage extends ConsumerWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: theme.colorScheme.error.withOpacity(0.05),
+        color: theme.colorScheme.error.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: theme.colorScheme.error.withOpacity(0.3)),
+        border: Border.all(
+          color: theme.colorScheme.error.withValues(alpha: 0.3),
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,32 +424,26 @@ class ReagentDetailPage extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 8),
-        ...items
-            .map(
-              (item) => Padding(
-                padding: const EdgeInsets.only(bottom: 4, left: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '•  ',
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        item,
-                        style: TextStyle(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ),
-                  ],
+        ...items.map(
+          (item) => Padding(
+            padding: const EdgeInsets.only(bottom: 4, left: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '•  ',
+                  style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
                 ),
-              ),
-            )
-            .toList(),
+                Expanded(
+                  child: Text(
+                    item,
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -461,17 +463,17 @@ class ReagentDetailPage extends ConsumerWidget {
         Wrap(
           spacing: 8,
           runSpacing: 4,
-          children: reagent.chemicals
-              .map(
-                (c) => Chip(
-                  label: Text(c),
-                  backgroundColor: theme.colorScheme.secondaryContainer,
-                  labelStyle: TextStyle(
-                    color: theme.colorScheme.onSecondaryContainer,
-                  ),
+          children: [
+            ...reagent.chemicals.map(
+              (c) => Chip(
+                label: Text(c),
+                backgroundColor: theme.colorScheme.secondaryContainer,
+                labelStyle: TextStyle(
+                  color: theme.colorScheme.onSecondaryContainer,
                 ),
-              )
-              .toList(),
+              ),
+            ),
+          ],
         ),
       ],
     );
@@ -506,17 +508,10 @@ class ReagentDetailPage extends ConsumerWidget {
               ],
             ),
             const SizedBox(height: 16),
-            ...reagent.instructions
-                .asMap()
-                .entries
-                .map(
-                  (entry) => _buildInstructionStep(
-                    context,
-                    entry.key + 1,
-                    entry.value,
-                  ),
-                )
-                .toList(),
+            ...reagent.instructions.asMap().entries.map(
+              (entry) =>
+                  _buildInstructionStep(context, entry.key + 1, entry.value),
+            ),
           ],
         ),
       ),
@@ -566,7 +561,7 @@ class ReagentDetailPage extends ConsumerWidget {
     final theme = Theme.of(context);
     return Card(
       elevation: 0,
-      color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+      color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -626,7 +621,7 @@ class ReagentDetailPage extends ConsumerWidget {
         color: theme.colorScheme.surface,
         border: Border(
           top: BorderSide(
-            color: theme.colorScheme.outline.withOpacity(0.2),
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -641,10 +636,10 @@ class ReagentDetailPage extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(vertical: 16),
             backgroundColor: isAcknowledged
                 ? theme.colorScheme.primary
-                : theme.colorScheme.onSurface.withOpacity(0.12),
+                : theme.colorScheme.onSurface.withValues(alpha: 0.12),
             foregroundColor: isAcknowledged
                 ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface.withOpacity(0.38),
+                : theme.colorScheme.onSurface.withValues(alpha: 0.38),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),

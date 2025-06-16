@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../widgets/auth_guard.dart';
 import '../../features/profile/presentation/views/profile_page.dart';
-import '../../features/settings/presentation/views/settings_page.dart';
 import '../../features/reagent_testing/presentation/views/reagent_testing_page.dart';
 import '../../features/reagent_testing/presentation/views/test_result_history_page.dart';
-import '../widgets/auth_guard.dart';
-import '../../features/auth/presentation/controllers/auth_controller.dart';
-import '../../features/auth/presentation/states/auth_state.dart';
+import '../../features/settings/presentation/views/settings_page.dart';
 
 class MainNavigationPage extends ConsumerStatefulWidget {
   const MainNavigationPage({super.key});

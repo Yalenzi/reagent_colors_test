@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/test_result_entity.dart';
+import '../../../../core/utils/logger.dart';
 
 class TestResultHistoryRepository {
   static const String _localStorageKey = 'test_result_history';
@@ -41,7 +42,7 @@ class TestResultHistoryRepository {
         'displayName': user.displayName ?? 'Anonymous',
         'createdAt': FieldValue.serverTimestamp(),
       });
-      print('✅ User document created for ${user.email}');
+      Logger.info('✅ User document created for ${user.email}');
     }
   }
 
@@ -70,7 +71,7 @@ class TestResultHistoryRepository {
         } catch (firestoreError) {
           // If Firestore fails, log the error but don't throw
           // The result is still saved locally
-          print('Warning: Failed to save to Firestore: $firestoreError');
+          Logger.info('Warning: Failed to save to Firestore: $firestoreError');
         }
       }
     } catch (e) {
@@ -113,7 +114,7 @@ class TestResultHistoryRepository {
           )
           .toList();
     } catch (e) {
-      print('Failed to load Firestore test results: $e');
+      Logger.info('Failed to load Firestore test results: $e');
       return [];
     }
   }
@@ -125,33 +126,33 @@ class TestResultHistoryRepository {
 
       // If user is authenticated, show only Firestore results
       if (user?.email != null) {
-        print(
+        Logger.info(
           '🔧 User authenticated (${user!.email}), loading results from Firestore only',
         );
         final firestoreResults = await getFirestoreTestResults();
-        print(
+        Logger.info(
           '🔧 Loaded ${firestoreResults.length} results from Firestore for ${user.email}',
         );
         return firestoreResults;
       } else {
         // If user is not authenticated, show empty results (no local fallback)
-        print('🔧 User not authenticated, returning empty results');
+        Logger.info('🔧 User not authenticated, returning empty results');
         return [];
       }
     } catch (e) {
-      print('⚠️ Failed to load from Firestore: $e');
+      Logger.info('⚠️ Failed to load from Firestore: $e');
 
       // Check if user is still authenticated
       final user = _auth.currentUser;
       if (user?.email != null) {
         // User is authenticated but Firestore failed - return empty instead of local fallback
-        print(
+        Logger.info(
           '🔧 User authenticated but Firestore failed, returning empty results to prevent data bleeding',
         );
         return [];
       } else {
         // User not authenticated - return empty
-        print(
+        Logger.info(
           '🔧 User not authenticated and Firestore failed, returning empty results',
         );
         return [];
@@ -169,12 +170,12 @@ class TestResultHistoryRepository {
         final testsRef = _testsRef;
         if (testsRef != null) {
           await testsRef.doc(testResultId).delete();
-          print('✅ Deleted test result from Firestore: $testResultId');
+          Logger.info('✅ Deleted test result from Firestore: $testResultId');
         }
       } else {
         // User not authenticated - delete from local storage
         await _removeFromLocalStorage(testResultId);
-        print('✅ Deleted test result from local storage: $testResultId');
+        Logger.info('✅ Deleted test result from local storage: $testResultId');
       }
     } catch (e) {
       throw Exception('Failed to delete test result: $e');
@@ -197,13 +198,13 @@ class TestResultHistoryRepository {
             batch.delete(doc.reference);
           }
           await batch.commit();
-          print('✅ Cleared all test results from Firestore');
+          Logger.info('✅ Cleared all test results from Firestore');
         }
       } else {
         // User not authenticated - clear local storage only
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove(_localStorageKey);
-        print('✅ Cleared all test results from local storage');
+        Logger.info('✅ Cleared all test results from local storage');
       }
     } catch (e) {
       throw Exception('Failed to clear test results: $e');
@@ -250,7 +251,7 @@ class TestResultHistoryRepository {
     data['createdAt'] = FieldValue.serverTimestamp();
 
     await testsRef.doc(customId).set(data);
-    print('✅ Test result saved with ID: $customId');
+    Logger.info('✅ Test result saved with ID: $customId');
   }
 
   // Private method to remove from local storage
@@ -265,41 +266,6 @@ class TestResultHistoryRepository {
     );
 
     await prefs.setString(_localStorageKey, jsonString);
-  }
-
-  // Get combined results with proper deduplication (for internal use)
-  Future<List<TestResultEntity>> _getCombinedResults() async {
-    try {
-      final localResults = await getLocalTestResults();
-      final firestoreResults = await getFirestoreTestResults();
-
-      // Combine and deduplicate by timestamp and reagent (more robust than ID)
-      final Map<String, TestResultEntity> resultMap = {};
-
-      // Create unique keys based on reagent name and test time
-      String createKey(TestResultEntity result) {
-        return '${result.reagentName}_${result.testCompletedAt.millisecondsSinceEpoch}';
-      }
-
-      // Add local results first
-      for (final result in localResults) {
-        final key = createKey(result);
-        resultMap[key] = result;
-      }
-
-      // Add Firestore results (will override local if same key)
-      for (final result in firestoreResults) {
-        final key = createKey(result);
-        resultMap[key] = result;
-      }
-
-      final combinedResults = resultMap.values.toList()
-        ..sort((a, b) => b.testCompletedAt.compareTo(a.testCompletedAt));
-
-      return combinedResults;
-    } catch (e) {
-      throw Exception('Failed to combine results: $e');
-    }
   }
 
   // Sync local results to Firestore (useful for offline-first approach)
@@ -328,7 +294,7 @@ class TestResultHistoryRepository {
       }).toList();
 
       if (resultsToSync.isEmpty) {
-        print('✅ All local results already synced to Firestore');
+        Logger.info('✅ All local results already synced to Firestore');
         return;
       }
 
@@ -348,7 +314,7 @@ class TestResultHistoryRepository {
       }
 
       await batch.commit();
-      print('✅ Synced ${resultsToSync.length} new results to Firestore');
+      Logger.info('✅ Synced ${resultsToSync.length} new results to Firestore');
     } catch (e) {
       throw Exception('Failed to sync results to Firestore: $e');
     }
@@ -376,7 +342,7 @@ class TestResultHistoryRepository {
           )
           .toList();
     } catch (e) {
-      print('Failed to load test results by reagent: $e');
+      Logger.info('Failed to load test results by reagent: $e');
       return [];
     }
   }
@@ -411,7 +377,7 @@ class TestResultHistoryRepository {
           )
           .toList();
     } catch (e) {
-      print('Failed to load test results by date range: $e');
+      Logger.info('Failed to load test results by date range: $e');
       return [];
     }
   }
@@ -438,7 +404,7 @@ class TestResultHistoryRepository {
       }).toList();
 
       if (newResults.isEmpty) {
-        print('✅ No new results to sync');
+        Logger.info('✅ No new results to sync');
         return;
       }
 
@@ -466,7 +432,7 @@ class TestResultHistoryRepository {
         DateTime.now().millisecondsSinceEpoch,
       );
 
-      print(
+      Logger.info(
         '✅ Synced ${newResults.length} new results to Firestore (cost-optimized)',
       );
     } catch (e) {
@@ -494,7 +460,7 @@ class TestResultHistoryRepository {
     if (cachedResults != null &&
         cacheTimestamp != null &&
         DateTime.now().difference(cacheTimestamp) < _cacheExpiry) {
-      print('Returning cached results (cost: \$0.00)');
+      Logger.info('Returning cached results (cost: \$0.00)');
       return cachedResults;
     }
 
@@ -531,7 +497,7 @@ class TestResultHistoryRepository {
 
       final querySnapshot = await query.get();
 
-      print('Paginated query cost: ${querySnapshot.docs.length} reads');
+      Logger.info('Paginated query cost: ${querySnapshot.docs.length} reads');
 
       return querySnapshot.docs
           .map(
@@ -542,7 +508,7 @@ class TestResultHistoryRepository {
           )
           .toList();
     } catch (e) {
-      print('Failed to load paginated results: $e');
+      Logger.info('Failed to load paginated results: $e');
       return [];
     }
   }
@@ -563,7 +529,9 @@ class TestResultHistoryRepository {
           .orderBy('testCompletedAt', descending: true)
           .get();
 
-      print('Recent results query cost: ${querySnapshot.docs.length} reads');
+      Logger.info(
+        'Recent results query cost: ${querySnapshot.docs.length} reads',
+      );
 
       return querySnapshot.docs
           .map(
@@ -574,7 +542,7 @@ class TestResultHistoryRepository {
           )
           .toList();
     } catch (e) {
-      print('Failed to load recent results: $e');
+      Logger.info('Failed to load recent results: $e');
       return [];
     }
   }
@@ -588,11 +556,11 @@ class TestResultHistoryRepository {
       final countQuery = testsRef.count();
       final snapshot = await countQuery.get();
 
-      print('🔢 Count query cost: 1 read operation');
+      Logger.info('🔢 Count query cost: 1 read operation');
 
       return snapshot.count ?? 0;
     } catch (e) {
-      print('Failed to get results count: $e');
+      Logger.info('Failed to get results count: $e');
       return 0;
     }
   }
@@ -606,7 +574,7 @@ class TestResultHistoryRepository {
       // Queue for background sync instead of immediate Firestore write
       await _queueForBackgroundSync(testResult);
 
-      print('💾 Saved locally, queued for sync (immediate cost: \$0.00)');
+      Logger.info('💾 Saved locally, queued for sync (immediate cost: \$0.00)');
     } catch (e) {
       throw Exception('Failed to save test result offline-first: $e');
     }
@@ -666,7 +634,9 @@ class TestResultHistoryRepository {
         }
 
         await batch.commit();
-        print('📦 Synced batch ${i ~/ batchSize + 1}: ${endIndex - i} writes');
+        Logger.info(
+          '📦 Synced batch ${i ~/ batchSize + 1}: ${endIndex - i} writes',
+        );
       }
 
       // Clear the queue after successful sync
@@ -680,9 +650,9 @@ class TestResultHistoryRepository {
         _cacheTimestamps.remove(cacheKey);
       }
 
-      print('✅ Processed ${queuedItems.length} queued items');
+      Logger.info('✅ Processed ${queuedItems.length} queued items');
     } catch (e) {
-      print('Failed to process sync queue: $e');
+      Logger.info('Failed to process sync queue: $e');
     }
   }
 
@@ -702,12 +672,12 @@ class TestResultHistoryRepository {
           _queryCache.remove(cacheKey);
           _cacheTimestamps.remove(cacheKey);
 
-          print('🗑️ Deleted from Firestore (cost: 1 delete)');
+          Logger.info('🗑️ Deleted from Firestore (cost: 1 delete)');
         }
       } else {
         // Delete from local storage
         await _removeFromLocalStorage(testResultId);
-        print('🗑️ Deleted from local storage (cost: \$0.00)');
+        Logger.info('🗑️ Deleted from local storage (cost: \$0.00)');
       }
     } catch (e) {
       throw Exception('Failed to delete test result: $e');
@@ -732,9 +702,9 @@ class TestResultHistoryRepository {
       _queryCache.clear();
       _cacheTimestamps.clear();
 
-      print('✅ All local storage cleared for user switch/logout');
+      Logger.info('✅ All local storage cleared for user switch/logout');
     } catch (e) {
-      print('❌ Failed to clear local storage: $e');
+      Logger.info('❌ Failed to clear local storage: $e');
       throw Exception('Failed to clear local storage: $e');
     }
   }

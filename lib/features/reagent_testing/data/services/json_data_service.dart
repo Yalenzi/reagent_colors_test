@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import '../models/reagent_model.dart';
-import '../models/drug_result_model.dart';
 import 'remote_config_service.dart';
+import '../../../../core/utils/logger.dart';
 
 class JsonDataService {
   static const List<String> _reagentFiles = [
@@ -31,9 +31,9 @@ class JsonDataService {
   Future<void> initialize() async {
     try {
       await _remoteConfigService.initialize();
-      print('✅ JsonDataService initialized with Remote Config');
+      Logger.info('✅ JsonDataService initialized with Remote Config');
     } catch (e) {
-      print(
+      Logger.info(
         '⚠️ Remote Config initialization failed, will use local assets: $e',
       );
     }
@@ -44,10 +44,10 @@ class JsonDataService {
     try {
       // Try Remote Config first
       if (_remoteConfigService.hasReagentData()) {
-        print('📡 Loading reagents from Remote Config...');
+        Logger.info('📡 Loading reagents from Remote Config...');
         final remoteReagents = await _remoteConfigService.getReagents();
         if (remoteReagents.isNotEmpty) {
-          print(
+          Logger.info(
             '✅ Loaded ${remoteReagents.length} reagents from Remote Config',
           );
           return remoteReagents;
@@ -55,10 +55,10 @@ class JsonDataService {
       }
 
       // Fallback to local assets
-      print('📁 Falling back to local asset files...');
+      Logger.info('📁 Falling back to local asset files...');
       return await _loadReagentsFromAssets();
     } catch (e) {
-      print('❌ Error in loadAllReagents: $e');
+      Logger.info('❌ Error in loadAllReagents: $e');
       // Final fallback to local assets
       return await _loadReagentsFromAssets();
     }
@@ -75,16 +75,16 @@ class JsonDataService {
           reagents.add(reagent);
         }
       } catch (e) {
-        print('Error loading reagent from $filePath: $e');
+        Logger.info('Error loading reagent from $filePath: $e');
         // Continue loading other reagents even if one fails
       }
     }
 
     // If no reagents loaded from files, return empty list
     if (reagents.isEmpty) {
-      print('⚠️ No reagents loaded from assets');
+      Logger.info('⚠️ No reagents loaded from assets');
     } else {
-      print('✅ Loaded ${reagents.length} reagents from local assets');
+      Logger.info('✅ Loaded ${reagents.length} reagents from local assets');
     }
 
     return reagents;
@@ -99,16 +99,16 @@ class JsonDataService {
           reagentName,
         );
         if (remoteReagent != null) {
-          print('✅ Loaded $reagentName from Remote Config');
+          Logger.info('✅ Loaded $reagentName from Remote Config');
           return remoteReagent;
         }
       }
 
       // Fallback to local assets
-      print('📁 Loading $reagentName from local assets...');
+      Logger.info('📁 Loading $reagentName from local assets...');
       return await _loadReagentFromAssetsByName(reagentName);
     } catch (e) {
-      print('❌ Error loading reagent $reagentName: $e');
+      Logger.info('❌ Error loading reagent $reagentName: $e');
       return await _loadReagentFromAssetsByName(reagentName);
     }
   }
@@ -122,7 +122,7 @@ class JsonDataService {
     try {
       return await _loadReagentFromFile(filePath);
     } catch (e) {
-      print('Error loading reagent $reagentName from assets: $e');
+      Logger.info('Error loading reagent $reagentName from assets: $e');
       return null;
     }
   }
@@ -130,24 +130,30 @@ class JsonDataService {
   /// Private method to load reagent from a specific file
   Future<ReagentModel?> _loadReagentFromFile(String filePath) async {
     try {
-      print('🔄 Attempting to load asset: $filePath');
+      Logger.info('🔄 Attempting to load asset: $filePath');
       final String jsonString = await rootBundle.loadString(filePath);
-      print('✅ Asset loaded successfully: ${jsonString.substring(0, 100)}...');
+      Logger.info(
+        '✅ Asset loaded successfully: ${jsonString.substring(0, 100)}...',
+      );
 
       final Map<String, dynamic> jsonData = json.decode(jsonString);
-      print('✅ JSON parsed successfully for: ${jsonData['reagentName']}');
+      Logger.info('✅ JSON parsed successfully for: ${jsonData['reagentName']}');
 
       final reagent = ReagentModel.fromJson(jsonData);
-      print('✅ ReagentModel created successfully: ${reagent.reagentName}');
+      Logger.info(
+        '✅ ReagentModel created successfully: ${reagent.reagentName}',
+      );
 
       return reagent;
     } catch (e, stackTrace) {
-      print('❌ Error loading/parsing $filePath: $e');
-      print('📍 Stack trace: $stackTrace');
+      Logger.info('❌ Error loading/parsing $filePath: $e');
+      Logger.info('📍 Stack trace: $stackTrace');
 
       // Show user-friendly debug message
-      print('Debug: Asset loading failed: Unable to load asset: "$filePath".');
-      print('The asset does not exist or has empty data.');
+      Logger.info(
+        'Debug: Asset loading failed: Unable to load asset: "$filePath".',
+      );
+      Logger.info('The asset does not exist or has empty data.');
 
       return null;
     }
@@ -158,11 +164,11 @@ class JsonDataService {
     try {
       final updated = await _remoteConfigService.fetchAndActivate();
       if (updated) {
-        print('✅ Remote Config data refreshed successfully');
+        Logger.info('✅ Remote Config data refreshed successfully');
       }
       return updated;
     } catch (e) {
-      print('❌ Error refreshing Remote Config: $e');
+      Logger.info('❌ Error refreshing Remote Config: $e');
       return false;
     }
   }
@@ -245,7 +251,7 @@ class JsonDataService {
   /// Listen for real-time Remote Config updates
   Stream<void> onDataUpdated() async* {
     await for (final update in _remoteConfigService.onConfigUpdated()) {
-      print('🔄 Remote Config updated: ${update.updatedKeys}');
+      Logger.info('🔄 Remote Config updated: ${update.updatedKeys}');
       if (update.updatedKeys.contains('reagent_data') ||
           update.updatedKeys.contains('available_reagents')) {
         // Activate the new config

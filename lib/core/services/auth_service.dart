@@ -3,6 +3,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/data/models/user_model.dart';
 import 'firestore_service.dart';
+import '../utils/logger.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -69,9 +70,11 @@ class AuthService {
 
       // Create user profile in Firestore
       if (result.user != null) {
-        print('🔧 AuthService: Creating user profile for ${result.user!.uid}');
-        print('🔧 AuthService: User email: ${result.user!.email}');
-        print('🔧 AuthService: Username: $username');
+        Logger.info(
+          '🔧 AuthService: Creating user profile for ${result.user!.uid}',
+        );
+        Logger.info('🔧 AuthService: User email: ${result.user!.email}');
+        Logger.info('🔧 AuthService: Username: $username');
 
         try {
           final userModel = UserModel.fromFirebaseUser(
@@ -87,20 +90,20 @@ class AuthService {
             timezone: timezone,
           );
 
-          print('🔧 AuthService: User model created successfully');
-          print(
+          Logger.info('🔧 AuthService: User model created successfully');
+          Logger.info(
             '🔧 AuthService: Calling FirestoreService.createUserProfile...',
           );
 
           await _firestoreService.createUserProfile(userModel);
-          print(
+          Logger.info(
             '✅ AuthService: User profile created successfully in Firestore',
           );
         } catch (e, stackTrace) {
-          print('❌ AuthService: Error creating user profile: $e');
-          print('❌ AuthService: Stack trace: $stackTrace');
+          Logger.info('❌ AuthService: Error creating user profile: $e');
+          Logger.info('❌ AuthService: Stack trace: $stackTrace');
           // Don't throw here, let the user be created in Auth even if Firestore fails
-          print(
+          Logger.info(
             '⚠️ AuthService: User created in Firebase Auth but Firestore profile creation failed',
           );
         }
@@ -143,7 +146,7 @@ class AuthService {
       // Check if this is a new user and create profile if needed
       if (result.user != null) {
         // First, check if user profile exists in Firestore
-        print(
+        Logger.info(
           '🔧 AuthService: Checking if user profile exists for ${result.user!.uid}',
         );
         final existingProfile = await _firestoreService.getUserProfile(
@@ -152,10 +155,10 @@ class AuthService {
 
         if (existingProfile == null) {
           // No profile exists - create one (could be new or existing user without profile)
-          print(
+          Logger.info(
             '🔧 AuthService: No profile found, creating profile for ${result.user!.uid}',
           );
-          print('🔧 AuthService: User email: ${result.user!.email}');
+          Logger.info('🔧 AuthService: User email: ${result.user!.email}');
 
           // 🔥 CRITICAL: Clear any existing local data before creating new user profile
           await _clearAllLocalData();
@@ -165,7 +168,7 @@ class AuthService {
             String username = _generateUsernameFromDisplayName(
               result.user!.displayName ?? result.user!.email ?? '',
             );
-            print('🔧 AuthService: Generated username: $username');
+            Logger.info('🔧 AuthService: Generated username: $username');
 
             final userModel = UserModel.fromFirebaseUser(
               uid: result.user!.uid,
@@ -178,23 +181,25 @@ class AuthService {
               signInMethods: ['google.com'],
             );
 
-            print(
+            Logger.info(
               '🔧 AuthService: User model created, calling FirestoreService.createUserProfile...',
             );
             await _firestoreService.createUserProfile(userModel);
-            print(
+            Logger.info(
               '✅ AuthService: Google user profile created successfully in Firestore',
             );
           } catch (e, stackTrace) {
-            print('❌ AuthService: Error creating Google user profile: $e');
-            print('❌ AuthService: Stack trace: $stackTrace');
+            Logger.info(
+              '❌ AuthService: Error creating Google user profile: $e',
+            );
+            Logger.info('❌ AuthService: Stack trace: $stackTrace');
             // Don't throw here, let the user be signed in even if Firestore fails
-            print(
+            Logger.info(
               '⚠️ AuthService: Google user signed in but Firestore profile creation failed',
             );
           }
         } else {
-          print(
+          Logger.info(
             '🔧 AuthService: Existing Google user with profile, updating last sign-in time',
           );
 
@@ -244,9 +249,9 @@ class AuthService {
       // Clear last sync timestamp
       await prefs.remove('last_firestore_sync');
 
-      print('✅ AuthService: All local data cleared on logout');
+      Logger.info('✅ AuthService: All local data cleared on logout');
     } catch (e) {
-      print('❌ AuthService: Failed to clear local data: $e');
+      Logger.info('❌ AuthService: Failed to clear local data: $e');
       // Don't throw error, logout should still proceed
     }
   }
@@ -321,7 +326,7 @@ class AuthService {
     try {
       await _firestoreService.updateUserLastSignIn(uid);
     } catch (e) {
-      print('⚠️ AuthService: Failed to update last sign-in time: $e');
+      Logger.info('⚠️ AuthService: Failed to update last sign-in time: $e');
     }
   }
 

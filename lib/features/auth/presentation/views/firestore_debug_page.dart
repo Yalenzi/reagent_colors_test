@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 import '../../../../core/services/firestore_service.dart';
-import '../../../../core/services/auth_service.dart';
 import '../../../../core/config/get_it_config.dart';
 import '../../data/models/user_model.dart';
+import '../../../../core/utils/logger.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class FirestoreDebugPage extends ConsumerStatefulWidget {
@@ -16,7 +16,6 @@ class FirestoreDebugPage extends ConsumerStatefulWidget {
 
 class _FirestoreDebugPageState extends ConsumerState<FirestoreDebugPage> {
   final FirestoreService _firestoreService = getIt<FirestoreService>();
-  final AuthService _authService = getIt<AuthService>();
   String _debugOutput = '';
   bool _isLoading = false;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -32,130 +31,6 @@ class _FirestoreDebugPageState extends ConsumerState<FirestoreDebugPage> {
     setState(() {
       _debugOutput += '$message\n';
     });
-  }
-
-  Future<void> _testUserProfileCreation() async {
-    setState(() {
-      _isLoading = true;
-      _debugOutput = '';
-    });
-
-    try {
-      _addDebugMessage('🔍 Starting user profile creation test...');
-
-      // Check current user
-      final currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser == null) {
-        _addDebugMessage('❌ No authenticated user found');
-        return;
-      }
-
-      _addDebugMessage(
-        '✅ Current user: ${currentUser.email} (${currentUser.uid})',
-      );
-
-      // Check if user profile already exists
-      _addDebugMessage('🔍 Checking if user profile exists...');
-      final existingProfile = await _firestoreService.getUserProfile(
-        currentUser.uid,
-      );
-
-      if (existingProfile != null) {
-        _addDebugMessage('✅ User profile already exists:');
-        _addDebugMessage('   - Email: ${existingProfile.email}');
-        _addDebugMessage('   - Username: ${existingProfile.username}');
-        _addDebugMessage('   - Registered: ${existingProfile.registeredAt}');
-      } else {
-        _addDebugMessage('❌ No user profile found in Firestore');
-
-        // Try to create user profile manually
-        _addDebugMessage('🔧 Attempting to create user profile...');
-
-        final userModel = UserModel(
-          uid: currentUser.uid,
-          email: currentUser.email ?? '',
-          username: 'debug_user_${DateTime.now().millisecondsSinceEpoch}',
-          registeredAt: DateTime.now(),
-          photoUrl: currentUser.photoURL,
-          displayName: currentUser.displayName,
-          isEmailVerified: currentUser.emailVerified,
-        );
-
-        await _firestoreService.createUserProfile(userModel);
-        _addDebugMessage('✅ User profile created successfully!');
-
-        // Verify it was created
-        final verifyProfile = await _firestoreService.getUserProfile(
-          currentUser.uid,
-        );
-        if (verifyProfile != null) {
-          _addDebugMessage('✅ Profile verification successful');
-        } else {
-          _addDebugMessage('❌ Profile verification failed');
-        }
-      }
-    } catch (e) {
-      _addDebugMessage('❌ Error: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
-  }
-
-  Future<void> _testCreateNewAccount() async {
-    setState(() {
-      _isLoading = true;
-      _debugOutput = '';
-    });
-
-    try {
-      _addDebugMessage('🔍 Testing new account creation...');
-
-      final testEmail =
-          'test_${DateTime.now().millisecondsSinceEpoch}@example.com';
-      final testUsername = 'testuser${DateTime.now().millisecondsSinceEpoch}';
-      const testPassword = 'password123';
-
-      _addDebugMessage('📧 Creating account: $testEmail');
-      _addDebugMessage('👤 Username: $testUsername');
-
-      // Create account using AuthService
-      final result = await _authService.createUserWithEmailAndPassword(
-        email: testEmail,
-        password: testPassword,
-        username: testUsername,
-      );
-
-      if (result?.user != null) {
-        _addDebugMessage(
-          '✅ Firebase Auth account created: ${result!.user!.uid}',
-        );
-
-        // Wait a moment for Firestore to sync
-        await Future.delayed(const Duration(seconds: 2));
-
-        // Check if profile was created in Firestore
-        final profile = await _firestoreService.getUserProfile(
-          result.user!.uid,
-        );
-        if (profile != null) {
-          _addDebugMessage('✅ Firestore profile created successfully!');
-          _addDebugMessage('   - Email: ${profile.email}');
-          _addDebugMessage('   - Username: ${profile.username}');
-        } else {
-          _addDebugMessage('❌ Firestore profile NOT created');
-        }
-      } else {
-        _addDebugMessage('❌ Failed to create Firebase Auth account');
-      }
-    } catch (e) {
-      _addDebugMessage('❌ Error creating account: $e');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
-    }
   }
 
   Future<void> _loadUsers() async {
@@ -176,7 +51,7 @@ class _FirestoreDebugPageState extends ConsumerState<FirestoreDebugPage> {
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading users: $e');
+      Logger.info('Error loading users: $e');
       setState(() {
         _isLoading = false;
       });
@@ -195,17 +70,17 @@ class _FirestoreDebugPageState extends ConsumerState<FirestoreDebugPage> {
         timezone: 'America/New_York',
       );
 
-      print('🔧 Creating test user with data: ${testUser.toFirestore()}');
+      Logger.info('🔧 Creating test user with data: ${testUser.toFirestore()}');
 
       await _firestore
           .collection('users')
           .doc(testUser.uid)
           .set(testUser.toFirestore());
 
-      print('✅ Test user created successfully');
+      Logger.info('✅ Test user created successfully');
       _loadUsers(); // Reload users
     } catch (e) {
-      print('❌ Error creating test user: $e');
+      Logger.info('❌ Error creating test user: $e');
     }
   }
 

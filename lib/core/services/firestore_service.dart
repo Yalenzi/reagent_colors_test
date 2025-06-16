@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../../features/auth/data/models/user_model.dart';
+import '../utils/logger.dart';
 
 class FirestoreService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -33,20 +35,20 @@ class FirestoreService {
   // Create user profile in Firestore with custom document ID
   Future<void> createUserProfile(UserModel user) async {
     try {
-      print('🔧 FirestoreService: Starting profile creation for ${user.uid}');
-      print('🔧 FirestoreService: Email: ${user.email}');
-      print('🔧 FirestoreService: Username: ${user.username}');
+      Logger.info('🔧 FirestoreService: Starting profile creation for ${user.uid}');
+      Logger.info('🔧 FirestoreService: Email: ${user.email}');
+      Logger.info('🔧 FirestoreService: Username: ${user.username}');
 
       // Generate custom document ID
       final customDocumentId = generateCustomDocumentId(user.username);
-      print('🔧 FirestoreService: Custom document ID: $customDocumentId');
+      Logger.info('🔧 FirestoreService: Custom document ID: $customDocumentId');
 
       final userData = user.toFirestore();
-      print('🔧 FirestoreService: Data to save: $userData');
+      Logger.info('🔧 FirestoreService: Data to save: $userData');
 
       // Check if Firestore is properly initialized
-      print('🔧 FirestoreService: Firestore instance: $_firestore');
-      print('🔧 FirestoreService: Users collection: $_usersCollection');
+      Logger.info('🔧 FirestoreService: Firestore instance: $_firestore');
+      Logger.info('🔧 FirestoreService: Users collection: $_usersCollection');
 
       // Use custom document ID instead of Firebase UID
       await _usersCollection.doc(customDocumentId).set(userData);
@@ -55,12 +57,12 @@ class FirestoreService {
       _userCache[user.uid] = user;
       _cacheTimestamps[user.uid] = DateTime.now();
 
-      print(
+      Logger.info(
         '✅ FirestoreService: Profile created successfully with ID: $customDocumentId',
       );
     } catch (e, stackTrace) {
-      print('❌ FirestoreService: Error creating profile: $e');
-      print('❌ FirestoreService: Stack trace: $stackTrace');
+      Logger.info('❌ FirestoreService: Error creating profile: $e');
+      Logger.info('❌ FirestoreService: Stack trace: $stackTrace');
       throw Exception('Failed to create user profile: $e');
     }
   }
@@ -70,11 +72,11 @@ class FirestoreService {
     try {
       // Check cache first
       if (_isCacheValid(uid) && _userCache.containsKey(uid)) {
-        print('🚀 FirestoreService: Returning cached profile for $uid');
+        Logger.info('🚀 FirestoreService: Returning cached profile for $uid');
         return _userCache[uid];
       }
 
-      print('🔧 FirestoreService: Fetching profile from database for $uid');
+      Logger.info('🔧 FirestoreService: Fetching profile from database for $uid');
 
       // Add small delay to ensure authentication state is established
       await Future.delayed(const Duration(milliseconds: 100));
@@ -94,23 +96,30 @@ class FirestoreService {
         _userCache[uid] = userModel;
         _cacheTimestamps[uid] = DateTime.now();
 
-        print('✅ FirestoreService: Profile cached for $uid');
+        Logger.info('✅ FirestoreService: Profile cached for $uid');
         return userModel;
       }
 
-      print('⚠️ FirestoreService: No profile found for uid: $uid');
+      Logger.info('⚠️ FirestoreService: No profile found for uid: $uid');
       return null;
     } catch (e) {
-      print('❌ FirestoreService: Error getting profile: $e');
+      Logger.info('❌ FirestoreService: Error getting profile: $e');
 
       // If permission denied, it might be an authentication timing issue
       if (e.toString().contains('permission-denied')) {
-        print(
+        Logger.info(
           '🔧 FirestoreService: Permission denied - checking authentication state...',
         );
 
-        // Wait a bit longer and retry once
-        await Future.delayed(const Duration(milliseconds: 500));
+        // Check if user is actually authenticated
+        final currentUser = FirebaseAuth.instance.currentUser;
+        if (currentUser == null) {
+          Logger.info('⚠️ FirestoreService: User not authenticated, returning null');
+          return null;
+        }
+
+        // Wait a bit longer for auth state to propagate and retry once
+        await Future.delayed(const Duration(milliseconds: 1000));
 
         try {
           final retryQuery = await _usersCollection
@@ -122,17 +131,17 @@ class FirestoreService {
             final userModel = UserModel.fromFirestore(retryQuery.docs.first);
             _userCache[uid] = userModel;
             _cacheTimestamps[uid] = DateTime.now();
-            print('✅ FirestoreService: Profile retrieved on retry for $uid');
+            Logger.info('✅ FirestoreService: Profile retrieved on retry for $uid');
             return userModel;
           }
         } catch (retryError) {
-          print('❌ FirestoreService: Retry also failed: $retryError');
+          Logger.info('❌ FirestoreService: Retry also failed: $retryError');
         }
       }
 
       // Don't throw for permission errors during Google Sign-In flow
       if (e.toString().contains('permission-denied')) {
-        print(
+        Logger.info(
           '⚠️ FirestoreService: Returning null due to permission denied (likely timing issue)',
         );
         return null;
@@ -193,83 +202,41 @@ class FirestoreService {
   Future<void> updateUserLastSignIn(String uid) async {
     try {
       // Skip timestamp updates - not needed for app functionality
-      print('FirestoreService: Skipping lastSignInAt update');
+      Logger.info('FirestoreService: Skipping lastSignInAt update');
     } catch (e) {
-      print('❌ FirestoreService: Error updating last sign-in: $e');
+      Logger.info('❌ FirestoreService: Error updating last sign-in: $e');
       rethrow;
     }
-  }
-
-  // Optional: Batch timestamp updates (cost-efficient)
-  Future<void> _updateTimestampsOptimized(String uid) async {
-    try {
-      // Get cached user first to avoid extra query
-      UserModel? cachedUser;
-      if (_isCacheValid(uid) && _userCache.containsKey(uid)) {
-        cachedUser = _userCache[uid];
-      }
-
-      if (cachedUser != null) {
-        // Use direct document access with cached username
-        final customDocumentId = generateCustomDocumentId(cachedUser.username);
-        await _usersCollection.doc(customDocumentId).update({
-          'lastSignInAt': Timestamp.now(),
-          'lastUpdatedAt': Timestamp.now(),
-        });
-
-        // Update cache
-        final updatedUser = cachedUser.copyWith();
-        _userCache[uid] = updatedUser;
-        _cacheTimestamps[uid] = DateTime.now();
-
-        print(
-          '💰 FirestoreService: Batch timestamp update completed (1 write saved)',
-        );
-      }
-    } catch (e) {
-      print('⚠️ FirestoreService: Batch timestamp update failed: $e');
-    }
-  }
-
-  // Cache for timestamp update tracking
-  final Map<String, DateTime> _timestampUpdateCache = {};
-
-  DateTime? _getLastTimestampUpdate(String uid) {
-    return _timestampUpdateCache[uid];
-  }
-
-  void _setLastTimestampUpdate(String uid, DateTime timestamp) {
-    _timestampUpdateCache[uid] = timestamp;
   }
 
   // Check if username is available - REVERTED TO WORKING VERSION
   Future<bool> isUsernameAvailable(String username) async {
     try {
-      print(
+      Logger.info(
         '🔧 FirestoreService: Checking username availability for: "$username"',
       );
 
       // Direct document check using custom document ID
       final customDocumentId = generateCustomDocumentId(username);
-      print('🔧 FirestoreService: Generated document ID: "$customDocumentId"');
+      Logger.info('🔧 FirestoreService: Generated document ID: "$customDocumentId"');
 
       final doc = await _usersCollection
           .doc(customDocumentId)
           .get(const GetOptions(source: Source.serverAndCache));
 
       final isAvailable = !doc.exists;
-      print(
+      Logger.info(
         '🔧 FirestoreService: Document exists: ${doc.exists}, Username available: $isAvailable',
       );
 
       if (doc.exists) {
-        print('🔧 FirestoreService: Existing document data: ${doc.data()}');
+        Logger.info('🔧 FirestoreService: Existing document data: ${doc.data()}');
       }
 
       return isAvailable;
     } catch (e, stackTrace) {
-      print('❌ FirestoreService: Username availability check failed: $e');
-      print('❌ FirestoreService: Stack trace: $stackTrace');
+      Logger.info('❌ FirestoreService: Username availability check failed: $e');
+      Logger.info('❌ FirestoreService: Stack trace: $stackTrace');
       throw Exception('Failed to check username availability: $e');
     }
   }
@@ -325,7 +292,7 @@ class FirestoreService {
   // Debug method to test Firestore connectivity
   Future<void> testFirestoreConnection() async {
     try {
-      print('🔧 FirestoreService: Testing Firestore connection...');
+      Logger.info('🔧 FirestoreService: Testing Firestore connection...');
 
       // Test write
       final testData = {
@@ -335,7 +302,7 @@ class FirestoreService {
       };
 
       await _firestore.collection('test').doc('connection_test').set(testData);
-      print('✅ FirestoreService: Test write successful');
+      Logger.info('✅ FirestoreService: Test write successful');
 
       // Test read
       final doc = await _firestore
@@ -343,16 +310,16 @@ class FirestoreService {
           .doc('connection_test')
           .get();
       if (doc.exists) {
-        print('✅ FirestoreService: Test read successful: ${doc.data()}');
+        Logger.info('✅ FirestoreService: Test read successful: ${doc.data()}');
       } else {
-        print('❌ FirestoreService: Test read failed - document not found');
+        Logger.info('❌ FirestoreService: Test read failed - document not found');
       }
 
       // Clean up test document
       await _firestore.collection('test').doc('connection_test').delete();
-      print('✅ FirestoreService: Test cleanup successful');
+      Logger.info('✅ FirestoreService: Test cleanup successful');
     } catch (e) {
-      print('❌ FirestoreService: Connection test failed: $e');
+      Logger.info('❌ FirestoreService: Connection test failed: $e');
       throw Exception('Firestore connection test failed: $e');
     }
   }

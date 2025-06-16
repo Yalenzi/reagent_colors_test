@@ -1,8 +1,5 @@
 #!/usr/bin/env dart
 
-import 'dart:io';
-import 'dart:convert';
-
 void main() async {
   print('🔄 Firestore Data Structure Migration Tool');
   print('============================================');

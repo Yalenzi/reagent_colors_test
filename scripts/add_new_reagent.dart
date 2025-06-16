@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 /// Script to add a new reagent to the Remote Config data
-/// Usage: dart add_new_reagent.dart <reagent_file.json>
+/// Usage: dart add_new_reagent.dart reagent_file.json
 Future<void> main(List<String> args) async {
   if (args.isEmpty) {
     print('❌ Usage: dart add_new_reagent.dart <reagent_file.json>');

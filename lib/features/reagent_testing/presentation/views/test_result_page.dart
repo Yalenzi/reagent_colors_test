@@ -152,7 +152,7 @@ class TestResultPage extends ConsumerWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
+                color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(testResult.notes!, style: theme.textTheme.bodyMedium),
@@ -175,7 +175,7 @@ class TestResultPage extends ConsumerWidget {
           },
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: theme.colorScheme.surfaceVariant.withOpacity(0.8),
+            backgroundColor: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.8),
             foregroundColor: theme.colorScheme.onSurfaceVariant,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),

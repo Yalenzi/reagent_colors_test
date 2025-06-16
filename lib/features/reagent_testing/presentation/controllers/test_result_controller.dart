@@ -3,6 +3,7 @@ import '../../domain/entities/reagent_entity.dart';
 import '../../domain/entities/test_result_entity.dart';
 import '../states/test_result_state.dart';
 import 'test_result_history_controller.dart';
+import '../../data/models/gemini_analysis_models.dart';
 
 class TestResultController extends StateNotifier<TestResultState> {
   final TestResultHistoryController? _historyController;
@@ -38,6 +39,60 @@ class TestResultController extends StateNotifier<TestResultState> {
       _historyController?.saveTestResult(testResult);
     } catch (e) {
       state = TestResultError(message: 'Failed to analyze test result: $e');
+    }
+  }
+
+  void analyzeTestResultWithAI({
+    required ReagentEntity reagent,
+    required GeminiReagentTestResult aiResult,
+    String? notes,
+  }) {
+    state = const TestResultLoading();
+
+    try {
+      // Convert AI confidence level to percentage
+      int confidencePercentage;
+      switch (aiResult.confidenceLevel.toLowerCase()) {
+        case 'high':
+        case 'very high':
+          confidencePercentage = 90;
+          break;
+        case 'medium':
+        case 'moderate':
+          confidencePercentage = 70;
+          break;
+        case 'low':
+          confidencePercentage = 50;
+          break;
+        default:
+          confidencePercentage = 60;
+      }
+
+      // Use AI-identified substances, or fall back to "AI Analysis" if empty
+      final possibleSubstances = aiResult.identifiedSubstances.isNotEmpty
+          ? aiResult.identifiedSubstances
+          : [
+              aiResult.primarySubstance.isNotEmpty
+                  ? aiResult.primarySubstance
+                  : 'AI Analysis Result',
+            ];
+
+      final testResult = TestResultEntity(
+        id: DateTime.now().millisecondsSinceEpoch.toString(),
+        reagentName: reagent.reagentName,
+        observedColor: aiResult.observedColorDescription,
+        possibleSubstances: possibleSubstances,
+        confidencePercentage: confidencePercentage,
+        notes: notes,
+        testCompletedAt: DateTime.now(),
+      );
+
+      state = TestResultLoaded(testResult: testResult);
+
+      // Save to history if history controller is available
+      _historyController?.saveTestResult(testResult);
+    } catch (e) {
+      state = TestResultError(message: 'Failed to analyze AI test result: $e');
     }
   }
 
