@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import '../../data/repositories/settings_repository_impl.dart';
 import '../../data/services/shared_preferences_service.dart';
 import '../../domain/repositories/settings_repository.dart';
@@ -15,13 +16,15 @@ final sharedPreferencesServiceProvider = Provider<SharedPreferencesService>((
 
 // Repository Providers
 final settingsRepositoryProvider = Provider<SettingsRepository>((ref) {
-  return SettingsRepositoryImpl(ref.read(sharedPreferencesServiceProvider));
+  final sharedPreferencesService = ref.watch(sharedPreferencesServiceProvider);
+  return SettingsRepositoryImpl(sharedPreferencesService);
 });
 
 // Controller Providers
 final settingsControllerProvider =
     StateNotifierProvider<SettingsController, SettingsState>((ref) {
-      return SettingsController(ref.read(settingsRepositoryProvider));
+      final settingsRepository = ref.watch(settingsRepositoryProvider);
+      return SettingsController(settingsRepository);
     });
 
 // Convenience providers for specific settings values
@@ -62,4 +65,12 @@ final vibrationEnabledProvider = Provider<bool>((ref) {
     return settingsState.settings.vibrationEnabled;
   }
   return true; // Default
+});
+
+final localeProvider = StateProvider<Locale>((ref) {
+  final settingsState = ref.watch(settingsControllerProvider);
+  if (settingsState is SettingsLoaded) {
+    return Locale(settingsState.settings.language);
+  }
+  return const Locale('en'); // Default locale
 });

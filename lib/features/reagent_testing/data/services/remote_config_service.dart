@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import '../models/reagent_model.dart';
+import '../models/safety_instructions_model.dart';
 import '../../../../core/utils/logger.dart';
 
 class RemoteConfigService {
   static const String _reagentDataKey = 'reagent_data';
+  static const String _safetyInstructionsKey = 'safety_instructions';
   static const String _availableReagentsKey = 'available_reagents';
   static const String _reagentVersionKey = 'reagent_version';
 
@@ -27,6 +29,7 @@ class RemoteConfigService {
       // Set default values (fallback to local assets)
       await _remoteConfig.setDefaults({
         _reagentDataKey: '{}',
+        _safetyInstructionsKey: '{}',
         _availableReagentsKey: '[]',
         _reagentVersionKey: '1.0.0',
       });
@@ -139,6 +142,72 @@ class RemoteConfigService {
       Logger.info('❌ Error getting available reagent names: $e');
       return [];
     }
+  }
+
+  /// Get all safety instructions from Remote Config
+  Future<Map<String, SafetyInstructionsModel>> getSafetyInstructions() async {
+    try {
+      final String safetyDataJson = _remoteConfig.getString(
+        _safetyInstructionsKey,
+      );
+
+      if (safetyDataJson.isEmpty || safetyDataJson == '{}') {
+        Logger.info(
+          '⚠️ No safety instructions in Remote Config, using fallback',
+        );
+        return {};
+      }
+
+      final Map<String, dynamic> safetyData = json.decode(safetyDataJson);
+      final Map<String, SafetyInstructionsModel> safetyInstructions = {};
+
+      for (final entry in safetyData.entries) {
+        final reagentName = entry.key;
+        final safetyJson = entry.value as Map<String, dynamic>;
+
+        try {
+          final safety = SafetyInstructionsModel.fromJson(
+            reagentName,
+            safetyJson,
+          );
+          safetyInstructions[reagentName] = safety;
+          Logger.info('✅ Loaded safety instructions for: $reagentName');
+        } catch (e) {
+          Logger.info(
+            '❌ Error parsing safety instructions for $reagentName: $e',
+          );
+        }
+      }
+
+      Logger.info(
+        '📋 Loaded safety instructions for ${safetyInstructions.length} reagents',
+      );
+      return safetyInstructions;
+    } catch (e) {
+      Logger.info('❌ Error getting safety instructions from Remote Config: $e');
+      return {};
+    }
+  }
+
+  /// Get safety instructions for a specific reagent
+  Future<SafetyInstructionsModel?> getSafetyInstructionsByReagent(
+    String reagentName,
+  ) async {
+    try {
+      final allSafetyInstructions = await getSafetyInstructions();
+      return allSafetyInstructions[reagentName];
+    } catch (e) {
+      Logger.info('❌ Safety instructions for $reagentName not found: $e');
+      return null;
+    }
+  }
+
+  /// Check if safety instructions data is available in Remote Config
+  bool hasSafetyInstructions() {
+    final String safetyDataJson = _remoteConfig.getString(
+      _safetyInstructionsKey,
+    );
+    return safetyDataJson.isNotEmpty && safetyDataJson != '{}';
   }
 
   /// Listen for real-time config updates

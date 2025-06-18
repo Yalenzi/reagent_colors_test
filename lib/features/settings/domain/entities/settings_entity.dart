@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 class SettingsEntity {
   final ThemeMode themeMode;
   final String language;
@@ -29,6 +31,7 @@ class SettingsEntity {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
+
     return other is SettingsEntity &&
         other.themeMode == themeMode &&
         other.language == language &&
@@ -44,5 +47,3 @@ class SettingsEntity {
         vibrationEnabled.hashCode;
   }
 }
-
-enum ThemeMode { light, dark, system }

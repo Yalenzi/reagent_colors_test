@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
+import '../../domain/entities/reagent_entity.dart';
+import '../controllers/reagent_testing_controller.dart';
 import '../providers/reagent_testing_providers.dart';
 import '../states/reagent_testing_state.dart';
 import '../widgets/reagent_card.dart';
-
 import 'reagent_detail_page.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class ReagentTestingPage extends ConsumerStatefulWidget {
   const ReagentTestingPage({super.key});
@@ -20,6 +21,9 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(reagentTestingControllerProvider.notifier).loadAllReagents();
+    });
   }
 
   @override
@@ -30,12 +34,13 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(reagentTestingControllerProvider);
     final controller = ref.read(reagentTestingControllerProvider.notifier);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('🧪 Reagent Testing'),
+        title: Text(l10n.reagentTesting),
         elevation: 0,
         actions: [
           IconButton(
@@ -46,14 +51,14 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
       ),
       body: Column(
         children: [
-          _buildSearchAndFilter(controller),
-          Expanded(child: _buildContent(state, controller)),
+          _buildSearchAndFilter(controller, l10n),
+          Expanded(child: _buildContent(state, controller, l10n)),
         ],
       ),
     );
   }
 
-  Widget _buildSearchAndFilter(controller) {
+  Widget _buildSearchAndFilter(controller, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -66,15 +71,15 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
           ),
         ],
       ),
-      child: _buildSearchBar(controller),
+      child: _buildSearchBar(controller, l10n),
     );
   }
 
-  Widget _buildSearchBar(controller) {
+  Widget _buildSearchBar(controller, AppLocalizations l10n) {
     return TextField(
       controller: _searchController,
       decoration: InputDecoration(
-        hintText: 'Search reagents...',
+        hintText: l10n.searchReagents,
         prefixIcon: const Icon(Icons.search),
         suffixIcon: _searchController.text.isNotEmpty
             ? IconButton(
@@ -105,21 +110,26 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
     );
   }
 
-  Widget _buildContent(ReagentTestingState state, controller) {
+  Widget _buildContent(
+    ReagentTestingState state,
+    controller,
+    AppLocalizations l10n,
+  ) {
     if (state is ReagentTestingInitial) {
       return _buildInitialState();
     } else if (state is ReagentTestingLoading) {
-      return _buildLoadingState();
+      return _buildLoadingState(l10n);
     } else if (state is ReagentTestingLoaded) {
       return _buildLoadedState(state);
     } else if (state is ReagentTestingError) {
-      return _buildErrorState(state, controller);
+      return _buildErrorState(state, controller, l10n);
     } else if (state is ReagentTestingEmpty) {
-      return _buildEmptyState(state, controller);
+      return _buildEmptyState(state, controller, l10n);
     } else {
       return _buildErrorState(
         const ReagentTestingError('Unknown state'),
         controller,
+        l10n,
       );
     }
   }
@@ -140,14 +150,14 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
     );
   }
 
-  Widget _buildLoadingState() {
-    return const Center(
+  Widget _buildLoadingState(AppLocalizations l10n) {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
-          Text('Loading reagents...', style: TextStyle(fontSize: 16)),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
+          Text(l10n.loadingReagents, style: const TextStyle(fontSize: 16)),
         ],
       ),
     );
@@ -186,7 +196,11 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
     );
   }
 
-  Widget _buildErrorState(ReagentTestingError state, controller) {
+  Widget _buildErrorState(
+    ReagentTestingError state,
+    controller,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -200,7 +214,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Error Loading Reagents',
+              l10n.errorLoadingReagents,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 color: Theme.of(context).colorScheme.error,
               ),
@@ -215,7 +229,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
             ElevatedButton.icon(
               onPressed: () => controller.refresh(),
               icon: const Icon(Icons.refresh),
-              label: const Text('Try Again'),
+              label: Text(l10n.tryAgain),
             ),
           ],
         ),
@@ -223,7 +237,11 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
     );
   }
 
-  Widget _buildEmptyState(ReagentTestingEmpty state, controller) {
+  Widget _buildEmptyState(
+    ReagentTestingEmpty state,
+    controller,
+    AppLocalizations l10n,
+  ) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -233,14 +251,14 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
             Icon(Icons.science_outlined, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
-              'No Reagents Available',
+              l10n.noReagentsAvailable,
               style: Theme.of(
                 context,
               ).textTheme.headlineSmall?.copyWith(color: Colors.grey.shade600),
             ),
             const SizedBox(height: 8),
             Text(
-              'Unable to load reagent data from assets.\nPlease check your internet connection and try again.',
+              l10n.unableToLoadReagentData,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -250,7 +268,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
             ElevatedButton.icon(
               onPressed: () => controller.refresh(),
               icon: const Icon(Icons.refresh),
-              label: const Text('Retry Loading'),
+              label: Text(l10n.retryLoading),
             ),
           ],
         ),

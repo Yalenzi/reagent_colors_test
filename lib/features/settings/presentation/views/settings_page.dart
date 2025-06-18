@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reagent_colors_test/l10n/app_localizations.dart';
 import '../states/settings_state.dart';
 import '../widgets/settings_section.dart';
 import '../widgets/settings_tile.dart';
@@ -17,10 +18,11 @@ class SettingsPage extends ConsumerWidget {
       pushNotificationsEnabledProvider,
     );
     final vibrationEnabled = ref.watch(vibrationEnabledProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('⚙️ Settings'),
+        title: Text(l10n.settingsTitleWithIcon),
         centerTitle: true,
         elevation: 0,
         backgroundColor: Theme.of(context).colorScheme.surface,
@@ -28,6 +30,8 @@ class SettingsPage extends ConsumerWidget {
       ),
       body: _buildBody(
         context,
+        l10n,
+        ref,
         settingsState,
         currentTheme,
         currentLanguage,
@@ -39,6 +43,8 @@ class SettingsPage extends ConsumerWidget {
 
   Widget _buildBody(
     BuildContext context,
+    AppLocalizations l10n,
+    WidgetRef ref,
     SettingsState settingsState,
     String currentTheme,
     String currentLanguage,
@@ -57,7 +63,7 @@ class SettingsPage extends ConsumerWidget {
             const Icon(Icons.error_outline, size: 64, color: Colors.red),
             const SizedBox(height: 16),
             Text(
-              'Error loading settings',
+              l10n.errorLoadingSettings,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 8),
@@ -71,7 +77,7 @@ class SettingsPage extends ConsumerWidget {
               onPressed: () {
                 // Retry loading settings
               },
-              child: const Text('Retry'),
+              child: Text(l10n.retry),
             ),
           ],
         ),
@@ -83,23 +89,29 @@ class SettingsPage extends ConsumerWidget {
         children: [
           // Appearance Section
           SettingsSection(
-            title: 'Appearance',
+            title: l10n.appearance,
             icon: Icons.palette,
             children: [
               SettingsDropdownTile<String>(
-                title: 'Theme',
-                subtitle: 'Choose your preferred theme',
+                title: l10n.theme,
+                subtitle: l10n.themeSubtitle,
                 leadingIcon: Icons.brightness_6,
                 value: currentTheme,
-                items: const [
-                  DropdownMenuItem(value: 'light', child: Text('Light')),
-                  DropdownMenuItem(value: 'dark', child: Text('Dark')),
-                  DropdownMenuItem(value: 'system', child: Text('System')),
+                items: [
+                  DropdownMenuItem(
+                    value: 'light',
+                    child: Text(l10n.lightTheme),
+                  ),
+                  DropdownMenuItem(value: 'dark', child: Text(l10n.darkTheme)),
+                  DropdownMenuItem(
+                    value: 'system',
+                    child: Text(l10n.systemTheme),
+                  ),
                 ],
                 onChanged: (value) {
                   // Will implement functionality later
                   if (value != null) {
-                    _showComingSoonDialog(context, 'Theme switching');
+                    _showComingSoonDialog(context, l10n, l10n.theme);
                   }
                 },
                 isFirst: true,
@@ -110,22 +122,23 @@ class SettingsPage extends ConsumerWidget {
 
           // Language Section
           SettingsSection(
-            title: 'Language',
+            title: l10n.language,
             icon: Icons.language,
             children: [
               SettingsDropdownTile<String>(
-                title: 'App Language',
-                subtitle: 'Select your preferred language',
+                title: l10n.appLanguage,
+                subtitle: l10n.appLanguageSubtitle,
                 leadingIcon: Icons.translate,
                 value: currentLanguage,
-                items: const [
-                  DropdownMenuItem(value: 'en', child: Text('English')),
-                  DropdownMenuItem(value: 'ar', child: Text('العربية')),
+                items: [
+                  DropdownMenuItem(value: 'en', child: Text(l10n.english)),
+                  DropdownMenuItem(value: 'ar', child: Text(l10n.arabic)),
                 ],
                 onChanged: (value) {
-                  // Will implement functionality later
                   if (value != null) {
-                    _showComingSoonDialog(context, 'Language switching');
+                    ref
+                        .read(settingsControllerProvider.notifier)
+                        .changeLanguage(value);
                   }
                 },
                 isFirst: true,
@@ -136,28 +149,28 @@ class SettingsPage extends ConsumerWidget {
 
           // Notifications Section
           SettingsSection(
-            title: 'Notifications',
+            title: l10n.notifications,
             icon: Icons.notifications,
             children: [
               SettingsSwitchTile(
-                title: 'Push Notifications',
-                subtitle: 'Receive notifications about test results',
+                title: l10n.pushNotifications,
+                subtitle: l10n.pushNotificationsSubtitle,
                 leadingIcon: Icons.notifications_active,
                 value: pushNotificationsEnabled,
                 onChanged: (value) {
                   // Will implement functionality later
-                  _showComingSoonDialog(context, 'Push notifications');
+                  _showComingSoonDialog(context, l10n, l10n.pushNotifications);
                 },
                 isFirst: true,
               ),
               SettingsSwitchTile(
-                title: 'Vibration',
-                subtitle: 'Vibrate on notifications and interactions',
+                title: l10n.vibration,
+                subtitle: l10n.vibrationSubtitle,
                 leadingIcon: Icons.vibration,
                 value: vibrationEnabled,
                 onChanged: (value) {
                   // Will implement functionality later
-                  _showComingSoonDialog(context, 'Vibration settings');
+                  _showComingSoonDialog(context, l10n, l10n.vibration);
                 },
                 isLast: true,
               ),
@@ -166,19 +179,19 @@ class SettingsPage extends ConsumerWidget {
 
           // About Section
           SettingsSection(
-            title: 'About',
+            title: l10n.about,
             icon: Icons.info,
             children: [
               SettingsTile(
-                title: 'Developers',
-                subtitle: 'Meet the team behind this app',
+                title: l10n.developers,
+                subtitle: l10n.developersSubtitle,
                 leadingIcon: Icons.code,
                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-                onTap: () => _showDevelopersDialog(context),
+                onTap: () => _showDevelopersDialog(context, l10n),
                 isFirst: true,
               ),
               SettingsTile(
-                title: 'Version',
+                title: l10n.version,
                 subtitle: '1.0.0',
                 leadingIcon: Icons.info_outline,
                 isLast: true,
@@ -193,67 +206,68 @@ class SettingsPage extends ConsumerWidget {
     );
   }
 
-  void _showComingSoonDialog(BuildContext context, String feature) {
+  void _showComingSoonDialog(
+    BuildContext context,
+    AppLocalizations l10n,
+    String feature,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('🚧 Coming Soon'),
-        content: Text('$feature functionality will be implemented soon!'),
+        title: Text(l10n.comingSoonTitle),
+        content: Text(l10n.comingSoonContent(feature)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('OK'),
+            child: Text(l10n.ok),
           ),
         ],
       ),
     );
   }
 
-  void _showDevelopersDialog(BuildContext context) {
+  void _showDevelopersDialog(BuildContext context, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.code, color: Colors.blue),
-            SizedBox(width: 8),
-            Text('Developers'),
+            const Icon(Icons.code, color: Colors.blue),
+            const SizedBox(width: 8),
+            Text(l10n.developersDialogTitle),
           ],
         ),
-        content: const Column(
+        content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Reagent Testing App',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              l10n.reagentTestingApp,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
-              '👨‍💻 المطورين',
-              style: TextStyle(fontWeight: FontWeight.w600),
+              l10n.theDevelopers,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 8),
-            Text(' يوسف مسير العنزي'),
-            Text(' محمد نفاع الرويلي'),
-
-            SizedBox(height: 16),
+            const SizedBox(height: 8),
+            Text(l10n.developerOneName),
+            Text(l10n.developerTwoName),
+            const SizedBox(height: 16),
             Text(
-              '🧪 About the App:',
-              style: TextStyle(fontWeight: FontWeight.w600),
+              l10n.aboutTheApp,
+              style: const TextStyle(fontWeight: FontWeight.w600),
             ),
-            SizedBox(height: 8),
-            Text(
-              'This app helps users safely test substances using chemical reagents.',
-            ),
-            SizedBox(height: 16),
-            Text('📧 Contact: ', style: TextStyle(color: Colors.blue)),
+            const SizedBox(height: 8),
+            Text(l10n.aboutTheAppContent),
+            const SizedBox(height: 16),
+            Text(l10n.contact, style: const TextStyle(color: Colors.blue)),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
+            child: Text(l10n.ok),
           ),
         ],
       ),

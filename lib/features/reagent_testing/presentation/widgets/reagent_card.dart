@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/reagent_entity.dart';
+import '../../../../core/utils/localization_helper.dart';
 
 class ReagentCard extends StatelessWidget {
   final ReagentEntity reagent;
@@ -43,7 +44,7 @@ class ReagentCard extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                reagent.reagentName,
+                LocalizationHelper.getLocalizedReagentName(context, reagent),
                 style: Theme.of(
                   context,
                 ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -117,7 +118,7 @@ class ReagentCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        level,
+        LocalizationHelper.getLocalizedSafetyLevelTranslation(context, level),
         style: TextStyle(
           color: badgeColor,
           fontWeight: FontWeight.bold,
@@ -129,7 +130,7 @@ class ReagentCard extends StatelessWidget {
 
   Widget _buildDescription(BuildContext context) {
     return Text(
-      reagent.description,
+      LocalizationHelper.getLocalizedDescription(context, reagent),
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),

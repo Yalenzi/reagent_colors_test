@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '../../domain/entities/settings_entity.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../models/settings_model.dart';
@@ -75,6 +76,19 @@ class SettingsRepositoryImpl implements SettingsRepository {
     }
   }
 
+  @override
+  Future<String> getLanguage() async {
+    final settings = await getSettings();
+    return settings.language;
+  }
+
+  @override
+  Future<void> saveLanguage(String language) async {
+    final currentSettings = await getSettings();
+    final newSettings = currentSettings.copyWith(language: language);
+    await saveSettings(newSettings);
+  }
+
   // Helper method for theme mode conversion
   String _themeModeToString(ThemeMode mode) {
     switch (mode) {
@@ -84,6 +98,18 @@ class SettingsRepositoryImpl implements SettingsRepository {
         return 'dark';
       case ThemeMode.system:
         return 'system';
+    }
+  }
+
+  ThemeMode _stringToThemeMode(String mode) {
+    switch (mode) {
+      case 'light':
+        return ThemeMode.light;
+      case 'dark':
+        return ThemeMode.dark;
+      case 'system':
+      default:
+        return ThemeMode.system;
     }
   }
 }

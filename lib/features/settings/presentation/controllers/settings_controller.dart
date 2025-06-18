@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/material.dart';
 import '../../domain/entities/settings_entity.dart';
 import '../../domain/repositories/settings_repository.dart';
 import '../states/settings_state.dart';
@@ -7,23 +8,39 @@ class SettingsController extends StateNotifier<SettingsState> {
   final SettingsRepository _settingsRepository;
 
   SettingsController(this._settingsRepository)
-    : super(const SettingsInitial()) {
-    loadSettings();
+    : super(const SettingsLoading()) {
+    _loadSettings();
   }
 
-  // Load settings from repository
   Future<void> loadSettings() async {
+    await _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
     state = const SettingsLoading();
     try {
       final settings = await _settingsRepository.getSettings();
       state = SettingsLoaded(settings);
     } catch (e) {
-      state = SettingsError('Failed to load settings: $e');
+      state = SettingsError(e.toString());
     }
   }
 
-  // Update theme mode
-  Future<void> updateThemeMode(ThemeMode themeMode) async {
+  Future<void> changeLanguage(String language) async {
+    final currentState = state;
+    if (currentState is SettingsLoaded) {
+      try {
+        await _settingsRepository.saveLanguage(language);
+        state = SettingsLoaded(
+          currentState.settings.copyWith(language: language),
+        );
+      } catch (e) {
+        state = SettingsError('Failed to change language: $e');
+      }
+    }
+  }
+
+  Future<void> updateTheme(ThemeMode themeMode) async {
     final currentState = state;
     if (currentState is! SettingsLoaded) return;
 
@@ -45,7 +62,6 @@ class SettingsController extends StateNotifier<SettingsState> {
     }
   }
 
-  // Update language
   Future<void> updateLanguage(String language) async {
     final currentState = state;
     if (currentState is! SettingsLoaded) return;
@@ -68,7 +84,6 @@ class SettingsController extends StateNotifier<SettingsState> {
     }
   }
 
-  // Update push notifications
   Future<void> updatePushNotifications(bool enabled) async {
     final currentState = state;
     if (currentState is! SettingsLoaded) return;
@@ -80,7 +95,7 @@ class SettingsController extends StateNotifier<SettingsState> {
         pushNotificationsEnabled: enabled,
       );
       state = SettingsSuccess(
-        enabled ? 'Push notifications enabled' : 'Push notifications disabled',
+        'Push notifications updated successfully',
         updatedSettings,
       );
       // After showing success, return to loaded state
@@ -94,7 +109,6 @@ class SettingsController extends StateNotifier<SettingsState> {
     }
   }
 
-  // Update vibration
   Future<void> updateVibration(bool enabled) async {
     final currentState = state;
     if (currentState is! SettingsLoaded) return;
@@ -106,7 +120,7 @@ class SettingsController extends StateNotifier<SettingsState> {
         vibrationEnabled: enabled,
       );
       state = SettingsSuccess(
-        enabled ? 'Vibration enabled' : 'Vibration disabled',
+        'Vibration updated successfully',
         updatedSettings,
       );
       // After showing success, return to loaded state
@@ -120,18 +134,23 @@ class SettingsController extends StateNotifier<SettingsState> {
     }
   }
 
-  // Reset to default settings
   Future<void> resetToDefaults() async {
+    final currentState = state;
+    if (currentState is! SettingsLoaded) return;
+
     state = const SettingsLoading();
     try {
       await _settingsRepository.resetToDefaults();
       final defaultSettings = await _settingsRepository.getSettings();
-      state = SettingsSuccess('Settings reset to defaults', defaultSettings);
+      state = SettingsSuccess('Settings reset successfully', defaultSettings);
       // After showing success, return to loaded state
       await Future.delayed(const Duration(milliseconds: 500));
       state = SettingsLoaded(defaultSettings);
     } catch (e) {
       state = SettingsError('Failed to reset settings: $e');
+      // Return to previous state after error
+      await Future.delayed(const Duration(seconds: 2));
+      state = currentState;
     }
   }
 

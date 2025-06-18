@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 import '../../domain/entities/settings_entity.dart';
 
 class SettingsModel {
@@ -54,7 +56,6 @@ class SettingsModel {
     );
   }
 
-  // Default settings
   factory SettingsModel.defaultSettings() {
     return const SettingsModel(
       themeMode: 'system',
@@ -106,6 +107,7 @@ class SettingsModel {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
+
     return other is SettingsModel &&
         other.themeMode == themeMode &&
         other.language == language &&

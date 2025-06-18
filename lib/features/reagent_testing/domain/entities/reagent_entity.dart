@@ -10,11 +10,6 @@ class ReagentEntity {
   final int testDuration;
   final List<String> chemicals;
   final List<DrugResultEntity> drugResults;
-  final List<String> equipment;
-  final List<String> specificHazards;
-  final List<String> handlingProcedures;
-  final List<String> storage;
-  final List<String> instructions;
   final String category;
 
   const ReagentEntity({
@@ -27,11 +22,6 @@ class ReagentEntity {
     required this.testDuration,
     required this.chemicals,
     required this.drugResults,
-    required this.equipment,
-    required this.specificHazards,
-    required this.handlingProcedures,
-    required this.storage,
-    required this.instructions,
     required this.category,
   });
 
@@ -48,11 +38,6 @@ class ReagentEntity {
         other.testDuration == testDuration &&
         _listEquals(other.chemicals, chemicals) &&
         _listEquals(other.drugResults, drugResults) &&
-        _listEquals(other.equipment, equipment) &&
-        _listEquals(other.specificHazards, specificHazards) &&
-        _listEquals(other.handlingProcedures, handlingProcedures) &&
-        _listEquals(other.storage, storage) &&
-        _listEquals(other.instructions, instructions) &&
         other.category == category;
   }
 
@@ -67,11 +52,6 @@ class ReagentEntity {
         testDuration.hashCode ^
         chemicals.hashCode ^
         drugResults.hashCode ^
-        equipment.hashCode ^
-        specificHazards.hashCode ^
-        handlingProcedures.hashCode ^
-        storage.hashCode ^
-        instructions.hashCode ^
         category.hashCode;
   }
 
@@ -85,6 +65,6 @@ class ReagentEntity {
 
   @override
   String toString() {
-    return 'ReagentEntity(reagentName: $reagentName, description: $description, safetyLevel: $safetyLevel, testDuration: $testDuration, chemicals: $chemicals, drugResults: ${drugResults.length} results, equipment: ${equipment.length} items, instructions: ${instructions.length} steps, category: $category)';
+    return 'ReagentEntity(reagentName: $reagentName, description: $description, safetyLevel: $safetyLevel, testDuration: $testDuration, chemicals: $chemicals, drugResults: ${drugResults.length} results, category: $category)';
   }
 }

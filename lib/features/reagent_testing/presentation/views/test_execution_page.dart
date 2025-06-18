@@ -14,6 +14,8 @@ import '../../../../core/config/api_keys.dart';
 import '../../../../core/services/gemini_image_analysis_service.dart';
 import '../../../../core/utils/logger.dart';
 import '../../data/models/gemini_analysis_models.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/localization_helper.dart';
 
 extension CustomColors on Colors {
   static const Color olive = Color(0xFF808000);
@@ -55,6 +57,7 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(testExecutionControllerProvider);
     final controller = ref.read(testExecutionControllerProvider.notifier);
 
@@ -78,20 +81,34 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Testing ${widget.reagent.reagentName}'),
+        title: Text(
+          l10n.testing(
+            LocalizationHelper.getLocalizedReagentName(context, widget.reagent),
+          ),
+        ),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: _buildBody(state, controller),
+      body: _buildBody(state, controller, l10n),
     );
   }
 
   Widget _buildBody(
     TestExecutionState state,
     TestExecutionController controller,
+    AppLocalizations l10n,
   ) {
     if (state is TestExecutionInitial || state is TestExecutionLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(height: 16),
+            Text(l10n.loading),
+          ],
+        ),
+      );
     } else if (state is TestExecutionLoaded) {
       final testExecution = state.testExecution;
       return SingleChildScrollView(
@@ -99,17 +116,17 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildReadyToStartCard(context),
+            _buildReadyToStartCard(context, l10n),
             const SizedBox(height: 24),
-            _buildTestProcedure(context),
+            _buildTestProcedure(context, l10n),
             const SizedBox(height: 24),
-            _buildReactionTimer(context, testExecution, controller),
+            _buildReactionTimer(context, l10n, testExecution, controller),
             const SizedBox(height: 24),
-            _buildObservedColor(context, testExecution, controller),
+            _buildObservedColor(context, l10n, testExecution, controller),
             const SizedBox(height: 24),
-            _buildTestNotes(context, testExecution, controller),
+            _buildTestNotes(context, l10n, testExecution, controller),
             const SizedBox(height: 24),
-            _buildCompleteTestButton(context, testExecution, controller),
+            _buildCompleteTestButton(context, l10n, testExecution, controller),
           ],
         ),
       );
@@ -118,19 +135,19 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('Error: ${state.message}'),
+            Text(l10n.error(state.message)),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Go Back'),
+              child: Text(l10n.goBack),
             ),
           ],
         ),
       );
     }
-    return const Center(child: Text('Unknown state'));
+    return Center(child: Text(l10n.unknownState));
   }
 
-  Widget _buildReadyToStartCard(BuildContext context) {
+  Widget _buildReadyToStartCard(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
     return Card(
       elevation: 0,
@@ -160,14 +177,14 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Ready to Start Test',
+                    l10n.readyToStart,
                     style: theme.textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Follow the instructions below to begin',
+                    l10n.readyToStartDescription,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -181,8 +198,11 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
     );
   }
 
-  Widget _buildTestProcedure(BuildContext context) {
+  Widget _buildTestProcedure(BuildContext context, AppLocalizations l10n) {
     final theme = Theme.of(context);
+    final safetyService = ref.read(safetyInstructionsServiceProvider);
+    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
+
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -196,13 +216,10 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
           children: [
             Row(
               children: [
-                Icon(
-                  Icons.list_alt_rounded,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                Icon(Icons.list_alt_rounded, color: theme.colorScheme.primary),
                 const SizedBox(width: 8),
                 Text(
-                  'Test Procedure',
+                  l10n.testProcedure,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -210,373 +227,71 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
               ],
             ),
             const SizedBox(height: 16),
-            ...widget.reagent.instructions.asMap().entries.map(
-              (entry) =>
-                  _buildProcedureStep(context, entry.key + 1, entry.value),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildProcedureStep(
-    BuildContext context,
-    int number,
-    String instruction,
-  ) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 12,
-            backgroundColor: Colors.orange,
-            child: Text(
-              number.toString(),
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+            FutureBuilder<List<String>>(
+              future: safetyService.getInstructionsForReagent(
+                widget.reagent.reagentName,
+                isArabic: isArabic,
               ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              instruction,
-              style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildReactionTimer(
-    BuildContext context,
-    testExecution,
-    TestExecutionController controller,
-  ) {
-    final theme = Theme.of(context);
-    final minutes = testExecution.remainingTime ~/ 60;
-    final seconds = testExecution.remainingTime % 60;
-    final timeString =
-        '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.timer_outlined,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Reaction Timer',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            GestureDetector(
-              onTap: () {
-                if (testExecution.isTimerRunning) {
-                  controller.pauseTimer();
-                } else {
-                  controller.startTimer();
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
                 }
-              },
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange, width: 2),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          testExecution.isTimerRunning
-                              ? Icons.pause
-                              : Icons.play_arrow,
-                          color: Colors.orange,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          testExecution.isTimerRunning
-                              ? 'Pause Reaction Timer'
-                              : 'Start Reaction Timer',
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: Colors.orange,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      timeString,
-                      style: theme.textTheme.headlineLarge?.copyWith(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
+
+                if (snapshot.hasError || !snapshot.hasData) {
+                  return Column(
+                    children: [
+                      Icon(
+                        Icons.warning_outlined,
+                        color: theme.colorScheme.error,
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Tap to ${testExecution.isTimerRunning ? 'pause' : 'start'} ${widget.reagent.testDuration} minute timer',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: Colors.orange,
+                      const SizedBox(height: 8),
+                      Text(
+                        l10n.errorLoadingSettings,
+                        style: TextStyle(color: theme.colorScheme.error),
                       ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            _buildImageCaptureButton(theme),
-          ],
-        ),
-      ),
-    );
-  }
+                    ],
+                  );
+                }
 
-  Widget _buildObservedColor(
-    BuildContext context,
-    testExecution,
-    TestExecutionController controller,
-  ) {
-    final theme = Theme.of(context);
-
-    final colors = [
-      {
-        'name': 'Clear/No Change',
-        'color': Colors.grey.shade300,
-        'textColor': Colors.black,
-      },
-      {'name': 'Red', 'color': Colors.red, 'textColor': Colors.white},
-      {
-        'name': 'Dark Red',
-        'color': Colors.red.shade800,
-        'textColor': Colors.white,
-      },
-      {'name': 'Orange', 'color': Colors.orange, 'textColor': Colors.white},
-      {
-        'name': 'Red-Orange',
-        'color': Colors.deepOrange,
-        'textColor': Colors.white,
-      },
-      {'name': 'Yellow', 'color': Colors.yellow, 'textColor': Colors.black},
-      {
-        'name': 'Light Yellow',
-        'color': Colors.yellow.shade200,
-        'textColor': Colors.black,
-      },
-      {'name': 'Green', 'color': Colors.green, 'textColor': Colors.white},
-      {
-        'name': 'Pale Green',
-        'color': Colors.green.shade200,
-        'textColor': Colors.black,
-      },
-      {'name': 'Blue', 'color': Colors.blue, 'textColor': Colors.white},
-      {'name': 'Purple', 'color': Colors.purple, 'textColor': Colors.white},
-      {
-        'name': 'Violet',
-        'color': Colors.purple.shade400,
-        'textColor': Colors.white,
-      },
-      {
-        'name': 'Magenta',
-        'color': Colors.pink.shade400,
-        'textColor': Colors.white,
-      },
-      {'name': 'Pink', 'color': Colors.pink, 'textColor': Colors.white},
-      {'name': 'Brown', 'color': Colors.brown, 'textColor': Colors.white},
-      {
-        'name': 'Brownish',
-        'color': Colors.brown.shade400,
-        'textColor': Colors.white,
-      },
-      {'name': 'Black', 'color': Colors.black, 'textColor': Colors.white},
-      {'name': 'Grey', 'color': Colors.grey, 'textColor': Colors.white},
-      {
-        'name': 'Light Blue',
-        'color': Colors.lightBlue,
-        'textColor': Colors.white,
-      },
-      {
-        'name': 'Light Green',
-        'color': Colors.lightGreen,
-        'textColor': Colors.black,
-      },
-      {
-        'name': 'Dark Blue',
-        'color': Colors.blue.shade900,
-        'textColor': Colors.white,
-      },
-      {
-        'name': 'Dark Green',
-        'color': Colors.green.shade800,
-        'textColor': Colors.white,
-      },
-      {'name': 'Olive', 'color': CustomColors.olive, 'textColor': Colors.white},
-      {
-        'name': 'Greenish Brown',
-        'color': Colors.brown.shade600,
-        'textColor': Colors.white,
-      },
-      {
-        'name': 'Maroon',
-        'color': Colors.red.shade900,
-        'textColor': Colors.white,
-      },
-      {
-        'name': 'Navy',
-        'color': Colors.indigo.shade900,
-        'textColor': Colors.white,
-      },
-      {'name': 'Teal', 'color': Colors.teal, 'textColor': Colors.white},
-    ];
-
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.palette_outlined,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Observed Color',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Select the color you observed after adding the reagent',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Tap the color that best matches what you observed',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 5,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-                childAspectRatio: 1,
-              ),
-              itemCount: colors.length,
-              itemBuilder: (context, index) {
-                final colorData = colors[index];
-                final isSelected =
-                    testExecution.selectedColor == colorData['name'];
-
-                return GestureDetector(
-                  onTap: () =>
-                      controller.selectColor(colorData['name'] as String),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: colorData['color'] as Color,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: isSelected
-                            ? theme.colorScheme.primary
-                            : Colors.transparent,
-                        width: 3,
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        if (colorData['name'] == 'Clear/No Change')
-                          Center(
-                            child: Text(
-                              '?',
-                              style: TextStyle(
-                                color: colorData['textColor'] as Color,
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        Positioned(
-                          bottom: 2,
-                          left: 2,
-                          right: 2,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 2,
-                              vertical: 1,
-                            ),
+                final instructions = snapshot.data!;
+                return Column(
+                  children: instructions.asMap().entries.map((entry) {
+                    int index = entry.key;
+                    String instruction = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: 24,
+                            height: 24,
                             decoration: BoxDecoration(
-                              color: Colors.black.withValues(alpha: 0.7),
-                              borderRadius: BorderRadius.circular(4),
+                              color: theme.colorScheme.primary,
+                              borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Text(
-                              colorData['name'] as String,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 8,
-                                fontWeight: FontWeight.bold,
+                            child: Center(
+                              child: Text(
+                                '${index + 1}',
+                                style: TextStyle(
+                                  color: theme.colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                ),
                               ),
-                              textAlign: TextAlign.center,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                        ),
-                        if (isSelected)
-                          const Center(
-                            child: Icon(
-                              Icons.check,
-                              color: Colors.white,
-                              size: 20,
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              instruction,
+                              style: theme.textTheme.bodyMedium,
                             ),
                           ),
-                      ],
-                    ),
-                  ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 );
               },
             ),
@@ -586,13 +301,12 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
     );
   }
 
-  Widget _buildTestNotes(
+  Widget _buildReactionTimer(
     BuildContext context,
+    AppLocalizations l10n,
     testExecution,
     TestExecutionController controller,
   ) {
-    final theme = Theme.of(context);
-
     return Card(
       elevation: 0,
       shape: RoundedRectangleBorder(
@@ -604,42 +318,188 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.note_outlined,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'Test Notes',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
+            Text(
+              l10n.reactionTimer,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: Column(
+                children: [
+                  Text(
+                    _formatDuration(
+                      Duration(
+                        seconds:
+                            testExecution.timerDuration -
+                            testExecution.remainingTime,
+                      ),
+                    ),
+                    style: Theme.of(context).textTheme.displaySmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: testExecution.isTimerRunning
+                            ? () => controller.pauseTimer()
+                            : () => controller.startTimer(),
+                        child: Text(
+                          testExecution.isTimerRunning
+                              ? l10n.stopTimer
+                              : l10n.startTimer,
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed: () => controller.resetTimer(),
+                        child: Text(l10n.resetTimer),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildObservedColor(
+    BuildContext context,
+    AppLocalizations l10n,
+    testExecution,
+    TestExecutionController controller,
+  ) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.observedColor,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.observedColorDescription,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              l10n.tapColorInstruction,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _buildColorSelector(testExecution, controller),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildColorSelector(
+    testExecution,
+    TestExecutionController controller,
+  ) {
+    final colors = [
+      {'name': 'Red', 'color': Colors.red},
+      {'name': 'Orange', 'color': Colors.orange},
+      {'name': 'Yellow', 'color': Colors.yellow},
+      {'name': 'Green', 'color': Colors.green},
+      {'name': 'Blue', 'color': Colors.blue},
+      {'name': 'Purple', 'color': Colors.purple},
+      {'name': 'Pink', 'color': Colors.pink},
+      {'name': 'Brown', 'color': Colors.brown},
+      {'name': 'Black', 'color': Colors.black},
+      {'name': 'White', 'color': Colors.white},
+      {'name': 'Grey', 'color': Colors.grey},
+      {'name': 'Olive', 'color': CustomColors.olive},
+      {'name': 'No color change', 'color': Colors.transparent},
+    ];
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: colors.map((colorData) {
+        final isSelected = testExecution.selectedColor == colorData['name'];
+        return GestureDetector(
+          onTap: () => controller.selectColor(colorData['name'] as String),
+          child: Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: colorData['color'] as Color,
+              border: Border.all(
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Colors.grey,
+                width: isSelected ? 3 : 1,
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: colorData['name'] == 'No color change'
+                ? Icon(Icons.block, color: Colors.grey, size: 24)
+                : null,
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget _buildTestNotes(
+    BuildContext context,
+    AppLocalizations l10n,
+    testExecution,
+    TestExecutionController controller,
+  ) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.testNotes,
+              style: Theme.of(
+                context,
+              ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             TextField(
               controller: _notesController,
-              onChanged: (value) => controller.updateNotes(value),
-              maxLines: 4,
               decoration: InputDecoration(
-                hintText:
-                    'Add any observations, conditions, or notes about the test...',
+                hintText: l10n.testNotesPlaceholder,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
                 ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                  borderSide: BorderSide(color: theme.colorScheme.primary),
-                ),
+                filled: true,
+                fillColor: Theme.of(context).colorScheme.surface,
               ),
+              maxLines: 4,
+              onChanged: (value) => controller.updateNotes(value),
             ),
           ],
         ),
@@ -649,508 +509,69 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
 
   Widget _buildCompleteTestButton(
     BuildContext context,
+    AppLocalizations l10n,
     testExecution,
     TestExecutionController controller,
   ) {
-    final theme = Theme.of(context);
-    final hasSelectedColor = testExecution.selectedColor != null;
-    final hasAIResult = _aiAnalysisResult != null;
-    final canComplete = hasSelectedColor || hasAIResult;
+    final canComplete =
+        testExecution.selectedColor != null &&
+        testExecution.selectedColor!.isNotEmpty;
 
-    return Container(
+    return SizedBox(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: ElevatedButton.icon(
-        icon: const Icon(Icons.check_circle_outline),
-        label: Text(
-          hasAIResult
-              ? 'Complete Test with AI Results'
-              : 'Complete Test & View Results',
-        ),
+      child: ElevatedButton(
+        onPressed: canComplete
+            ? () => _completeTest(testExecution, controller, l10n)
+            : null,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.symmetric(vertical: 16),
-          backgroundColor: canComplete
-              ? theme.colorScheme.primary
-              : theme.colorScheme.onSurface.withValues(alpha: 0.12),
-          foregroundColor: canComplete
-              ? theme.colorScheme.onPrimary
-              : theme.colorScheme.onSurface.withValues(alpha: 0.38),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
         ),
-        onPressed: canComplete
-            ? () => _completeTest(context, testExecution)
-            : null,
-      ),
-    );
-  }
-
-  void _completeTest(BuildContext context, testExecution) {
-    final resultController = ref.read(testResultControllerProvider.notifier);
-
-    if (_aiAnalysisResult != null &&
-        _aiAnalysisResult!.primarySubstance.isNotEmpty) {
-      // Use AI analysis directly - create TestResultEntity with AI results
-      resultController.analyzeTestResultWithAI(
-        reagent: widget.reagent,
-        aiResult: _aiAnalysisResult!,
-        notes: testExecution.notes,
-      );
-    } else {
-      // Use manual color selection with built-in analysis
-      resultController.analyzeTestResult(
-        reagent: widget.reagent,
-        observedColor: testExecution.selectedColor!,
-        notes: testExecution.notes,
-      );
-    }
-  }
-
-  Widget _buildImageCaptureButton(ThemeData theme) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.camera_alt_outlined,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  'AI Image Analysis',
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Upload an image of your test result for AI analysis',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 16),
-
-            // Image capture buttons
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.camera_alt),
-                    label: const Text('Take Photo'),
-                    onPressed: _isAnalyzingImage
-                        ? null
-                        : () => _captureImage(ImageSource.camera),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.photo_library),
-                    label: const Text('From Gallery'),
-                    onPressed: _isAnalyzingImage
-                        ? null
-                        : () => _captureImage(ImageSource.gallery),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.secondary,
-                      foregroundColor: theme.colorScheme.onSecondary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-
-            // Show captured image
-            if (_capturedImage != null) ...[
-              const SizedBox(height: 16),
-              Container(
-                height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey.shade300),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.file(_capturedImage!, fit: BoxFit.cover),
-                ),
-              ),
-            ],
-
-            // Show analysis progress
-            if (_isAnalyzingImage) ...[
-              const SizedBox(height: 16),
-              const Center(
-                child: Column(
-                  children: [
-                    CircularProgressIndicator(),
-                    SizedBox(height: 8),
-                    Text('Analyzing image with AI...'),
-                  ],
-                ),
-              ),
-            ],
-
-            // Show AI analysis results
-            if (_aiAnalysisResult != null) ...[
-              const SizedBox(height: 16),
-              _buildAIAnalysisResults(theme),
-            ],
-
-            // Show error
-            if (_analysisError != null) ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Analysis Error',
-                      style: TextStyle(
-                        color: theme.colorScheme.onErrorContainer,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _analysisError!,
-                      style: TextStyle(
-                        color: theme.colorScheme.onErrorContainer,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ],
+        child: Text(
+          l10n.completeTest,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );
   }
 
-  Widget _buildAIAnalysisResults(ThemeData theme) {
-    final result = _aiAnalysisResult!;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                Icons.auto_fix_high,
-                color: theme.colorScheme.onPrimaryContainer,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                'AI Analysis Complete',
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+  void _completeTest(
+    testExecution,
+    TestExecutionController controller,
+    AppLocalizations l10n,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.completeTest),
+        content: Text(l10n.completeTestDescription),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(l10n.cancel),
           ),
-          const SizedBox(height: 12),
-
-          // Observed Color Description
-          Row(
-            children: [
-              Text(
-                'Observed Color: ',
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-          Text(
-            result.observedColorDescription,
-            style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
-          ),
-
-          const SizedBox(height: 8),
-          // Primary Substance Identified
-          Row(
-            children: [
-              Text(
-                'Identified Substance: ',
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                result.primarySubstance.isEmpty
-                    ? 'Unknown'
-                    : result.primarySubstance,
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-
-          // All Identified Substances (if multiple)
-          if (result.identifiedSubstances.length > 1) ...[
-            const SizedBox(height: 4),
-            Text(
-              'All Possible: ${result.identifiedSubstances.join(', ')}',
-              style: TextStyle(
-                color: theme.colorScheme.onPrimaryContainer,
-                fontSize: 12,
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Text(
-                'Test Result: ',
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                result.testResult,
-                style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              Text(
-                'Confidence: ',
-                style: TextStyle(
-                  color: theme.colorScheme.onPrimaryContainer,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              Text(
-                result.confidenceLevel,
-                style: TextStyle(color: theme.colorScheme.onPrimaryContainer),
-              ),
-            ],
-          ),
-
-          if (result.colorMatchReasoning.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Color Analysis: ${result.colorMatchReasoning}',
-              style: TextStyle(
-                color: theme.colorScheme.onPrimaryContainer,
-                fontSize: 12,
-              ),
-            ),
-          ],
-
-          if (result.analysisNotes.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            Text(
-              'Notes: ${result.analysisNotes}',
-              style: TextStyle(
-                color: theme.colorScheme.onPrimaryContainer,
-                fontSize: 12,
-              ),
-            ),
-          ],
-
-          const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _applyAIResult(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary,
-                foregroundColor: theme.colorScheme.onPrimary,
-              ),
-              child: const Text('Use AI Analysis'),
-            ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              final resultController = ref.read(
+                testResultControllerProvider.notifier,
+              );
+              resultController.analyzeTestResult(
+                reagent: widget.reagent,
+                observedColor: testExecution.selectedColor!,
+                notes: _notesController.text,
+              );
+            },
+            child: Text(l10n.completeTest),
           ),
         ],
       ),
     );
   }
 
-  Future<void> _captureImage(ImageSource source) async {
-    try {
-      final XFile? image = await _picker.pickImage(
-        source: source,
-        maxWidth: 1024,
-        maxHeight: 1024,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() {
-          _capturedImage = File(image.path);
-          _aiAnalysisResult = null;
-          _analysisError = null;
-        });
-
-        await _analyzeImage();
-      }
-    } catch (e) {
-      Logger.error('Error capturing image: $e');
-      setState(() {
-        _analysisError = 'Failed to capture image: $e';
-      });
-    }
-  }
-
-  Future<void> _analyzeImage() async {
-    if (_capturedImage == null) return;
-
-    // Check if Gemini service is available
-    if (!ApiKeys.hasGeminiApiKey) {
-      setState(() {
-        _analysisError =
-            'Gemini API key not configured. Please set GEMINI_API_KEY.';
-      });
-      return;
-    }
-
-    try {
-      setState(() {
-        _isAnalyzingImage = true;
-        _analysisError = null;
-      });
-
-      final geminiService = getIt<GeminiImageAnalysisService>();
-
-      // Get drug results from the reagent test for AI analysis
-      final drugResults = widget.reagent.drugResults
-          .map((result) => {'drugName': result.drugName, 'color': result.color})
-          .toList();
-
-      // Create test context
-      final testContext = {
-        'testDuration': widget.reagent.testDuration,
-        'chemicals': widget.reagent.chemicals,
-      };
-
-      // Analyze with Gemini
-      final response = await geminiService.analyzeReagentTestImage(
-        imageFile: _capturedImage!,
-        reagentName: widget.reagent.reagentName,
-        drugResults: drugResults,
-        testContext: testContext,
-      );
-
-      // Parse JSON response
-      final jsonResponse = json.decode(
-        response.replaceAll('```json', '').replaceAll('```', '').trim(),
-      );
-      final analysisResult = GeminiReagentTestResult.fromJson(jsonResponse);
-
-      setState(() {
-        _aiAnalysisResult = analysisResult;
-        _isAnalyzingImage = false;
-      });
-    } catch (e) {
-      Logger.error('AI analysis failed: $e');
-      setState(() {
-        _analysisError = 'AI analysis failed: $e';
-        _isAnalyzingImage = false;
-      });
-    }
-  }
-
-  void _applyAIResult() {
-    if (_aiAnalysisResult == null) return;
-
-    final controller = ref.read(testExecutionControllerProvider.notifier);
-    final result = _aiAnalysisResult!;
-
-    // Map the AI-identified substance to a corresponding color
-    // Look for the identified substance in the reagent's drug results
-    String? matchingColor;
-    if (result.primarySubstance.isNotEmpty) {
-      for (final drugResult in widget.reagent.drugResults) {
-        if (drugResult.drugName.toLowerCase() ==
-            result.primarySubstance.toLowerCase()) {
-          matchingColor = drugResult.color;
-          break;
-        }
-      }
-    }
-
-    // If we found a matching color, select it
-    if (matchingColor != null) {
-      controller.selectColor(matchingColor);
-    }
-
-    // Add comprehensive AI analysis notes to the test notes
-    final aiNotes = StringBuffer();
-    aiNotes.writeln('=== AI Analysis Results ===');
-    aiNotes.writeln('Observed Color: ${result.observedColorDescription}');
-    if (result.primarySubstance.isNotEmpty) {
-      aiNotes.writeln('Identified Substance: ${result.primarySubstance}');
-    }
-    if (result.identifiedSubstances.isNotEmpty) {
-      aiNotes.writeln(
-        'All Possible Substances: ${result.identifiedSubstances.join(', ')}',
-      );
-    }
-    aiNotes.writeln('Test Result: ${result.testResult}');
-    aiNotes.writeln('Confidence: ${result.confidenceLevel}');
-    if (result.colorMatchReasoning.isNotEmpty) {
-      aiNotes.writeln('Color Analysis: ${result.colorMatchReasoning}');
-    }
-    if (result.analysisNotes.isNotEmpty) {
-      aiNotes.writeln('Additional Notes: ${result.analysisNotes}');
-    }
-
-    final currentNotes = _notesController.text;
-    final updatedNotes = currentNotes.isEmpty
-        ? aiNotes.toString()
-        : '$currentNotes\n\n${aiNotes.toString()}';
-
-    _notesController.text = updatedNotes;
-    controller.updateNotes(updatedNotes);
-
-    final substanceText = result.primarySubstance.isEmpty
-        ? 'analysis'
-        : result.primarySubstance;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Applied AI result: $substanceText'),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 3),
-      ),
-    );
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(duration.inMinutes);
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return '$minutes:$seconds';
   }
 }

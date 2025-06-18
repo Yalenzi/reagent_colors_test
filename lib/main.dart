@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:reagent_colors_test/l10n/app_localizations.dart';
 import 'core/config/get_it_config.dart';
 import 'core/navigation/auth_wrapper.dart';
+import 'features/settings/presentation/providers/settings_providers.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -17,11 +19,13 @@ void main() async {
   runApp(const ProviderScope(child: ReagentTestingApp()));
 }
 
-class ReagentTestingApp extends StatelessWidget {
+class ReagentTestingApp extends ConsumerWidget {
   const ReagentTestingApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final locale = ref.watch(localeProvider);
+
     return MaterialApp(
       title: 'Reagent Testing App',
       theme: ThemeData(
@@ -69,6 +73,9 @@ class ReagentTestingApp extends StatelessWidget {
           fillColor: const Color(0xFFF8FAFC),
         ),
       ),
+      locale: locale,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: const AuthWrapper(),
       debugShowCheckedModeBanner: false,
     );

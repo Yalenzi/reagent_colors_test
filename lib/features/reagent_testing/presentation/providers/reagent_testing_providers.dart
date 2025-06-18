@@ -3,6 +3,7 @@ import '../../data/repositories/reagent_testing_repository_impl.dart';
 import '../../data/repositories/test_result_history_repository.dart';
 import '../../data/services/json_data_service.dart';
 import '../../data/services/remote_config_service.dart';
+import '../../data/services/safety_instructions_service.dart';
 import '../../../../core/utils/logger.dart';
 import '../../domain/repositories/reagent_testing_repository.dart';
 import '../controllers/reagent_testing_controller.dart';
@@ -23,6 +24,14 @@ final remoteConfigServiceProvider = Provider<RemoteConfigService>((ref) {
 final jsonDataServiceProvider = Provider<JsonDataService>((ref) {
   final remoteConfigService = ref.watch(remoteConfigServiceProvider);
   return JsonDataService(remoteConfigService: remoteConfigService);
+});
+
+// Safety Instructions Service Provider
+final safetyInstructionsServiceProvider = Provider<SafetyInstructionsService>((
+  ref,
+) {
+  final remoteConfigService = ref.watch(remoteConfigServiceProvider);
+  return SafetyInstructionsService(remoteConfigService: remoteConfigService);
 });
 
 // Repository Provider
@@ -54,8 +63,15 @@ Future<void> _initializeRemoteConfig(
   ReagentTestingController controller,
 ) async {
   try {
-    // Initialize Remote Config
-    await jsonDataService.initialize();
+    final safetyInstructionsService = ref.read(
+      safetyInstructionsServiceProvider,
+    );
+
+    // Initialize Remote Config services
+    await Future.wait([
+      jsonDataService.initialize(),
+      safetyInstructionsService.initialize(),
+    ]);
 
     // Load initial data
     controller.loadAllReagents();
@@ -64,6 +80,11 @@ Future<void> _initializeRemoteConfig(
     jsonDataService.onDataUpdated().listen((_) {
       Logger.info('🔄 Reagent data updated from Remote Config, reloading...');
       controller.loadAllReagents();
+    });
+
+    safetyInstructionsService.onDataUpdated().listen((_) {
+      Logger.info('🔄 Safety instructions updated from Remote Config');
+      // Safety instructions are loaded on-demand, so no immediate reload needed
     });
 
     Logger.info('✅ Remote Config initialization complete');

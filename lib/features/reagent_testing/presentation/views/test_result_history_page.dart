@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../domain/entities/test_result_entity.dart';
 import '../providers/reagent_testing_providers.dart';
 import '../states/test_result_history_state.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class TestResultHistoryPage extends ConsumerStatefulWidget {
   const TestResultHistoryPage({super.key});
@@ -18,7 +19,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedReagentFilter = 'All';
+  String _selectedReagentFilter = '__ALL__'; // Use a constant value for "All"
 
   @override
   void initState() {
@@ -40,12 +41,13 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = ref.watch(testResultHistoryControllerProvider);
     final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Test History'),
+        title: Text(l10n.testHistory),
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
@@ -53,29 +55,33 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
             icon: const Icon(Icons.refresh),
             onPressed: () => ref
                 .read(testResultHistoryControllerProvider.notifier)
-                .refresh(),
+                .loadTestResults(),
+            tooltip: l10n.refresh,
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.more_vert),
-            onSelected: (value) => _handleMenuAction(value),
+            onSelected: (value) => _handleMenuAction(value, l10n),
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'sync',
                 child: Row(
                   children: [
-                    Icon(Icons.cloud_sync),
-                    SizedBox(width: 8),
-                    Text('Sync to Cloud'),
+                    const Icon(Icons.cloud_sync),
+                    const SizedBox(width: 8),
+                    Text(l10n.syncToCloud),
                   ],
                 ),
               ),
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'clear',
                 child: Row(
                   children: [
-                    Icon(Icons.clear_all, color: Colors.red),
-                    SizedBox(width: 8),
-                    Text('Clear All', style: TextStyle(color: Colors.red)),
+                    const Icon(Icons.clear_all, color: Colors.red),
+                    const SizedBox(width: 8),
+                    Text(
+                      l10n.clearAll,
+                      style: const TextStyle(color: Colors.red),
+                    ),
                   ],
                 ),
               ),
@@ -84,40 +90,44 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.history), text: 'History'),
-            Tab(icon: Icon(Icons.analytics), text: 'Statistics'),
+          tabs: [
+            Tab(icon: const Icon(Icons.history), text: l10n.testHistory),
+            Tab(icon: const Icon(Icons.analytics), text: l10n.statistics),
           ],
         ),
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          _buildHistoryTab(state, theme),
-          _buildStatisticsTab(state, theme),
+          _buildHistoryTab(state, theme, l10n),
+          _buildStatisticsTab(state, theme, l10n),
         ],
       ),
     );
   }
 
-  Widget _buildHistoryTab(TestResultHistoryState state, ThemeData theme) {
+  Widget _buildHistoryTab(
+    TestResultHistoryState state,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     return state.when(
-      initial: () => const Center(child: Text('Loading...')),
+      initial: () => Center(child: Text(l10n.loading)),
       loading: () => const Center(child: CircularProgressIndicator()),
-      loaded: (results) => _buildHistoryList(results, theme),
+      loaded: (results) => _buildHistoryList(results, theme, l10n),
       error: (message) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.error, size: 64, color: theme.colorScheme.error),
             const SizedBox(height: 16),
-            Text('Error: $message'),
+            Text(l10n.error(message)),
             const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => ref
                   .read(testResultHistoryControllerProvider.notifier)
-                  .refresh(),
-              child: const Text('Retry'),
+                  .loadTestResults(),
+              child: Text(l10n.retry),
             ),
           ],
         ),
@@ -125,7 +135,11 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
     );
   }
 
-  Widget _buildHistoryList(List<TestResultEntity> results, ThemeData theme) {
+  Widget _buildHistoryList(
+    List<TestResultEntity> results,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     if (results.isEmpty) {
       return Center(
         child: Column(
@@ -137,13 +151,19 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
               color: theme.colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 16),
-            Text('No test results yet', style: theme.textTheme.headlineSmall),
+            Text(
+              l10n.noTestHistory,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
             const SizedBox(height: 8),
             Text(
-              'Complete some tests to see your history here',
+              l10n.noTestHistoryDescription,
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -155,14 +175,14 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
 
     return Column(
       children: [
-        _buildSearchAndFilter(theme),
+        _buildSearchAndFilter(theme, l10n),
         Expanded(
           child: ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: filteredResults.length,
             itemBuilder: (context, index) {
               final result = filteredResults[index];
-              return _buildResultCard(result, theme);
+              return _buildResultCard(result, theme, l10n);
             },
           ),
         ),
@@ -170,13 +190,15 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
     );
   }
 
-  Widget _buildSearchAndFilter(ThemeData theme) {
+  Widget _buildSearchAndFilter(ThemeData theme, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
         border: Border(
-          bottom: BorderSide(color: theme.colorScheme.outline.withValues(alpha: 0.2)),
+          bottom: BorderSide(
+            color: theme.colorScheme.outline.withValues(alpha: 0.2),
+          ),
         ),
       ),
       child: Column(
@@ -184,7 +206,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Search by substance or notes...',
+              hintText: l10n.searchBySubstanceOrNotes,
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
@@ -204,20 +226,20 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
           const SizedBox(height: 12),
           Row(
             children: [
-              Text('Filter by reagent:', style: theme.textTheme.bodyMedium),
+              Text(l10n.filterByReagent, style: theme.textTheme.bodyMedium),
               const SizedBox(width: 12),
               Expanded(
                 child: DropdownButton<String>(
                   value: _selectedReagentFilter,
                   isExpanded: true,
-                  items: _getReagentFilterOptions().map((reagent) {
+                  items: _getReagentFilterOptions(l10n).map((option) {
                     return DropdownMenuItem(
-                      value: reagent,
-                      child: Text(reagent),
+                      value: option.value,
+                      child: Text(option.display),
                     );
                   }).toList(),
                   onChanged: (value) {
-                    setState(() => _selectedReagentFilter = value ?? 'All');
+                    setState(() => _selectedReagentFilter = value ?? '__ALL__');
                   },
                 ),
               ),
@@ -228,7 +250,11 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
     );
   }
 
-  Widget _buildResultCard(TestResultEntity result, ThemeData theme) {
+  Widget _buildResultCard(
+    TestResultEntity result,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     final dateFormat = DateFormat('MMM dd, yyyy • HH:mm');
 
     return Card(
@@ -272,7 +298,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                 ),
                 IconButton(
                   icon: const Icon(Icons.delete_outline, size: 20),
-                  onPressed: () => _showDeleteConfirmation(result),
+                  onPressed: () => _showDeleteConfirmation(result, l10n),
                 ),
               ],
             ),
@@ -286,7 +312,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Observed: ${result.observedColor}',
+                  '${l10n.observedColorLabel}: ${result.observedColor}',
                   style: theme.textTheme.bodyMedium,
                 ),
               ],
@@ -302,7 +328,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
-                    'Possible: ${result.possibleSubstances.join(', ')}',
+                    '${l10n.possibleSubstances}: ${result.possibleSubstances.join(', ')}',
                     style: theme.textTheme.bodyMedium,
                   ),
                 ),
@@ -318,7 +344,9 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Confidence: ${result.confidencePercentage}%',
+                  l10n.confidenceWithPercentage(
+                    result.confidencePercentage.toString(),
+                  ),
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w500,
                   ),
@@ -362,18 +390,26 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
     );
   }
 
-  Widget _buildStatisticsTab(TestResultHistoryState state, ThemeData theme) {
+  Widget _buildStatisticsTab(
+    TestResultHistoryState state,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     return state.when(
-      initial: () => const Center(child: Text('Loading...')),
+      initial: () => Center(child: Text(l10n.loading)),
       loading: () => const Center(child: CircularProgressIndicator()),
-      loaded: (results) => _buildStatistics(results, theme),
-      error: (message) => Center(child: Text('Error: $message')),
+      loaded: (results) => _buildStatistics(results, theme, l10n),
+      error: (message) => Center(child: Text(l10n.error(message))),
     );
   }
 
-  Widget _buildStatistics(List<TestResultEntity> results, ThemeData theme) {
+  Widget _buildStatistics(
+    List<TestResultEntity> results,
+    ThemeData theme,
+    AppLocalizations l10n,
+  ) {
     if (results.isEmpty) {
-      return const Center(child: Text('No data for statistics'));
+      return Center(child: Text(l10n.noTestResultsYet));
     }
 
     final controller = ref.read(testResultHistoryControllerProvider.notifier);
@@ -385,28 +421,28 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildStatCard(
-            'Total Tests',
+            l10n.totalTests,
             stats['totalTests'].toString(),
             Icons.science,
             theme,
           ),
           const SizedBox(height: 16),
           _buildStatCard(
-            'Most Used Reagent',
+            l10n.mostUsedReagent,
             stats['mostUsedReagent'],
             Icons.favorite,
             theme,
           ),
           const SizedBox(height: 16),
           _buildStatCard(
-            'Average Confidence',
+            l10n.averageConfidence,
             '${stats['averageConfidence'].toStringAsFixed(1)}%',
             Icons.analytics,
             theme,
           ),
           const SizedBox(height: 24),
           Text(
-            'Tests by Reagent',
+            l10n.testsByReagent,
             style: theme.textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.bold,
             ),
@@ -522,8 +558,8 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
       }).toList();
     }
 
-    // Filter by reagent
-    if (_selectedReagentFilter != 'All') {
+    // Filter by reagent - use constant value check
+    if (_selectedReagentFilter != '__ALL__') {
       filtered = filtered
           .where((result) => result.reagentName == _selectedReagentFilter)
           .toList();
@@ -532,15 +568,20 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
     return filtered;
   }
 
-  List<String> _getReagentFilterOptions() {
+  List<DropdownOption> _getReagentFilterOptions(AppLocalizations l10n) {
     final state = ref.watch(testResultHistoryControllerProvider);
     return state.maybeWhen(
       loaded: (results) {
         final reagents = results.map((r) => r.reagentName).toSet().toList()
           ..sort();
-        return ['All', ...reagents];
+        return [
+          DropdownOption(value: '__ALL__', display: l10n.all),
+          ...reagents.map(
+            (reagent) => DropdownOption(value: reagent, display: reagent),
+          ),
+        ];
       },
-      orElse: () => ['All'],
+      orElse: () => [DropdownOption(value: '__ALL__', display: l10n.all)],
     );
   }
 
@@ -550,7 +591,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
     return Colors.red;
   }
 
-  void _handleMenuAction(String action) {
+  void _handleMenuAction(String action, AppLocalizations l10n) {
     switch (action) {
       case 'sync':
         ref
@@ -558,26 +599,24 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
             .syncToFirestore();
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text('Syncing to cloud...')));
+        ).showSnackBar(SnackBar(content: Text(l10n.syncingToCloud)));
         break;
       case 'clear':
-        _showClearAllConfirmation();
+        _showClearAllConfirmation(l10n);
         break;
     }
   }
 
-  void _showDeleteConfirmation(TestResultEntity result) {
+  void _showDeleteConfirmation(TestResultEntity result, AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Test Result'),
-        content: Text(
-          'Are you sure you want to delete this ${result.reagentName} test result?',
-        ),
+        title: Text(l10n.deleteTest),
+        content: Text(l10n.deleteTestConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -586,25 +625,26 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                   .read(testResultHistoryControllerProvider.notifier)
                   .deleteTestResult(result.id);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.red)),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(l10n.delete),
           ),
         ],
       ),
     );
   }
 
-  void _showClearAllConfirmation() {
+  void _showClearAllConfirmation(AppLocalizations l10n) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear All Results'),
-        content: const Text(
-          'Are you sure you want to delete all test results? This action cannot be undone.',
-        ),
+        title: Text(l10n.clearAllData),
+        content: Text(l10n.clearAllConfirmation),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -613,10 +653,21 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                   .read(testResultHistoryControllerProvider.notifier)
                   .clearAllResults();
             },
-            child: const Text('Clear All', style: TextStyle(color: Colors.red)),
+            child: Text(
+              l10n.clearAll,
+              style: const TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+// Helper class for dropdown options
+class DropdownOption {
+  final String value;
+  final String display;
+
+  DropdownOption({required this.value, required this.display});
 }

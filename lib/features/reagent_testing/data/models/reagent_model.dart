@@ -11,11 +11,6 @@ class ReagentModel {
   final int testDuration;
   final List<String> chemicals;
   final List<DrugResultModel> drugResults;
-  final List<String> equipment;
-  final List<String> specificHazards;
-  final List<String> handlingProcedures;
-  final List<String> storage;
-  final List<String> instructions;
   final String category;
 
   const ReagentModel({
@@ -28,11 +23,6 @@ class ReagentModel {
     required this.testDuration,
     required this.chemicals,
     required this.drugResults,
-    required this.equipment,
-    required this.specificHazards,
-    required this.handlingProcedures,
-    required this.storage,
-    required this.instructions,
     required this.category,
   });
 
@@ -62,15 +52,6 @@ class ReagentModel {
                 DrugResultModel.fromJson(drugResult as Map<String, dynamic>),
           )
           .toList(),
-      equipment: List<String>.from(json['equipment'] as List? ?? []),
-      specificHazards: List<String>.from(
-        json['specificHazards'] as List? ?? [],
-      ),
-      handlingProcedures: List<String>.from(
-        json['handlingProcedures'] as List? ?? [],
-      ),
-      storage: List<String>.from(json['storage'] as List? ?? []),
-      instructions: List<String>.from(json['instructions'] as List? ?? []),
       category: json['category'] as String? ?? 'Primary Tests',
     );
   }
@@ -89,11 +70,6 @@ class ReagentModel {
       'drugResults': drugResults
           .map((drugResult) => drugResult.toJson())
           .toList(),
-      'equipment': equipment,
-      'specificHazards': specificHazards,
-      'handlingProcedures': handlingProcedures,
-      'storage': storage,
-      'instructions': instructions,
       'category': category,
     };
   }
@@ -112,11 +88,6 @@ class ReagentModel {
       drugResults: drugResults
           .map((drugResult) => drugResult.toEntity())
           .toList(),
-      equipment: equipment,
-      specificHazards: specificHazards,
-      handlingProcedures: handlingProcedures,
-      storage: storage,
-      instructions: instructions,
       category: category,
     );
   }
@@ -135,11 +106,6 @@ class ReagentModel {
       drugResults: entity.drugResults
           .map((drugResult) => DrugResultModel.fromEntity(drugResult))
           .toList(),
-      equipment: entity.equipment,
-      specificHazards: entity.specificHazards,
-      handlingProcedures: entity.handlingProcedures,
-      storage: entity.storage,
-      instructions: entity.instructions,
       category: entity.category,
     );
   }
@@ -157,11 +123,6 @@ class ReagentModel {
         other.testDuration == testDuration &&
         _listEquals(other.chemicals, chemicals) &&
         _listEquals(other.drugResults, drugResults) &&
-        _listEquals(other.equipment, equipment) &&
-        _listEquals(other.specificHazards, specificHazards) &&
-        _listEquals(other.handlingProcedures, handlingProcedures) &&
-        _listEquals(other.storage, storage) &&
-        _listEquals(other.instructions, instructions) &&
         other.category == category;
   }
 
@@ -176,11 +137,6 @@ class ReagentModel {
         testDuration.hashCode ^
         chemicals.hashCode ^
         drugResults.hashCode ^
-        equipment.hashCode ^
-        specificHazards.hashCode ^
-        handlingProcedures.hashCode ^
-        storage.hashCode ^
-        instructions.hashCode ^
         category.hashCode;
   }
 
@@ -194,6 +150,6 @@ class ReagentModel {
 
   @override
   String toString() {
-    return 'ReagentModel(reagentName: $reagentName, description: $description, safetyLevel: $safetyLevel, testDuration: $testDuration, chemicals: $chemicals, drugResults: ${drugResults.length} results, equipment: ${equipment.length}, instructions: ${instructions.length}, category: $category)';
+    return 'ReagentModel(reagentName: $reagentName, description: $description, safetyLevel: $safetyLevel, testDuration: $testDuration, chemicals: $chemicals, drugResults: ${drugResults.length} results, category: $category)';
   }
 }

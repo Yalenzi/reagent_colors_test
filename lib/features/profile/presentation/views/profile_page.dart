@@ -2,9 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/states/auth_state.dart';
-import '../../../auth/presentation/views/auth_debug_page.dart';
-import '../../../auth/presentation/views/firestore_debug_page.dart';
-import '../../../../core/widgets/notification_demo_widget.dart';
+
+import '../../../../l10n/app_localizations.dart';
 
 class ProfilePage extends ConsumerStatefulWidget {
   const ProfilePage({super.key});
@@ -110,6 +109,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   PreferredSizeWidget _buildModernAppBar(AuthState authState) {
+    final l10n = AppLocalizations.of(context)!;
     return AppBar(
       elevation: 0,
       backgroundColor: Colors.white,
@@ -139,46 +139,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
         ],
       ),
-      actions: [
-        if (authState is AuthAuthenticated) ...[
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const AuthDebugPage()),
-              );
-            },
-            icon: const Icon(
-              Icons.bug_report_outlined,
-              color: Color(0xFF64748B),
-            ),
-            tooltip: 'Debug Firestore',
-          ),
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const FirestoreDebugPage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.storage_outlined, color: Color(0xFF64748B)),
-            tooltip: 'Debug User Profiles',
-          ),
-        ],
-      ],
+      actions: const [],
     );
   }
 
   String _getAppBarTitle(AuthState authState) {
+    final l10n = AppLocalizations.of(context)!;
     if (authState is AuthAuthenticated) {
-      return 'Laboratory Profile';
+      return l10n.laboratoryProfile;
     }
-    return _isLoginMode ? 'Lab Access' : 'Join Laboratory';
+    return _isLoginMode ? l10n.labAccess : l10n.joinLaboratory;
   }
 
   Widget _buildBody(AuthState authState) {
+    final l10n = AppLocalizations.of(context)!;
     if (authState is AuthAuthenticated) {
       return _buildModernProfileView(authState.user);
     }
@@ -188,13 +162,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildModernWelcomeSection(),
+          _buildModernWelcomeSection(l10n),
           const SizedBox(height: 24),
-          _buildModernAuthForm(authState),
+          _buildModernAuthForm(authState, l10n),
           const SizedBox(height: 20),
-          _buildModernGoogleSignInButton(authState),
+          _buildModernGoogleSignInButton(authState, l10n),
           const SizedBox(height: 20),
-          _buildToggleAuthModeButton(),
+          _buildToggleAuthModeButton(l10n),
           if (authState is AuthError) ...[
             const SizedBox(height: 20),
             _buildModernErrorMessage(authState.message),
@@ -209,30 +183,29 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   }
 
   Widget _buildModernProfileView(user) {
+    final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfileHeader(user),
+          _buildProfileHeader(user, l10n),
           const SizedBox(height: 24),
-          _buildTestingStats(),
+          _buildTestingStats(l10n),
           const SizedBox(height: 24),
-          const NotificationDemoWidget(),
+          _buildRecentActivity(l10n),
           const SizedBox(height: 24),
-          _buildRecentActivity(),
+          _buildSafetySection(l10n),
           const SizedBox(height: 24),
-          _buildSafetySection(),
+          _buildAccountSection(user, l10n),
           const SizedBox(height: 24),
-          _buildAccountSection(user),
-          const SizedBox(height: 24),
-          _buildSignOutButton(),
+          _buildSignOutButton(l10n),
         ],
       ),
     );
   }
 
-  Widget _buildProfileHeader(user) {
+  Widget _buildProfileHeader(user, AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -296,7 +269,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Laboratory Technician',
+                  l10n.laboratoryTechnician,
                   style: TextStyle(
                     fontSize: 16,
                     color: Colors.white.withValues(alpha: 0.9),
@@ -323,7 +296,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        user.isEmailVerified ? 'Verified' : 'Pending',
+                        user.isEmailVerified ? l10n.verified : l10n.pending,
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.white,
@@ -341,13 +314,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildTestingStats() {
+  Widget _buildTestingStats(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Testing Statistics',
-          style: TextStyle(
+        Text(
+          l10n.testingStatistics,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Color(0xFF1E293B),
@@ -358,7 +331,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: [
             Expanded(
               child: _buildStatCard(
-                'Tests Performed',
+                l10n.testsPerformed,
                 '47',
                 Icons.science,
                 const Color(0xFF10B981),
@@ -367,7 +340,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
-                'Reagents Used',
+                l10n.reagentsUsed,
                 '12',
                 Icons.colorize,
                 const Color(0xFF8B5CF6),
@@ -380,7 +353,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: [
             Expanded(
               child: _buildStatCard(
-                'Success Rate',
+                l10n.successRate,
                 '94%',
                 Icons.check_circle,
                 const Color(0xFF06B6D4),
@@ -389,7 +362,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             const SizedBox(width: 12),
             Expanded(
               child: _buildStatCard(
-                'Lab Hours',
+                l10n.labHours,
                 '28h',
                 Icons.access_time,
                 const Color(0xFFF59E0B),
@@ -454,13 +427,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildRecentActivity() {
+  Widget _buildRecentActivity(AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Recent Activity',
-          style: TextStyle(
+        Text(
+          l10n.recentActivity,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Color(0xFF1E293B),
@@ -556,7 +529,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildSafetySection() {
+  Widget _buildSafetySection(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -584,9 +557,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Safety Reminder',
-                style: TextStyle(
+              Text(
+                l10n.safetyReminder,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF92400E),
@@ -595,9 +568,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ],
           ),
           const SizedBox(height: 12),
-          const Text(
-            'Always wear protective equipment when handling reagents. Ensure proper ventilation and follow safety protocols.',
-            style: TextStyle(
+          Text(
+            l10n.safetyReminderText,
+            style: const TextStyle(
               fontSize: 14,
               color: Color(0xFF92400E),
               height: 1.5,
@@ -608,13 +581,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildAccountSection(user) {
+  Widget _buildAccountSection(user, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          'Account Information',
-          style: TextStyle(
+        Text(
+          l10n.accountInformation,
+          style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
             color: Color(0xFF1E293B),
@@ -636,13 +609,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           child: Column(
             children: [
-              _buildInfoRow(Icons.person_outline, 'Username', user.username),
+              _buildInfoRow(Icons.person_outline, l10n.username, user.username),
               const Divider(height: 32),
-              _buildInfoRow(Icons.email_outlined, 'Email', user.email),
+              _buildInfoRow(Icons.email_outlined, l10n.email, user.email),
               const Divider(height: 32),
               _buildInfoRow(
                 Icons.calendar_today_outlined,
-                'Member Since',
+                l10n.memberSince,
                 _formatDate(user.registeredAt),
               ),
             ],
@@ -692,7 +665,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildSignOutButton() {
+  Widget _buildSignOutButton(AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       height: 56,
@@ -705,9 +678,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: TextButton.icon(
         onPressed: _signOut,
         icon: const Icon(Icons.logout, color: Color(0xFFEF4444)),
-        label: const Text(
-          'Sign Out',
-          style: TextStyle(
+        label: Text(
+          l10n.signOut,
+          style: const TextStyle(
             color: Color(0xFFEF4444),
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -740,7 +713,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
-  Widget _buildModernWelcomeSection() {
+  Widget _buildModernWelcomeSection(AppLocalizations l10n) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -770,7 +743,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           const SizedBox(height: 20),
           Text(
-            _isLoginMode ? 'Welcome Back!' : 'Join Our Lab',
+            _isLoginMode ? l10n.welcomeBack : l10n.joinOurLab,
             style: const TextStyle(
               fontSize: 28,
               fontWeight: FontWeight.bold,
@@ -779,9 +752,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           const SizedBox(height: 8),
           Text(
-            _isLoginMode
-                ? 'Access your reagent testing laboratory'
-                : 'Start your journey in substance analysis',
+            _isLoginMode ? l10n.accessYourLab : l10n.startYourJourney,
             style: const TextStyle(
               fontSize: 16,
               color: Color(0xFF64748B),
@@ -794,7 +765,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildModernAuthForm(AuthState authState) {
+  Widget _buildModernAuthForm(AuthState authState, AppLocalizations l10n) {
     final isLoading = authState is AuthLoading;
 
     return Container(
@@ -818,18 +789,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             if (!_isLoginMode) ...[
               _buildModernTextField(
                 controller: _usernameController,
-                label: 'Username',
+                label: l10n.username,
                 icon: Icons.person_outline,
                 enabled: !isLoading,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Please enter a username';
+                    return l10n.pleaseEnterUsername;
                   }
                   if (value.trim().length < 3) {
-                    return 'Username must be at least 3 characters';
+                    return l10n.usernameMinLength;
                   }
                   if (!RegExp(r'^[a-zA-Z0-9_]+$').hasMatch(value.trim())) {
-                    return 'Username can only contain letters, numbers, and underscores';
+                    return l10n.usernameInvalidChars;
                   }
                   return null;
                 },
@@ -838,18 +809,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ],
             _buildModernTextField(
               controller: _emailController,
-              label: 'Email Address',
+              label: l10n.emailAddress,
               icon: Icons.email_outlined,
               keyboardType: TextInputType.emailAddress,
               enabled: !isLoading,
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'Please enter your email';
+                  return l10n.pleaseEnterEmail;
                 }
                 if (!RegExp(
                   r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
                 ).hasMatch(value.trim())) {
-                  return 'Please enter a valid email address';
+                  return l10n.pleaseEnterValidEmail;
                 }
                 return null;
               },
@@ -857,7 +828,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             const SizedBox(height: 20),
             _buildModernTextField(
               controller: _passwordController,
-              label: 'Password',
+              label: l10n.password,
               icon: Icons.lock_outline,
               obscureText: !_isPasswordVisible,
               enabled: !isLoading,
@@ -874,10 +845,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter your password';
+                  return l10n.pleaseEnterPassword;
                 }
                 if (!_isLoginMode && value.length < 6) {
-                  return 'Password must be at least 6 characters';
+                  return l10n.passwordMinLength;
                 }
                 return null;
               },
@@ -886,7 +857,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               const SizedBox(height: 20),
               _buildModernTextField(
                 controller: _confirmPasswordController,
-                label: 'Confirm Password',
+                label: l10n.confirmPassword,
                 icon: Icons.lock_outline,
                 obscureText: !_isConfirmPasswordVisible,
                 enabled: !isLoading,
@@ -905,10 +876,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please confirm your password';
+                    return l10n.pleaseConfirmPassword;
                   }
                   if (value != _passwordController.text) {
-                    return 'Passwords do not match';
+                    return l10n.passwordsDoNotMatch;
                   }
                   return null;
                 },
@@ -956,8 +927,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                           const SizedBox(width: 12),
                           Text(
                             _isLoginMode
-                                ? 'Signing In...'
-                                : 'Creating Account...',
+                                ? l10n.signingIn
+                                : l10n.creatingAccount,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,
@@ -967,7 +938,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         ],
                       )
                     : Text(
-                        _isLoginMode ? 'Access Laboratory' : 'Join Laboratory',
+                        _isLoginMode
+                            ? l10n.accessLaboratory
+                            : l10n.joinLaboratory,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -1034,7 +1007,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildModernGoogleSignInButton(AuthState authState) {
+  Widget _buildModernGoogleSignInButton(
+    AuthState authState,
+    AppLocalizations l10n,
+  ) {
     final isLoading = authState is AuthLoading;
 
     return Container(
@@ -1057,11 +1033,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Expanded(
                 child: Container(height: 1, color: const Color(0xFFE2E8F0)),
               ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
-                  'Or continue with',
-                  style: TextStyle(color: Color(0xFF64748B), fontSize: 14),
+                  l10n.orContinueWith,
+                  style: const TextStyle(
+                    color: Color(0xFF64748B),
+                    fontSize: 14,
+                  ),
                 ),
               ),
               Expanded(
@@ -1092,7 +1071,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 },
               ),
               label: Text(
-                _isLoginMode ? 'Sign in with Google' : 'Sign up with Google',
+                _isLoginMode ? l10n.signInWithGoogle : l10n.signUpWithGoogle,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -1111,7 +1090,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildToggleAuthModeButton() {
+  Widget _buildToggleAuthModeButton(AppLocalizations l10n) {
     return TextButton(
       onPressed: _toggleAuthMode,
       child: RichText(
@@ -1120,11 +1099,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: [
             TextSpan(
               text: _isLoginMode
-                  ? "Don't have lab access? "
-                  : "Already have lab access? ",
+                  ? "${l10n.dontHaveLabAccess} "
+                  : "${l10n.alreadyHaveLabAccess} ",
             ),
             TextSpan(
-              text: _isLoginMode ? 'Join Now' : 'Sign In',
+              text: _isLoginMode ? l10n.joinNow : l10n.signIn,
               style: const TextStyle(
                 color: Color(0xFF3B82F6),
                 fontWeight: FontWeight.w600,
