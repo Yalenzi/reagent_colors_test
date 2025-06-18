@@ -576,6 +576,45 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                       ),
                     ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          final controller = ref.read(
+                            testExecutionControllerProvider.notifier,
+                          );
+                          controller.selectColor(
+                            _aiAnalysisResult!.observedColorDescription,
+                          );
+
+                          // Auto-populate notes with AI analysis
+                          final aiNotes = _buildAIAnalysisNotes(
+                            _aiAnalysisResult!,
+                          );
+                          _notesController.text = aiNotes;
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(l10n.aiResultsApplied),
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.check_circle_outline),
+                        label: Text(l10n.useAiResults),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Theme.of(
+                            context,
+                          ).colorScheme.primary,
+                          foregroundColor: Theme.of(
+                            context,
+                          ).colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -810,8 +849,9 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
     TestExecutionController controller,
   ) {
     final canComplete =
-        testExecution.selectedColor != null &&
-        testExecution.selectedColor!.isNotEmpty;
+        (testExecution.selectedColor != null &&
+            testExecution.selectedColor!.isNotEmpty) ||
+        _aiAnalysisResult != null;
 
     return SizedBox(
       width: double.infinity,
@@ -851,11 +891,35 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
               final resultController = ref.read(
                 testResultControllerProvider.notifier,
               );
-              resultController.analyzeTestResult(
-                reagent: widget.reagent,
-                observedColor: testExecution.selectedColor!,
-                notes: _notesController.text,
-              );
+
+              // Check if we should use AI analysis or manual color selection
+              if (_aiAnalysisResult != null &&
+                  (testExecution.selectedColor == null ||
+                      testExecution.selectedColor!.isEmpty ||
+                      testExecution.selectedColor ==
+                          _aiAnalysisResult!.observedColorDescription)) {
+                // Use AI analysis results directly to preserve AI's substance identification
+                Logger.info(
+                  '🤖 Using AI analysis results for test completion: ${_aiAnalysisResult!.primarySubstance}',
+                );
+
+                resultController.analyzeTestResultWithAI(
+                  reagent: widget.reagent,
+                  aiResult: _aiAnalysisResult!,
+                  notes: _notesController.text,
+                );
+              } else {
+                // Use manual color selection with traditional color matching
+                final observedColor = testExecution.selectedColor ?? 'Unknown';
+                Logger.info(
+                  '🎨 Using manual color selection for test completion: $observedColor',
+                );
+                resultController.analyzeTestResult(
+                  reagent: widget.reagent,
+                  observedColor: observedColor,
+                  notes: _notesController.text,
+                );
+              }
             },
             child: Text(l10n.completeTest),
           ),
@@ -932,6 +996,18 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
           _aiAnalysisResult = analysisResult;
           _isAnalyzingImage = false;
         });
+
+        // Auto-select the AI-analyzed color for easy completion
+        if (analysisResult.observedColorDescription.isNotEmpty) {
+          final controller = ref.read(testExecutionControllerProvider.notifier);
+          controller.selectColor(analysisResult.observedColorDescription);
+        }
+
+        // Auto-populate notes with AI analysis
+        final aiNotes = _buildAIAnalysisNotes(analysisResult);
+        if (mounted) {
+          _notesController.text = aiNotes;
+        }
       } catch (parseError) {
         throw Exception('Failed to parse AI analysis: $parseError');
       }
@@ -942,6 +1018,34 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
       });
       Logger.error('AI analysis failed: $e');
     }
+  }
+
+  String _buildAIAnalysisNotes(GeminiReagentTestResult aiResult) {
+    final l10n = AppLocalizations.of(context)!;
+    final notes = StringBuffer();
+    notes.writeln('--- ${l10n.aiAnalysis} ---');
+
+    if (aiResult.colorMatchReasoning.isNotEmpty) {
+      notes.writeln('${l10n.analysisNotes}: ${aiResult.colorMatchReasoning}');
+    }
+
+    if (aiResult.analysisNotes.isNotEmpty) {
+      notes.writeln('Technical Notes: ${aiResult.analysisNotes}');
+    }
+
+    if (aiResult.recommendations.isNotEmpty) {
+      notes.writeln('Recommendations: ${aiResult.recommendations}');
+    }
+
+    if (aiResult.testResult.isNotEmpty) {
+      notes.writeln('${l10n.testResult}: ${aiResult.testResult}');
+    }
+
+    if (aiResult.concentrationEstimate.isNotEmpty) {
+      notes.writeln('Concentration: ${aiResult.concentrationEstimate}');
+    }
+
+    return notes.toString().trim();
   }
 
   Color _getTextColor(Color backgroundColor) {

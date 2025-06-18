@@ -689,7 +689,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pleaseEnterUsername => 'يرجى إدخال اسم المستخدم';
 
   @override
-  String get usernameMinLength => 'يجب أن يكون اسم المستخدم 3 أحرف على الأقل';
+  String get usernameMinLength => 'يجب أن يكون اسم المستخدم على الأقل 3 أحرف';
 
   @override
   String get usernameInvalidChars =>
@@ -705,11 +705,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get pleaseEnterPassword => 'يرجى إدخال كلمة المرور';
 
   @override
-  String get passwordMinLength => 'يجب أن تكون كلمة المرور 6 أحرف على الأقل';
+  String get passwordMinLength => 'يجب أن تكون كلمة المرور على الأقل 6 أحرف';
 
   @override
   String get pleaseConfirmPassword => 'يرجى تأكيد كلمة المرور';
 
   @override
   String get passwordsDoNotMatch => 'كلمات المرور غير متطابقة';
+
+  @override
+  String get useAiResults => 'استخدام نتائج الذكاء الاصطناعي';
+
+  @override
+  String get aiResultsApplied => 'تم تطبيق اختيار لون الذكاء الاصطناعي بنجاح!';
 }

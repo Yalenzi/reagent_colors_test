@@ -1453,6 +1453,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords do not match'**
   String get passwordsDoNotMatch;
+
+  /// No description provided for @useAiResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Use AI Results'**
+  String get useAiResults;
+
+  /// No description provided for @aiResultsApplied.
+  ///
+  /// In en, this message translates to:
+  /// **'AI color selection applied successfully!'**
+  String get aiResultsApplied;
 }
 
 class _AppLocalizationsDelegate

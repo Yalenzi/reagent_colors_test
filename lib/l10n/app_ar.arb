@@ -234,12 +234,15 @@
     "creatingAccount": "جاري إنشاء الحساب...",
     
     "pleaseEnterUsername": "يرجى إدخال اسم المستخدم",
-    "usernameMinLength": "يجب أن يكون اسم المستخدم 3 أحرف على الأقل",
+    "usernameMinLength": "يجب أن يكون اسم المستخدم على الأقل 3 أحرف",
     "usernameInvalidChars": "يمكن أن يحتوي اسم المستخدم على أحرف وأرقام وشرطات سفلية فقط",
     "pleaseEnterEmail": "يرجى إدخال بريدك الإلكتروني",
     "pleaseEnterValidEmail": "يرجى إدخال عنوان بريد إلكتروني صحيح",
     "pleaseEnterPassword": "يرجى إدخال كلمة المرور",
-    "passwordMinLength": "يجب أن تكون كلمة المرور 6 أحرف على الأقل",
+    "passwordMinLength": "يجب أن تكون كلمة المرور على الأقل 6 أحرف",
     "pleaseConfirmPassword": "يرجى تأكيد كلمة المرور",
-    "passwordsDoNotMatch": "كلمات المرور غير متطابقة"
+    "passwordsDoNotMatch": "كلمات المرور غير متطابقة",
+    
+    "useAiResults": "استخدام نتائج الذكاء الاصطناعي",
+    "aiResultsApplied": "تم تطبيق اختيار لون الذكاء الاصطناعي بنجاح!"
 } 

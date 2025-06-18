@@ -311,9 +311,11 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  '${l10n.observedColorLabel}: ${result.observedColor}',
-                  style: theme.textTheme.bodyMedium,
+                Expanded(
+                  child: Text(
+                    '${l10n.observedColorLabel}: ${result.observedColor}',
+                    style: theme.textTheme.bodyMedium,
+                  ),
                 ),
               ],
             ),
@@ -343,12 +345,14 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
                 const SizedBox(width: 8),
-                Text(
-                  l10n.confidenceWithPercentage(
-                    result.confidencePercentage.toString(),
-                  ),
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
+                Expanded(
+                  child: Text(
+                    l10n.confidenceWithPercentage(
+                      result.confidencePercentage.toString(),
+                    ),
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),

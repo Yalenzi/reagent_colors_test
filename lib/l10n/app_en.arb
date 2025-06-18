@@ -241,5 +241,8 @@
     "pleaseEnterPassword": "Please enter your password",
     "passwordMinLength": "Password must be at least 6 characters",
     "pleaseConfirmPassword": "Please confirm your password",
-    "passwordsDoNotMatch": "Passwords do not match"
+    "passwordsDoNotMatch": "Passwords do not match",
+    
+    "useAiResults": "Use AI Results",
+    "aiResultsApplied": "AI color selection applied successfully!"
 } 
