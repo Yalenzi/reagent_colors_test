@@ -938,6 +938,186 @@ abstract class AppLocalizations {
   /// **'Unknown substance or impure sample'**
   String get unknownSubstance;
 
+  /// No description provided for @takePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Take Photo'**
+  String get takePhoto;
+
+  /// No description provided for @fromGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'From Gallery'**
+  String get fromGallery;
+
+  /// No description provided for @uploadImageDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload an image of your test result for AI analysis'**
+  String get uploadImageDescription;
+
+  /// No description provided for @red.
+  ///
+  /// In en, this message translates to:
+  /// **'Red'**
+  String get red;
+
+  /// No description provided for @darkRed.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Red'**
+  String get darkRed;
+
+  /// No description provided for @orange.
+  ///
+  /// In en, this message translates to:
+  /// **'Orange'**
+  String get orange;
+
+  /// No description provided for @redOrange.
+  ///
+  /// In en, this message translates to:
+  /// **'Red-Orange'**
+  String get redOrange;
+
+  /// No description provided for @yellow.
+  ///
+  /// In en, this message translates to:
+  /// **'Yellow'**
+  String get yellow;
+
+  /// No description provided for @lightYellow.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Yellow'**
+  String get lightYellow;
+
+  /// No description provided for @green.
+  ///
+  /// In en, this message translates to:
+  /// **'Green'**
+  String get green;
+
+  /// No description provided for @paleGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pale Green'**
+  String get paleGreen;
+
+  /// No description provided for @blue.
+  ///
+  /// In en, this message translates to:
+  /// **'Blue'**
+  String get blue;
+
+  /// No description provided for @purple.
+  ///
+  /// In en, this message translates to:
+  /// **'Purple'**
+  String get purple;
+
+  /// No description provided for @violet.
+  ///
+  /// In en, this message translates to:
+  /// **'Violet'**
+  String get violet;
+
+  /// No description provided for @magenta.
+  ///
+  /// In en, this message translates to:
+  /// **'Magenta'**
+  String get magenta;
+
+  /// No description provided for @pink.
+  ///
+  /// In en, this message translates to:
+  /// **'Pink'**
+  String get pink;
+
+  /// No description provided for @brown.
+  ///
+  /// In en, this message translates to:
+  /// **'Brown'**
+  String get brown;
+
+  /// No description provided for @brownish.
+  ///
+  /// In en, this message translates to:
+  /// **'Brownish'**
+  String get brownish;
+
+  /// No description provided for @black.
+  ///
+  /// In en, this message translates to:
+  /// **'Black'**
+  String get black;
+
+  /// No description provided for @grey.
+  ///
+  /// In en, this message translates to:
+  /// **'Grey'**
+  String get grey;
+
+  /// No description provided for @lightBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Blue'**
+  String get lightBlue;
+
+  /// No description provided for @lightGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Light Green'**
+  String get lightGreen;
+
+  /// No description provided for @darkBlue.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Blue'**
+  String get darkBlue;
+
+  /// No description provided for @darkGreen.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Green'**
+  String get darkGreen;
+
+  /// No description provided for @olive.
+  ///
+  /// In en, this message translates to:
+  /// **'Olive'**
+  String get olive;
+
+  /// No description provided for @greenishBrown.
+  ///
+  /// In en, this message translates to:
+  /// **'Greenish Brown'**
+  String get greenishBrown;
+
+  /// No description provided for @maroon.
+  ///
+  /// In en, this message translates to:
+  /// **'Maroon'**
+  String get maroon;
+
+  /// No description provided for @navy.
+  ///
+  /// In en, this message translates to:
+  /// **'Navy'**
+  String get navy;
+
+  /// No description provided for @teal.
+  ///
+  /// In en, this message translates to:
+  /// **'Teal'**
+  String get teal;
+
+  /// No description provided for @clearNoChange.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear/No change'**
+  String get clearNoChange;
+
   /// No description provided for @category.
   ///
   /// In en, this message translates to:

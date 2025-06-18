@@ -453,6 +453,97 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unknownSubstance => 'مادة غير معروفة أو عينة غير نقية';
 
   @override
+  String get takePhoto => 'التقاط صورة';
+
+  @override
+  String get fromGallery => 'من المعرض';
+
+  @override
+  String get uploadImageDescription =>
+      'ارفع صورة لنتيجة اختبارك لتحليل الذكاء الاصطناعي';
+
+  @override
+  String get red => 'أحمر';
+
+  @override
+  String get darkRed => 'أحمر داكن';
+
+  @override
+  String get orange => 'برتقالي';
+
+  @override
+  String get redOrange => 'أحمر برتقالي';
+
+  @override
+  String get yellow => 'أصفر';
+
+  @override
+  String get lightYellow => 'أصفر فاتح';
+
+  @override
+  String get green => 'أخضر';
+
+  @override
+  String get paleGreen => 'أخضر شاحب';
+
+  @override
+  String get blue => 'أزرق';
+
+  @override
+  String get purple => 'بنفسجي';
+
+  @override
+  String get violet => 'بنفسج';
+
+  @override
+  String get magenta => 'أرجواني';
+
+  @override
+  String get pink => 'وردي';
+
+  @override
+  String get brown => 'بني';
+
+  @override
+  String get brownish => 'بني فاتح';
+
+  @override
+  String get black => 'أسود';
+
+  @override
+  String get grey => 'رمادي';
+
+  @override
+  String get lightBlue => 'أزرق فاتح';
+
+  @override
+  String get lightGreen => 'أخضر فاتح';
+
+  @override
+  String get darkBlue => 'أزرق داكن';
+
+  @override
+  String get darkGreen => 'أخضر داكن';
+
+  @override
+  String get olive => 'زيتوني';
+
+  @override
+  String get greenishBrown => 'بني مخضر';
+
+  @override
+  String get maroon => 'كستنائي';
+
+  @override
+  String get navy => 'أزرق حربي';
+
+  @override
+  String get teal => 'أزرق مخضر';
+
+  @override
+  String get clearNoChange => 'شفاف/لا تغيير';
+
+  @override
   String get category => 'الفئة';
 
   @override

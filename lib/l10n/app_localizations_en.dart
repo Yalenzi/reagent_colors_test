@@ -457,6 +457,97 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknownSubstance => 'Unknown substance or impure sample';
 
   @override
+  String get takePhoto => 'Take Photo';
+
+  @override
+  String get fromGallery => 'From Gallery';
+
+  @override
+  String get uploadImageDescription =>
+      'Upload an image of your test result for AI analysis';
+
+  @override
+  String get red => 'Red';
+
+  @override
+  String get darkRed => 'Dark Red';
+
+  @override
+  String get orange => 'Orange';
+
+  @override
+  String get redOrange => 'Red-Orange';
+
+  @override
+  String get yellow => 'Yellow';
+
+  @override
+  String get lightYellow => 'Light Yellow';
+
+  @override
+  String get green => 'Green';
+
+  @override
+  String get paleGreen => 'Pale Green';
+
+  @override
+  String get blue => 'Blue';
+
+  @override
+  String get purple => 'Purple';
+
+  @override
+  String get violet => 'Violet';
+
+  @override
+  String get magenta => 'Magenta';
+
+  @override
+  String get pink => 'Pink';
+
+  @override
+  String get brown => 'Brown';
+
+  @override
+  String get brownish => 'Brownish';
+
+  @override
+  String get black => 'Black';
+
+  @override
+  String get grey => 'Grey';
+
+  @override
+  String get lightBlue => 'Light Blue';
+
+  @override
+  String get lightGreen => 'Light Green';
+
+  @override
+  String get darkBlue => 'Dark Blue';
+
+  @override
+  String get darkGreen => 'Dark Green';
+
+  @override
+  String get olive => 'Olive';
+
+  @override
+  String get greenishBrown => 'Greenish Brown';
+
+  @override
+  String get maroon => 'Maroon';
+
+  @override
+  String get navy => 'Navy';
+
+  @override
+  String get teal => 'Teal';
+
+  @override
+  String get clearNoChange => 'Clear/No change';
+
+  @override
   String get category => 'Category';
 
   @override

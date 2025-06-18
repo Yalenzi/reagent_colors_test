@@ -9,7 +9,6 @@ import '../providers/reagent_testing_providers.dart';
 import '../states/test_execution_state.dart';
 import '../states/test_result_state.dart';
 import 'test_result_page.dart';
-import '../../../../core/config/get_it_config.dart';
 import '../../../../core/config/api_keys.dart';
 import '../../../../core/services/gemini_image_analysis_service.dart';
 import '../../../../core/utils/logger.dart';
@@ -121,6 +120,8 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
             _buildTestProcedure(context, l10n),
             const SizedBox(height: 24),
             _buildReactionTimer(context, l10n, testExecution, controller),
+            const SizedBox(height: 24),
+            _buildAIImageAnalysis(context, l10n),
             const SizedBox(height: 24),
             _buildObservedColor(context, l10n, testExecution, controller),
             const SizedBox(height: 24),
@@ -415,36 +416,311 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
     );
   }
 
+  Widget _buildAIImageAnalysis(BuildContext context, AppLocalizations l10n) {
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: Colors.grey.shade300),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.camera_alt_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  l10n.aiAnalysis,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              l10n.uploadImageDescription,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _takePicture(ImageSource.camera),
+                    icon: const Icon(Icons.camera),
+                    label: Text(l10n.takePhoto),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: () => _takePicture(ImageSource.gallery),
+                    icon: const Icon(Icons.photo_library),
+                    label: Text(l10n.fromGallery),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.secondary,
+                      foregroundColor: Theme.of(
+                        context,
+                      ).colorScheme.onSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_capturedImage != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.file(_capturedImage!, fit: BoxFit.cover),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _isAnalyzingImage ? null : _analyzeImage,
+                      child: _isAnalyzingImage
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 16,
+                                  width: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Theme.of(context).colorScheme.onPrimary,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(l10n.analyzing),
+                              ],
+                            )
+                          : Text(l10n.analyzeWithAI),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  TextButton(
+                    onPressed: () => setState(() {
+                      _capturedImage = null;
+                      _aiAnalysisResult = null;
+                      _analysisError = null;
+                    }),
+                    child: Text(l10n.retakePhoto),
+                  ),
+                ],
+              ),
+            ],
+            if (_aiAnalysisResult != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.aiAnalysisResult,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '${l10n.observedColor}: ${_aiAnalysisResult!.observedColorDescription}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                    if (_aiAnalysisResult!.primarySubstance.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        '${l10n.aiSuggestion}: ${_aiAnalysisResult!.primarySubstance}',
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${l10n.confidenceLevel}: ${_aiAnalysisResult!.confidenceLevel}',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            if (_analysisError != null) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.errorContainer,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  '${l10n.aiAnalysisError}: $_analysisError',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onErrorContainer,
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildColorSelector(
     testExecution,
     TestExecutionController controller,
   ) {
+    final l10n = AppLocalizations.of(context)!;
     final colors = [
-      {'name': 'Red', 'color': Colors.red},
-      {'name': 'Orange', 'color': Colors.orange},
-      {'name': 'Yellow', 'color': Colors.yellow},
-      {'name': 'Green', 'color': Colors.green},
-      {'name': 'Blue', 'color': Colors.blue},
-      {'name': 'Purple', 'color': Colors.purple},
-      {'name': 'Pink', 'color': Colors.pink},
-      {'name': 'Brown', 'color': Colors.brown},
-      {'name': 'Black', 'color': Colors.black},
-      {'name': 'White', 'color': Colors.white},
-      {'name': 'Grey', 'color': Colors.grey},
-      {'name': 'Olive', 'color': CustomColors.olive},
-      {'name': 'No color change', 'color': Colors.transparent},
+      {
+        'name': 'Clear/No change',
+        'color': Colors.transparent,
+        'localizedName': l10n.clearNoChange,
+      },
+      {'name': 'Red', 'color': Colors.red, 'localizedName': l10n.red},
+      {
+        'name': 'Dark Red',
+        'color': const Color(0xFF8B0000),
+        'localizedName': l10n.darkRed,
+      },
+      {'name': 'Orange', 'color': Colors.orange, 'localizedName': l10n.orange},
+      {
+        'name': 'Red-Orange',
+        'color': const Color(0xFFFF4500),
+        'localizedName': l10n.redOrange,
+      },
+      {'name': 'Yellow', 'color': Colors.yellow, 'localizedName': l10n.yellow},
+      {
+        'name': 'Light Yellow',
+        'color': const Color(0xFFFFFFE0),
+        'localizedName': l10n.lightYellow,
+      },
+      {'name': 'Green', 'color': Colors.green, 'localizedName': l10n.green},
+      {
+        'name': 'Pale Green',
+        'color': const Color(0xFF98FB98),
+        'localizedName': l10n.paleGreen,
+      },
+      {'name': 'Blue', 'color': Colors.blue, 'localizedName': l10n.blue},
+      {'name': 'Purple', 'color': Colors.purple, 'localizedName': l10n.purple},
+      {
+        'name': 'Violet',
+        'color': const Color(0xFF8A2BE2),
+        'localizedName': l10n.violet,
+      },
+      {
+        'name': 'Magenta',
+        'color': Colors.pink.shade300,
+        'localizedName': l10n.magenta,
+      },
+      {'name': 'Pink', 'color': Colors.pink, 'localizedName': l10n.pink},
+      {'name': 'Brown', 'color': Colors.brown, 'localizedName': l10n.brown},
+      {
+        'name': 'Brownish',
+        'color': const Color(0xFFA0522D),
+        'localizedName': l10n.brownish,
+      },
+      {'name': 'Black', 'color': Colors.black, 'localizedName': l10n.black},
+      {'name': 'Grey', 'color': Colors.grey, 'localizedName': l10n.grey},
+      {
+        'name': 'Light Blue',
+        'color': Colors.lightBlue,
+        'localizedName': l10n.lightBlue,
+      },
+      {
+        'name': 'Light Green',
+        'color': Colors.lightGreen,
+        'localizedName': l10n.lightGreen,
+      },
+      {
+        'name': 'Dark Blue',
+        'color': const Color(0xFF00008B),
+        'localizedName': l10n.darkBlue,
+      },
+      {
+        'name': 'Dark Green',
+        'color': const Color(0xFF006400),
+        'localizedName': l10n.darkGreen,
+      },
+      {
+        'name': 'Olive',
+        'color': CustomColors.olive,
+        'localizedName': l10n.olive,
+      },
+      {
+        'name': 'Greenish Brown',
+        'color': const Color(0xFF8FBC8F),
+        'localizedName': l10n.greenishBrown,
+      },
+      {
+        'name': 'Maroon',
+        'color': const Color(0xFF800000),
+        'localizedName': l10n.maroon,
+      },
+      {
+        'name': 'Navy',
+        'color': const Color(0xFF000080),
+        'localizedName': l10n.navy,
+      },
+      {
+        'name': 'Teal',
+        'color': const Color(0xFF008080),
+        'localizedName': l10n.teal,
+      },
     ];
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: colors.map((colorData) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 5,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 0.8,
+      ),
+      itemCount: colors.length,
+      itemBuilder: (context, index) {
+        final colorData = colors[index];
         final isSelected = testExecution.selectedColor == colorData['name'];
         return GestureDetector(
           onTap: () => controller.selectColor(colorData['name'] as String),
           child: Container(
-            width: 50,
-            height: 50,
             decoration: BoxDecoration(
               color: colorData['color'] as Color,
               border: Border.all(
@@ -455,12 +731,32 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
               ),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: colorData['name'] == 'No color change'
-                ? Icon(Icons.block, color: Colors.grey, size: 24)
-                : null,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (colorData['name'] == 'Clear/No change')
+                  Icon(Icons.block, color: Colors.grey, size: 20)
+                else
+                  const SizedBox(height: 20),
+                const SizedBox(height: 4),
+                Expanded(
+                  child: Text(
+                    colorData['localizedName'] as String,
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w500,
+                      color: _getTextColor(colorData['color'] as Color),
+                    ),
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
-      }).toList(),
+      },
     );
   }
 
@@ -573,5 +869,84 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
     final minutes = twoDigits(duration.inMinutes);
     final seconds = twoDigits(duration.inSeconds.remainder(60));
     return '$minutes:$seconds';
+  }
+
+  Future<void> _takePicture(ImageSource source) async {
+    try {
+      final XFile? image = await _picker.pickImage(
+        source: source,
+        maxWidth: 1800,
+        maxHeight: 1800,
+        imageQuality: 85,
+      );
+
+      if (image != null) {
+        setState(() {
+          _capturedImage = File(image.path);
+          _aiAnalysisResult = null;
+          _analysisError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error capturing image: $e'),
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _analyzeImage() async {
+    if (_capturedImage == null) return;
+
+    setState(() {
+      _isAnalyzingImage = true;
+      _analysisError = null;
+    });
+
+    try {
+      final geminiService = GeminiImageAnalysisService(
+        apiKey: ApiKeys.geminiApiKey,
+      );
+
+      final drugResults = widget.reagent.drugResults
+          .map((result) => {'drugName': result.drugName, 'color': result.color})
+          .toList();
+
+      final analysisJson = await geminiService.analyzeReagentTestImage(
+        imageFile: _capturedImage!,
+        reagentName: widget.reagent.reagentName,
+        drugResults: drugResults,
+        testContext: {'type': 'reagent_test'},
+      );
+
+      // Parse the JSON response
+      try {
+        final jsonData = jsonDecode(analysisJson);
+        final analysisResult = GeminiReagentTestResult.fromJson(jsonData);
+
+        setState(() {
+          _aiAnalysisResult = analysisResult;
+          _isAnalyzingImage = false;
+        });
+      } catch (parseError) {
+        throw Exception('Failed to parse AI analysis: $parseError');
+      }
+    } catch (e) {
+      setState(() {
+        _analysisError = e.toString();
+        _isAnalyzingImage = false;
+      });
+      Logger.error('AI analysis failed: $e');
+    }
+  }
+
+  Color _getTextColor(Color backgroundColor) {
+    // Calculate luminance to determine if text should be white or black
+    final luminance = backgroundColor.computeLuminance();
+    return luminance > 0.5 ? Colors.black : Colors.white;
   }
 }
