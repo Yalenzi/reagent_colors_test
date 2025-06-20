@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../../domain/entities/reagent_entity.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../controllers/reagent_detail_controller.dart';
@@ -45,15 +46,24 @@ class SafetyAcknowledgmentSection extends ConsumerWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.primaryContainer,
-            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [Colors.green.shade600, Colors.green.shade400],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.green.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Icon(
-            Icons.verified_user, // Acknowledgment/verification icon
-            color: theme.colorScheme.onPrimaryContainer,
-            size: 20,
+          child: const Icon(
+            HeroIcons.shield_check, // Safety acknowledgment icon
+            color: Colors.white,
+            size: 24,
           ),
         ),
         const SizedBox(width: 12),

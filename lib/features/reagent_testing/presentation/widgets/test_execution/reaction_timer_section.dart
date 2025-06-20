@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:reagent_colors_test/core/utils/logger.dart';
@@ -123,7 +124,7 @@ class _ReactionTimerSectionState extends ConsumerState<ReactionTimerSection>
                       ),
                     ],
                   ),
-                  child: const Icon(Icons.timer, color: Colors.white, size: 20),
+                  child: Icon(HeroIcons.clock, color: Colors.white, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -279,7 +280,7 @@ class _ReactionTimerSectionState extends ConsumerState<ReactionTimerSection>
               children: [
                 _buildActionButton(
                   context: context,
-                  icon: Icons.play_arrow,
+                  icon: HeroIcons.play,
                   label: l10n.startTimer,
                   color: Colors.green,
                   onPressed: (!_isTimerActive && !_isTimerComplete)
@@ -293,7 +294,7 @@ class _ReactionTimerSectionState extends ConsumerState<ReactionTimerSection>
                 ),
                 _buildActionButton(
                   context: context,
-                  icon: Icons.pause,
+                  icon: HeroIcons.pause,
                   label: l10n.stopTimer,
                   color: Colors.orange,
                   onPressed: _isTimerActive
@@ -304,7 +305,7 @@ class _ReactionTimerSectionState extends ConsumerState<ReactionTimerSection>
                 ),
                 _buildActionButton(
                   context: context,
-                  icon: Icons.refresh,
+                  icon: HeroIcons.arrow_path,
                   label: l10n.resetTimer,
                   color: Colors.blue,
                   onPressed: () {

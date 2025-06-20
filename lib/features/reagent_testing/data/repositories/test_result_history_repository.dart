@@ -268,58 +268,6 @@ class TestResultHistoryRepository {
     await prefs.setString(_localStorageKey, jsonString);
   }
 
-  // Sync local results to Firestore (useful for offline-first approach)
-  Future<void> syncLocalToFirestore() async {
-    try {
-      final testsRef = _testsRef;
-      if (testsRef == null) return;
-
-      await _initializeUserDocument();
-
-      final localResults = await getLocalTestResults();
-      final firestoreResults = await getFirestoreTestResults();
-
-      // Only sync results that don't already exist in Firestore
-      final existingFirestoreKeys = firestoreResults
-          .map(
-            (result) =>
-                '${result.reagentName}_${result.testCompletedAt.millisecondsSinceEpoch}',
-          )
-          .toSet();
-
-      final resultsToSync = localResults.where((result) {
-        final key =
-            '${result.reagentName}_${result.testCompletedAt.millisecondsSinceEpoch}';
-        return !existingFirestoreKeys.contains(key);
-      }).toList();
-
-      if (resultsToSync.isEmpty) {
-        Logger.info('✅ All local results already synced to Firestore');
-        return;
-      }
-
-      final batch = _firestore.batch();
-
-      for (final result in resultsToSync) {
-        final customId = _generateDocumentId(
-          result.reagentName,
-          result.testCompletedAt,
-        );
-
-        final data = result.toJson();
-        data.remove('id');
-        data['createdAt'] = FieldValue.serverTimestamp();
-
-        batch.set(testsRef.doc(customId), data);
-      }
-
-      await batch.commit();
-      Logger.info('✅ Synced ${resultsToSync.length} new results to Firestore');
-    } catch (e) {
-      throw Exception('Failed to sync results to Firestore: $e');
-    }
-  }
-
   // Get test results by reagent name for current user
   Future<List<TestResultEntity>> getTestResultsByReagent(
     String reagentName,

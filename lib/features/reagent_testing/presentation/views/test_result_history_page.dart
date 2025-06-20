@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/test_result_entity.dart';
 import '../providers/reagent_testing_providers.dart';
@@ -52,31 +53,21 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(HeroIcons.arrow_path),
             onPressed: () => ref
                 .read(testResultHistoryControllerProvider.notifier)
                 .loadTestResults(),
             tooltip: l10n.refresh,
           ),
           PopupMenuButton<String>(
-            icon: const Icon(Icons.more_vert),
+            icon: Icon(HeroIcons.ellipsis_vertical),
             onSelected: (value) => _handleMenuAction(value, l10n),
             itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'sync',
-                child: Row(
-                  children: [
-                    const Icon(Icons.cloud_sync),
-                    const SizedBox(width: 8),
-                    Text(l10n.syncToCloud),
-                  ],
-                ),
-              ),
               PopupMenuItem(
                 value: 'clear',
                 child: Row(
                   children: [
-                    const Icon(Icons.clear_all, color: Colors.red),
+                    Icon(HeroIcons.trash, color: Colors.red),
                     const SizedBox(width: 8),
                     Text(
                       l10n.clearAll,
@@ -91,8 +82,8 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(icon: const Icon(Icons.history), text: l10n.testHistory),
-            Tab(icon: const Icon(Icons.analytics), text: l10n.statistics),
+            Tab(icon: Icon(HeroIcons.clock), text: l10n.testHistory),
+            Tab(icon: Icon(HeroIcons.chart_bar), text: l10n.statistics),
           ],
         ),
       ),
@@ -119,7 +110,11 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error, size: 64, color: theme.colorScheme.error),
+            Icon(
+              HeroIcons.exclamation_triangle,
+              size: 64,
+              color: theme.colorScheme.error,
+            ),
             const SizedBox(height: 16),
             Text(l10n.error(message)),
             const SizedBox(height: 16),
@@ -146,7 +141,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.history,
+              HeroIcons.clock,
               size: 64,
               color: theme.colorScheme.onSurfaceVariant,
             ),
@@ -207,10 +202,10 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
             controller: _searchController,
             decoration: InputDecoration(
               hintText: l10n.searchBySubstanceOrNotes,
-              prefixIcon: const Icon(Icons.search),
+              prefixIcon: Icon(HeroIcons.magnifying_glass),
               suffixIcon: _searchQuery.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(Icons.clear),
+                      icon: Icon(HeroIcons.x_mark),
                       onPressed: () {
                         _searchController.clear();
                         setState(() => _searchQuery = '');
@@ -226,21 +221,54 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
           const SizedBox(height: 12),
           Row(
             children: [
+              Icon(
+                HeroIcons.funnel,
+                size: 16,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 8),
               Text(l10n.filterByReagent, style: theme.textTheme.bodyMedium),
               const SizedBox(width: 12),
               Expanded(
-                child: DropdownButton<String>(
-                  value: _selectedReagentFilter,
-                  isExpanded: true,
-                  items: _getReagentFilterOptions(l10n).map((option) {
-                    return DropdownMenuItem(
-                      value: option.value,
-                      child: Text(option.display),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() => _selectedReagentFilter = value ?? '__ALL__');
-                  },
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: theme.colorScheme.outline),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: DropdownButton<String>(
+                    value: _selectedReagentFilter,
+                    isExpanded: true,
+                    underline: const SizedBox(),
+                    icon: Icon(
+                      HeroIcons.chevron_down,
+                      size: 16,
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    items: _getReagentFilterOptions(l10n).map((option) {
+                      return DropdownMenuItem(
+                        value: option.value,
+                        child: Row(
+                          children: [
+                            if (option.value != '__ALL__') ...[
+                              Icon(
+                                HeroIcons.beaker,
+                                size: 14,
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                              const SizedBox(width: 8),
+                            ],
+                            Expanded(child: Text(option.display)),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(
+                        () => _selectedReagentFilter = value ?? '__ALL__',
+                      );
+                    },
+                  ),
                 ),
               ),
             ],
@@ -297,7 +325,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, size: 20),
+                  icon: Icon(HeroIcons.trash, size: 20),
                   onPressed: () => _showDeleteConfirmation(result, l10n),
                 ),
               ],
@@ -306,7 +334,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
             Row(
               children: [
                 Icon(
-                  Icons.palette,
+                  HeroIcons.swatch,
                   size: 16,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -323,7 +351,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
             Row(
               children: [
                 Icon(
-                  Icons.science,
+                  HeroIcons.beaker,
                   size: 16,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -340,7 +368,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
             Row(
               children: [
                 Icon(
-                  Icons.analytics,
+                  HeroIcons.chart_bar_square,
                   size: 16,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
@@ -372,7 +400,7 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
-                    Icons.note,
+                    HeroIcons.document_text,
                     size: 16,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -427,21 +455,21 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
           _buildStatCard(
             l10n.totalTests,
             stats['totalTests'].toString(),
-            Icons.science,
+            HeroIcons.beaker,
             theme,
           ),
           const SizedBox(height: 16),
           _buildStatCard(
             l10n.mostUsedReagent,
             stats['mostUsedReagent'],
-            Icons.favorite,
+            HeroIcons.heart,
             theme,
           ),
           const SizedBox(height: 16),
           _buildStatCard(
             l10n.averageConfidence,
             '${stats['averageConfidence'].toStringAsFixed(1)}%',
-            Icons.analytics,
+            HeroIcons.chart_bar_square,
             theme,
           ),
           const SizedBox(height: 24),
@@ -597,14 +625,6 @@ class _TestResultHistoryPageState extends ConsumerState<TestResultHistoryPage>
 
   void _handleMenuAction(String action, AppLocalizations l10n) {
     switch (action) {
-      case 'sync':
-        ref
-            .read(testResultHistoryControllerProvider.notifier)
-            .syncToFirestore();
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(l10n.syncingToCloud)));
-        break;
       case 'clear':
         _showClearAllConfirmation(l10n);
         break;

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
 import 'package:reagent_colors_test/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
 import 'package:reagent_colors_test/features/reagent_testing/presentation/widgets/test_execution/test_execution_content.dart';
 import 'package:reagent_colors_test/l10n/app_localizations.dart';
+import 'package:reagent_colors_test/core/utils/localization_helper.dart';
 
 class TestExecutionPage extends ConsumerStatefulWidget {
   final ReagentEntity reagent;
@@ -41,7 +43,7 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
         appBar: AppBar(
           title: Text(widget.reagent.reagentName),
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
+            icon: Icon(LocalizationHelper.getBackChevronIcon(context)),
             tooltip: 'Back',
             onPressed: () async {
               final shouldPop = await _showExitConfirmation(context);
@@ -74,7 +76,7 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.1),
+                color: Colors.black.withOpacity(0.1),
                 blurRadius: 20,
                 offset: const Offset(0, 8),
               ),
@@ -92,14 +94,14 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.orange.withValues(alpha: 0.2),
-                      Colors.red.withValues(alpha: 0.2),
+                      Colors.orange.withOpacity(0.2),
+                      Colors.red.withOpacity(0.2),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(40),
                 ),
                 child: Icon(
-                  Icons.warning_amber_rounded,
+                  HeroIcons.exclamation_triangle,
                   size: 40,
                   color: Colors.orange.shade700,
                 ),
@@ -137,9 +139,7 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
                       height: 52,
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: theme.colorScheme.outline.withValues(
-                            alpha: 0.3,
-                          ),
+                          color: theme.colorScheme.outline.withOpacity(0.3),
                         ),
                         borderRadius: BorderRadius.circular(16),
                       ),
@@ -174,7 +174,7 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.red.withValues(alpha: 0.3),
+                            color: Colors.red.withOpacity(0.3),
                             blurRadius: 8,
                             offset: const Offset(0, 4),
                           ),

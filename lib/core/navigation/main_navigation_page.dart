@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../widgets/auth_guard.dart';
 import '../../features/profile/presentation/views/profile_page.dart';
 import '../../features/reagent_testing/presentation/views/reagent_testing_page.dart';
 import '../../features/reagent_testing/presentation/views/test_result_history_page.dart';
 import '../../features/settings/presentation/views/settings_page.dart';
-import '../../l10n/app_localizations.dart';
 
 class MainNavigationPage extends ConsumerStatefulWidget {
   const MainNavigationPage({super.key});
@@ -43,8 +43,6 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
-
     return Scaffold(
       body: IndexedStack(index: _selectedIndex, children: _pages),
       bottomNavigationBar: BottomNavigationBar(
@@ -53,22 +51,24 @@ class _MainNavigationPageState extends ConsumerState<MainNavigationPage> {
         onTap: _onItemTapped,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.science),
-            label: l10n.reagentTesting,
+            icon: Icon(HeroIcons.beaker), // Lab testing icon
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.history),
-            label: l10n.testHistory,
+            icon: Icon(HeroIcons.clock), // History/time icon
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.settings),
-            label: l10n.settings,
+            icon: Icon(HeroIcons.cog_6_tooth), // Settings gear icon
+            label: '',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
-            label: 'Profile',
+            icon: Icon(HeroIcons.user_circle), // Profile icon
+            label: '',
           ),
         ],
       ),

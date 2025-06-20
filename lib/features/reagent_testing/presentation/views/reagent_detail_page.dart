@@ -28,8 +28,9 @@ class ReagentDetailPage extends ConsumerWidget {
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios),
+        icon: Icon(LocalizationHelper.getBackChevronIcon(context)),
         onPressed: () => Navigator.of(context).pop(),
+        tooltip: 'Back',
       ),
     );
   }

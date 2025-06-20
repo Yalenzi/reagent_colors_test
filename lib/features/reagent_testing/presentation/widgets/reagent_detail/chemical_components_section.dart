@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../../domain/entities/reagent_entity.dart';
 import '../../../../../l10n/app_localizations.dart';
 
@@ -26,15 +27,27 @@ class ChemicalComponentsSection extends StatelessWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.secondaryContainer,
-            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.secondary,
+                theme.colorScheme.secondary.withOpacity(0.8),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.secondary.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Icon(
-            Icons.grain, // Chemical components/molecules icon
-            color: theme.colorScheme.onSecondaryContainer,
-            size: 20,
+          child: const Icon(
+            HeroIcons.beaker, // Chemistry beaker icon for chemical components
+            color: Colors.white,
+            size: 24,
           ),
         ),
         const SizedBox(width: 12),
@@ -81,8 +94,8 @@ class _ChemicalItem extends StatelessWidget {
       child: Row(
         children: [
           Icon(
-            Icons.fiber_manual_record,
-            size: 6,
+            HeroIcons.check_circle, // Better bullet point icon
+            size: 12,
             color: theme.colorScheme.primary,
           ),
           const SizedBox(width: 12),

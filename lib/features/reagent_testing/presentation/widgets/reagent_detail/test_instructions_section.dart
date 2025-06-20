@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../../domain/entities/reagent_entity.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../providers/reagent_testing_providers.dart';
@@ -28,15 +29,27 @@ class TestInstructionsSection extends ConsumerWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.tertiaryContainer,
-            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [
+                theme.colorScheme.tertiary,
+                theme.colorScheme.tertiary.withOpacity(0.8),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.tertiary.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Icon(
-            Icons.list_alt, // Instructions/procedures icon
-            color: theme.colorScheme.onTertiaryContainer,
-            size: 20,
+          child: const Icon(
+            HeroIcons.clipboard_document_list, // Test instructions icon
+            color: Colors.white,
+            size: 24,
           ),
         ),
         const SizedBox(width: 12),
@@ -117,7 +130,7 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(Icons.warning_outlined, color: theme.colorScheme.error),
+        Icon(HeroIcons.exclamation_triangle, color: theme.colorScheme.error),
         const SizedBox(height: 8),
         Text(
           l10n.errorLoadingSettings,

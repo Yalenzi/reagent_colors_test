@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../l10n/app_localizations.dart';
 import '../../features/reagent_testing/domain/entities/reagent_entity.dart';
 import '../../features/reagent_testing/domain/entities/drug_result_entity.dart';
@@ -77,5 +78,9 @@ class LocalizationHelper {
 
   static bool isRTL(BuildContext context) {
     return Localizations.localeOf(context).languageCode == 'ar';
+  }
+
+  static IconData getBackChevronIcon(BuildContext context) {
+    return isRTL(context) ? HeroIcons.chevron_right : HeroIcons.chevron_left;
   }
 }

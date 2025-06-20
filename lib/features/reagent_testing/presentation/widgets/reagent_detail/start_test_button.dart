@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../../domain/entities/reagent_entity.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../controllers/reagent_detail_controller.dart';
@@ -22,7 +23,7 @@ class StartTestButton extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 4,
             offset: const Offset(0, -2),
           ),
@@ -40,10 +41,12 @@ class StartTestButton extends ConsumerWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  isAcknowledged ? Icons.play_arrow : Icons.warning_outlined,
-                  size: 20,
+                  isAcknowledged
+                      ? HeroIcons.play
+                      : HeroIcons.exclamation_triangle,
+                  size: 22,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 12),
                 Text(
                   isAcknowledged
                       ? l10n.startTest

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
 
 class ColorOption {
@@ -166,7 +167,7 @@ class _ObservedColorSectionState extends ConsumerState<ObservedColorSection> {
                         ],
                       ),
                       child: Icon(
-                        Icons.palette,
+                        HeroIcons.swatch,
                         color: Colors.orange.shade700,
                         size: 24,
                       ),
@@ -204,7 +205,9 @@ class _ObservedColorSectionState extends ConsumerState<ObservedColorSection> {
                         });
                       },
                       icon: Icon(
-                        _isExpanded ? Icons.expand_less : Icons.expand_more,
+                        _isExpanded
+                            ? HeroIcons.chevron_up
+                            : HeroIcons.chevron_down,
                         color: Colors.indigo.shade700,
                       ),
                     ),
@@ -345,7 +348,7 @@ class _ObservedColorSectionState extends ConsumerState<ObservedColorSection> {
                                             shape: BoxShape.circle,
                                           ),
                                           child: Icon(
-                                            Icons.check,
+                                            HeroIcons.check,
                                             color: Colors.white,
                                             size: 14,
                                           ),
@@ -373,7 +376,7 @@ class _ObservedColorSectionState extends ConsumerState<ObservedColorSection> {
                     child: Row(
                       children: [
                         Icon(
-                          Icons.check_circle,
+                          HeroIcons.check_circle,
                           color: Colors.green.shade600,
                           size: 20,
                         ),
@@ -381,8 +384,8 @@ class _ObservedColorSectionState extends ConsumerState<ObservedColorSection> {
                         Expanded(
                           child: Text(
                             _isRtl(context)
-                                ? 'اللون المُختار: ${_getSelectedColorName()}'
-                                : 'Selected Color: ${_getSelectedColorName()}',
+                                ? 'اللون المُلاحظ: ${_getSelectedColorName()}'
+                                : 'Observed Color: ${_getSelectedColorName()}',
                             style: Theme.of(context).textTheme.bodyMedium
                                 ?.copyWith(
                                   color: Colors.green.shade700,

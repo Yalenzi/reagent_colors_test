@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 enum NotificationType { success, error, warning, info }
 
@@ -253,13 +254,13 @@ class _NotificationOverlayState extends State<_NotificationOverlay>
   IconData _getIcon() {
     switch (widget.type) {
       case NotificationType.success:
-        return Icons.check_circle_outline;
+        return HeroIcons.check_circle;
       case NotificationType.error:
-        return Icons.error_outline;
+        return HeroIcons.exclamation_triangle;
       case NotificationType.warning:
-        return Icons.warning_amber_outlined;
+        return HeroIcons.exclamation_triangle;
       case NotificationType.info:
-        return Icons.info_outline;
+        return HeroIcons.information_circle;
     }
   }
 
@@ -344,7 +345,7 @@ class _NotificationOverlayState extends State<_NotificationOverlay>
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Icon(
-                          Icons.close,
+                          HeroIcons.x_mark,
                           color: _getBorderColor(),
                           size: 18,
                         ),

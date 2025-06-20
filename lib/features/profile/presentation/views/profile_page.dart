@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/states/auth_state.dart';
 
@@ -103,7 +104,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     });
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: _buildModernAppBar(authState, theme),
       body: _buildBody(authState, theme),
     );
@@ -112,27 +113,39 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   PreferredSizeWidget _buildModernAppBar(AuthState authState, ThemeData theme) {
     return AppBar(
       elevation: 0,
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: Colors.transparent,
       surfaceTintColor: Colors.transparent,
+      flexibleSpace: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF3B82F6), // Blue
+              Color(0xFF8B5CF6), // Purple
+            ],
+          ),
+        ),
+      ),
       title: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: theme.colorScheme.primaryContainer,
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: Colors.white.withOpacity(0.3),
+                width: 1,
+              ),
             ),
-            child: Icon(
-              Icons.science_outlined,
-              color: theme.colorScheme.onPrimaryContainer,
-              size: 24,
-            ),
+            child: const Icon(HeroIcons.beaker, color: Colors.white, size: 24),
           ),
           const SizedBox(width: 12),
           Text(
             _getAppBarTitle(authState),
             style: theme.textTheme.titleLarge?.copyWith(
-              color: theme.colorScheme.onSurface,
+              color: Colors.white,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -206,18 +219,19 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
+        gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            theme.colorScheme.primary,
-            theme.colorScheme.primary.withValues(alpha: 0.8),
+            Color(0xFF3B82F6), // Blue
+            Color(0xFF8B5CF6), // Purple
+            Color(0xFF06B6D4), // Cyan
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: theme.colorScheme.primary.withValues(alpha: 0.3),
+            color: const Color(0xFF3B82F6).withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -229,10 +243,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
+              color: Colors.white.withOpacity(0.2),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: theme.colorScheme.onPrimary.withValues(alpha: 0.3),
+                color: Colors.white.withOpacity(0.3),
                 width: 2,
               ),
             ),
@@ -246,10 +260,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       user.username.isNotEmpty
                           ? user.username[0].toUpperCase()
                           : 'L',
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        color: theme.colorScheme.onPrimary,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -261,10 +275,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               children: [
                 Text(
                   user.username,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.onPrimary,
+                    color: Colors.white,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -272,7 +286,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   l10n.laboratoryTechnician,
                   style: TextStyle(
                     fontSize: 16,
-                    color: theme.colorScheme.onPrimary.withValues(alpha: 0.9),
+                    color: Colors.white.withOpacity(0.9),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -283,16 +297,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
+                    color: Colors.white.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
-                        user.isEmailVerified ? Icons.verified : Icons.pending,
+                        user.isEmailVerified
+                            ? HeroIcons.shield_check
+                            : HeroIcons.clock,
                         size: 16,
-                        color: theme.colorScheme.onPrimary,
+                        color: Colors.white,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -321,18 +337,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         Text(
           l10n.recentActivity,
           style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onSurface,
+            color: const Color(0xFF1F2937),
             fontWeight: FontWeight.bold,
           ),
         ),
         const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHigh,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: theme.colorScheme.shadow.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -344,21 +360,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 'Marquis Test',
                 'MDMA Sample',
                 '2 hours ago',
-                theme.colorScheme.secondary,
+                const Color(0xFF10B981), // Green
                 theme,
               ),
               _buildActivityItem(
                 'Ehrlich Test',
                 'LSD Sample',
                 '1 day ago',
-                theme.colorScheme.primary,
+                const Color(0xFF3B82F6), // Blue
                 theme,
               ),
               _buildActivityItem(
                 'Scott Test',
                 'Cocaine Sample',
                 '2 days ago',
-                theme.colorScheme.tertiary,
+                const Color(0xFF8B5CF6), // Purple
                 theme,
               ),
             ],
@@ -396,13 +412,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   reagent,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: theme.colorScheme.onSurface,
+                    color: const Color(0xFF1F2937),
                   ),
                 ),
                 Text(
                   sample,
                   style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                    color: const Color(0xFF6B7280),
                   ),
                 ),
               ],
@@ -411,7 +427,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           Text(
             time,
             style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+              color: const Color(0xFF6B7280),
             ),
           ),
         ],
@@ -423,11 +439,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.outline.withValues(alpha: 0.3),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Color(0xFFFFECEC), // Light red
+            Color(0xFFFFF3E0), // Light orange
+          ],
         ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFFF6B6B).withOpacity(0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -437,11 +458,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
+                  color: const Color(0xFFFF6B6B),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
-                  Icons.warning_amber,
+                  HeroIcons.exclamation_triangle,
                   color: Colors.white,
                   size: 20,
                 ),
@@ -450,7 +471,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Text(
                 l10n.safetyReminder,
                 style: theme.textTheme.titleMedium?.copyWith(
-                  color: theme.colorScheme.onSurface,
+                  color: const Color(0xFF1F2937),
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -460,7 +481,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           Text(
             l10n.safetyReminderText,
             style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+              color: const Color(0xFF4B5563),
               height: 1.5,
             ),
           ),
@@ -476,7 +497,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         Text(
           l10n.accountInformation,
           style: theme.textTheme.titleLarge?.copyWith(
-            color: theme.colorScheme.onSurface,
+            color: const Color(0xFF1F2937),
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -484,11 +505,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceContainerHigh,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: theme.colorScheme.shadow.withValues(alpha: 0.05),
+                color: Colors.black.withOpacity(0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -497,21 +518,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           child: Column(
             children: [
               _buildInfoRow(
-                Icons.person_outline,
+                HeroIcons.user,
                 l10n.username,
                 user.username,
                 theme,
               ),
               const Divider(height: 32),
-              _buildInfoRow(
-                Icons.email_outlined,
-                l10n.email,
-                user.email,
-                theme,
-              ),
+              _buildInfoRow(HeroIcons.envelope, l10n.email, user.email, theme),
               const Divider(height: 32),
               _buildInfoRow(
-                Icons.calendar_today_outlined,
+                HeroIcons.calendar,
                 l10n.memberSince,
                 _formatDate(user.registeredAt),
                 theme,
@@ -534,10 +550,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: theme.colorScheme.outline.withValues(alpha: 0.1),
+            gradient: const LinearGradient(
+              colors: [Color(0xFF3B82F6), Color(0xFF8B5CF6)],
+            ),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: theme.colorScheme.outline, size: 20),
+          child: Icon(icon, color: Colors.white, size: 20),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -547,7 +565,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Text(
                 label,
                 style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                  color: const Color(0xFF6B7280),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -555,7 +573,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Text(
                 value,
                 style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurface,
+                  color: const Color(0xFF1F2937),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -572,17 +590,18 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.3),
-        ),
+        border: Border.all(color: const Color(0xFFFF6B6B).withOpacity(0.3)),
       ),
       child: TextButton.icon(
         onPressed: _signOut,
-        icon: Icon(Icons.logout, color: theme.colorScheme.error),
+        icon: const Icon(
+          HeroIcons.arrow_right_on_rectangle,
+          color: Color(0xFFFF6B6B),
+        ),
         label: Text(
           l10n.signOut,
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: theme.colorScheme.error,
+            color: const Color(0xFFFF6B6B),
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -636,7 +655,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
-              _isLoginMode ? Icons.science : Icons.person_add,
+              _isLoginMode ? HeroIcons.beaker : HeroIcons.user_plus,
               size: 48,
               color: theme.colorScheme.onPrimaryContainer,
             ),
@@ -692,7 +711,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               _buildModernTextField(
                 controller: _usernameController,
                 label: l10n.username,
-                icon: Icons.person_outline,
+                icon: HeroIcons.user,
                 enabled: !isLoading,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -712,7 +731,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             _buildModernTextField(
               controller: _emailController,
               label: l10n.emailAddress,
-              icon: Icons.email_outlined,
+              icon: HeroIcons.envelope,
               keyboardType: TextInputType.emailAddress,
               enabled: !isLoading,
               validator: (value) {
@@ -731,12 +750,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             _buildModernTextField(
               controller: _passwordController,
               label: l10n.password,
-              icon: Icons.lock_outline,
+              icon: HeroIcons.lock_closed,
               obscureText: !_isPasswordVisible,
               enabled: !isLoading,
               suffixIcon: IconButton(
                 icon: Icon(
-                  _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                  _isPasswordVisible ? HeroIcons.eye_slash : HeroIcons.eye,
                   color: const Color(0xFF64748B),
                 ),
                 onPressed: () {
@@ -760,14 +779,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               _buildModernTextField(
                 controller: _confirmPasswordController,
                 label: l10n.confirmPassword,
-                icon: Icons.lock_outline,
+                icon: HeroIcons.lock_closed,
                 obscureText: !_isConfirmPasswordVisible,
                 enabled: !isLoading,
                 suffixIcon: IconButton(
                   icon: Icon(
                     _isConfirmPasswordVisible
-                        ? Icons.visibility_off
-                        : Icons.visibility,
+                        ? HeroIcons.eye_slash
+                        : HeroIcons.eye,
                     color: const Color(0xFF64748B),
                   ),
                   onPressed: () {
@@ -967,7 +986,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 width: 24,
                 errorBuilder: (context, error, stackTrace) {
                   return const Icon(
-                    Icons.g_mobiledata,
+                    HeroIcons.globe_americas,
                     size: 24,
                     color: Color(0xFF4285F4),
                   );
@@ -1030,7 +1049,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.error_outline, color: Color(0xFFEF4444)),
+          const Icon(HeroIcons.exclamation_triangle, color: Color(0xFFEF4444)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1039,7 +1058,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, color: Color(0xFFEF4444)),
+            icon: const Icon(HeroIcons.x_mark, color: Color(0xFFEF4444)),
             onPressed: () {
               ref.read(authControllerProvider.notifier).clearError();
             },
@@ -1061,7 +1080,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.check_circle_outline, color: Color(0xFF10B981)),
+          const Icon(HeroIcons.check_circle, color: Color(0xFF10B981)),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
@@ -1070,7 +1089,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.close, color: Color(0xFF10B981)),
+            icon: const Icon(HeroIcons.x_mark, color: Color(0xFF10B981)),
             onPressed: () {
               ref.read(authControllerProvider.notifier).clearError();
             },

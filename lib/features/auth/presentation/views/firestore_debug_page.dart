@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 
 import '../../../../core/services/firestore_service.dart';
 import '../../../../core/config/get_it_config.dart';
@@ -111,8 +112,14 @@ class _FirestoreDebugPageState extends ConsumerState<FirestoreDebugPage> {
         title: const Text('Firestore Debug'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadUsers),
-          IconButton(icon: const Icon(Icons.add), onPressed: _createTestUser),
+          IconButton(
+            icon: const Icon(HeroIcons.arrow_path),
+            onPressed: _loadUsers,
+          ),
+          IconButton(
+            icon: const Icon(HeroIcons.plus),
+            onPressed: _createTestUser,
+          ),
         ],
       ),
       body: Padding(
@@ -229,7 +236,7 @@ class _FirestoreDebugPageState extends ConsumerState<FirestoreDebugPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createTestUser,
-        child: const Icon(Icons.person_add),
+        child: const Icon(HeroIcons.user_plus),
       ),
     );
   }

@@ -55,17 +55,6 @@ class TestResultHistoryController
     }
   }
 
-  // Sync local results to Firestore
-  Future<void> syncToFirestore() async {
-    try {
-      await _repository.syncLocalToFirestore();
-      // Reload to get the synced results
-      await loadTestResults();
-    } catch (e) {
-      state = TestResultHistoryError(message: e.toString());
-    }
-  }
-
   // Get results by reagent name
   List<TestResultEntity> getResultsByReagent(String reagentName) {
     return state.maybeWhen(

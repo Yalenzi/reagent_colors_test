@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:reagent_colors_test/features/reagent_testing/domain/entities/test_result_entity.dart';
 import 'package:reagent_colors_test/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
 import 'package:reagent_colors_test/features/reagent_testing/presentation/states/test_result_state.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/localization_helper.dart';
 
 class TestResultPage extends ConsumerWidget {
   const TestResultPage({super.key});
@@ -17,14 +19,14 @@ class TestResultPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(l10n.testResults),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: Icon(LocalizationHelper.getBackChevronIcon(context)),
           onPressed: () =>
               Navigator.of(context).popUntil((route) => route.isFirst),
           tooltip: 'Back to Home',
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share),
+            icon: Icon(HeroIcons.share),
             onPressed: () {
               // TODO: Implement share functionality
             },
@@ -54,7 +56,7 @@ class TestResultPage extends ConsumerWidget {
             child: ElevatedButton.icon(
               onPressed: () =>
                   Navigator.of(context).popUntil((route) => route.isFirst),
-              icon: const Icon(Icons.home),
+              icon: Icon(HeroIcons.home),
               label: const Text('Back to Home'),
               style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(

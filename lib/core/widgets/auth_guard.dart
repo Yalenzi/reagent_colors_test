@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/states/auth_state.dart';
 
@@ -44,7 +45,7 @@ class _UnauthenticatedScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Icon(
-                  Icons.lock_outline,
+                  HeroIcons.lock_closed,
                   size: 40,
                   color: Colors.white,
                 ),
@@ -89,7 +90,7 @@ class _UnauthenticatedScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  icon: const Icon(Icons.person),
+                  icon: const Icon(HeroIcons.user),
                   label: const Text('Go to Profile Tab'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).primaryColor,

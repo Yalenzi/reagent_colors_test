@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../../domain/entities/reagent_entity.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../data/services/safety_instructions_service.dart';
 import '../../providers/reagent_testing_providers.dart';
+
+enum SafetyIconType { equipment, procedures, hazards, storage }
 
 class SafetyInformationSection extends ConsumerWidget {
   final ReagentEntity reagent;
@@ -29,15 +32,24 @@ class SafetyInformationSection extends ConsumerWidget {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: theme.colorScheme.error,
-            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              colors: [Colors.red.shade600, Colors.red.shade400],
+            ),
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.red.withOpacity(0.3),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Icon(
-            Icons.warning_outlined,
-            color: theme.colorScheme.onError,
-            size: 20,
+          child: const Icon(
+            HeroIcons.exclamation_triangle, // Safety warning icon
+            color: Colors.white,
+            size: 24,
           ),
         ),
         const SizedBox(width: 12),
@@ -141,7 +153,7 @@ class _ErrorState extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Icon(Icons.warning_outlined, color: theme.colorScheme.error),
+        Icon(HeroIcons.exclamation_triangle, color: theme.colorScheme.error),
         const SizedBox(height: 8),
         Text(
           l10n.errorLoadingSettings,
@@ -166,25 +178,25 @@ class _SafetyContent extends StatelessWidget {
         _SafetySection(
           title: l10n.equipment,
           items: safetyData.equipment,
-          icon: Icons.security, // Safety equipment icon
+          iconType: SafetyIconType.equipment,
         ),
         const SizedBox(height: 16),
         _SafetySection(
           title: l10n.handlingProcedures,
           items: safetyData.handlingProcedures,
-          icon: Icons.pan_tool, // Handling procedures icon
+          iconType: SafetyIconType.procedures,
         ),
         const SizedBox(height: 16),
         _SafetySection(
           title: l10n.specificHazards,
           items: safetyData.specificHazards,
-          icon: Icons.warning, // Hazards icon
+          iconType: SafetyIconType.hazards,
         ),
         const SizedBox(height: 16),
         _SafetySection(
           title: l10n.storage,
           items: safetyData.storage,
-          icon: Icons.storage, // Storage icon
+          iconType: SafetyIconType.storage,
         ),
       ],
     );
@@ -194,12 +206,12 @@ class _SafetyContent extends StatelessWidget {
 class _SafetySection extends StatelessWidget {
   final String title;
   final List<String> items;
-  final IconData icon;
+  final SafetyIconType iconType;
 
   const _SafetySection({
     required this.title,
     required this.items,
-    required this.icon,
+    required this.iconType,
   });
 
   @override
@@ -212,20 +224,33 @@ class _SafetySection extends StatelessWidget {
         Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: theme.colorScheme.primaryContainer.withValues(
-                  alpha: 0.3,
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.primary.withOpacity(0.8),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(6),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: Icon(icon, size: 16, color: theme.colorScheme.primary),
+              child: _getIconWidget(iconType),
             ),
-            const SizedBox(width: 10),
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                title,
+                style: theme.textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
               ),
             ),
           ],
@@ -234,6 +259,32 @@ class _SafetySection extends StatelessWidget {
         ...items.map((item) => _SafetyItem(item: item)),
       ],
     );
+  }
+
+  Widget _getIconWidget(SafetyIconType iconType) {
+    // Use Icons Plus for better compatibility and professional look
+    switch (iconType) {
+      case SafetyIconType.equipment:
+        // Using HeroIcons shield check for equipment
+        return Icon(HeroIcons.shield_check, size: 24, color: Colors.white);
+      case SafetyIconType.procedures:
+        // Using HeroIcons wrench screwdriver for procedures
+        return Icon(
+          HeroIcons.wrench_screwdriver,
+          size: 24,
+          color: Colors.white,
+        );
+      case SafetyIconType.hazards:
+        // Using HeroIcons exclamation triangle for hazards
+        return Icon(
+          HeroIcons.exclamation_triangle,
+          size: 24,
+          color: Colors.white,
+        );
+      case SafetyIconType.storage:
+        // Using HeroIcons archive box for storage
+        return Icon(HeroIcons.archive_box, size: 24, color: Colors.white);
+    }
   }
 }
 

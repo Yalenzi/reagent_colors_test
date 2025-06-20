@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../../domain/entities/reagent_entity.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../core/utils/localization_helper.dart';
@@ -45,15 +46,27 @@ class ReagentHeaderCard extends StatelessWidget {
 
   Widget _buildIcon(ThemeData theme) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        gradient: LinearGradient(
+          colors: [
+            theme.colorScheme.primary,
+            theme.colorScheme.primary.withOpacity(0.8),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: theme.colorScheme.primary.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: Icon(
-        Icons.science, // Reagent testing icon
-        color: theme.colorScheme.onPrimaryContainer,
-        size: 24,
+        HeroIcons.beaker, // Chemistry beaker icon for reagent testing
+        color: Colors.white,
+        size: 28,
       ),
     );
   }
@@ -88,13 +101,13 @@ class ReagentHeaderCard extends StatelessWidget {
       children: [
         _buildMetadataChip(
           theme,
-          Icons.schedule, // Better timer icon
+          HeroIcons.clock, // Duration icon from HeroIcons
           l10n.duration(reagent.testDuration.toString()),
         ),
         const SizedBox(height: 8),
         _buildMetadataChip(
           theme,
-          Icons.label, // Better category icon
+          HeroIcons.tag, // Category icon from HeroIcons
           '${l10n.category}: ${_translateCategory(reagent.category, l10n)}',
         ),
       ],
@@ -106,7 +119,7 @@ class ReagentHeaderCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.5),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import '../../domain/entities/reagent_entity.dart';
 
 import '../providers/reagent_testing_providers.dart';
@@ -44,7 +45,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
+            icon: Icon(HeroIcons.arrow_path),
             onPressed: () => controller.refresh(),
           ),
         ],
@@ -80,10 +81,10 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
       controller: _searchController,
       decoration: InputDecoration(
         hintText: l10n.searchReagents,
-        prefixIcon: const Icon(Icons.search),
+        prefixIcon: Icon(HeroIcons.magnifying_glass),
         suffixIcon: _searchController.text.isNotEmpty
             ? IconButton(
-                icon: const Icon(Icons.clear),
+                icon: Icon(HeroIcons.x_mark),
                 onPressed: () {
                   _searchController.clear();
                   controller.clearFilters();
@@ -139,7 +140,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.science, size: 64, color: Colors.grey),
+          Icon(HeroIcons.beaker, size: 64, color: Colors.grey),
           SizedBox(height: 16),
           Text(
             'Initializing reagent data...',
@@ -208,7 +209,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.error_outline,
+              HeroIcons.exclamation_triangle,
               size: 64,
               color: Theme.of(context).colorScheme.error,
             ),
@@ -228,7 +229,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => controller.refresh(),
-              icon: const Icon(Icons.refresh),
+              icon: Icon(HeroIcons.arrow_path),
               label: Text(l10n.tryAgain),
             ),
           ],
@@ -248,7 +249,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.science_outlined, size: 64, color: Colors.grey.shade400),
+            Icon(HeroIcons.beaker, size: 64, color: Colors.grey.shade400),
             const SizedBox(height: 16),
             Text(
               l10n.noReagentsAvailable,
@@ -267,7 +268,7 @@ class _ReagentTestingPageState extends ConsumerState<ReagentTestingPage> {
             const SizedBox(height: 24),
             ElevatedButton.icon(
               onPressed: () => controller.refresh(),
-              icon: const Icon(Icons.refresh),
+              icon: Icon(HeroIcons.arrow_path),
               label: Text(l10n.retryLoading),
             ),
           ],

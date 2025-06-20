@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:icons_plus/icons_plus.dart';
 import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
 import 'package:reagent_colors_test/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
 import 'package:reagent_colors_test/features/reagent_testing/presentation/states/test_result_state.dart';
@@ -38,12 +39,20 @@ class CompleteTestSection extends ConsumerWidget {
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
-      child: ElevatedButton(
+      child: ElevatedButton.icon(
         style: ElevatedButton.styleFrom(
-          minimumSize: const Size(double.infinity, 50),
+          minimumSize: const Size(double.infinity, 56),
+          padding: const EdgeInsets.symmetric(vertical: 16),
         ),
         onPressed: isReady ? () => _completeTest(context, ref, reagent) : null,
-        child: Text(_getCompleteTestLabel(l10n)),
+        icon: Icon(
+          isReady ? HeroIcons.check_circle : HeroIcons.clock,
+          size: 20,
+        ),
+        label: Text(
+          _getCompleteTestLabel(l10n),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
