@@ -1,4 +1,5 @@
 import '../../domain/entities/test_execution_entity.dart';
+import '../../data/models/gemini_analysis_models.dart';
 
 abstract class TestExecutionState {
   const TestExecutionState();
@@ -7,7 +8,12 @@ abstract class TestExecutionState {
   T when<T>({
     required T Function() initial,
     required T Function() loading,
-    required T Function(TestExecutionEntity testExecution) loaded,
+    required T Function(
+      TestExecutionEntity testExecution,
+      GeminiReagentTestResult? aiAnalysisResult,
+      String notes,
+    )
+    loaded,
     required T Function(String message) error,
   }) {
     if (this is TestExecutionInitial) {
@@ -15,7 +21,8 @@ abstract class TestExecutionState {
     } else if (this is TestExecutionLoading) {
       return loading();
     } else if (this is TestExecutionLoaded) {
-      return loaded((this as TestExecutionLoaded).testExecution);
+      final state = this as TestExecutionLoaded;
+      return loaded(state.testExecution, state.aiAnalysisResult, state.notes);
     } else if (this is TestExecutionError) {
       return error((this as TestExecutionError).message);
     }
@@ -26,7 +33,12 @@ abstract class TestExecutionState {
   T maybeWhen<T>({
     T Function()? initial,
     T Function()? loading,
-    T Function(TestExecutionEntity testExecution)? loaded,
+    T Function(
+      TestExecutionEntity testExecution,
+      GeminiReagentTestResult? aiAnalysisResult,
+      String notes,
+    )?
+    loaded,
     T Function(String message)? error,
     required T Function() orElse,
   }) {
@@ -35,7 +47,8 @@ abstract class TestExecutionState {
     } else if (this is TestExecutionLoading && loading != null) {
       return loading();
     } else if (this is TestExecutionLoaded && loaded != null) {
-      return loaded((this as TestExecutionLoaded).testExecution);
+      final state = this as TestExecutionLoaded;
+      return loaded(state.testExecution, state.aiAnalysisResult, state.notes);
     } else if (this is TestExecutionError && error != null) {
       return error((this as TestExecutionError).message);
     }
@@ -53,8 +66,14 @@ class TestExecutionLoading extends TestExecutionState {
 
 class TestExecutionLoaded extends TestExecutionState {
   final TestExecutionEntity testExecution;
+  final GeminiReagentTestResult? aiAnalysisResult;
+  final String notes;
 
-  const TestExecutionLoaded({required this.testExecution});
+  const TestExecutionLoaded({
+    required this.testExecution,
+    this.aiAnalysisResult,
+    this.notes = '',
+  });
 
   @override
   bool operator ==(Object other) {
@@ -69,7 +88,7 @@ class TestExecutionLoaded extends TestExecutionState {
 class TestExecutionError extends TestExecutionState {
   final String message;
 
-  const TestExecutionError({required this.message});
+  const TestExecutionError(this.message);
 
   @override
   bool operator ==(Object other) {

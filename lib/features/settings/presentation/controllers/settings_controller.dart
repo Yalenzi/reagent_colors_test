@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import '../../domain/entities/settings_entity.dart';
+
 import '../../domain/repositories/settings_repository.dart';
 import '../states/settings_state.dart';
 

@@ -2,15 +2,40 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import '../utils/logger.dart';
+import '../config/api_keys.dart';
 
 class GeminiImageAnalysisService {
   static const String _modelName =
       'gemini-2.0-flash'; // Cheaper than 2.0-flash-exp
   late final GenerativeModel _model;
 
-  GeminiImageAnalysisService({required String apiKey}) {
+  GeminiImageAnalysisService({String? apiKey}) {
+    Logger.info('🔧 Initializing Gemini service...');
+    _initializeModel(apiKey);
+  }
+
+  /// Create instance with Remote Config API key
+  static Future<GeminiImageAnalysisService> createWithRemoteConfig() async {
+    final apiKey = await ApiKeys.getGeminiApiKey();
+    return GeminiImageAnalysisService(apiKey: apiKey);
+  }
+
+  void _initializeModel(String? providedApiKey) {
+    String apiKey;
+
+    if (providedApiKey != null && providedApiKey.isNotEmpty) {
+      apiKey = providedApiKey;
+      Logger.info('🔑 Using provided API key');
+    } else {
+      // Fallback to synchronous environment variable
+      apiKey = ApiKeys.geminiApiKeySync;
+      Logger.info('🔑 Using environment variable API key');
+    }
+
     if (apiKey.isEmpty) {
-      throw Exception('Gemini API key is required but not provided');
+      throw Exception(
+        'Gemini API key is required but not provided. ${ApiKeys.geminiApiKeyError}',
+      );
     }
 
     _model = GenerativeModel(

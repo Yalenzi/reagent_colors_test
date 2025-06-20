@@ -1,3 +1,19 @@
 {
-    "java.configuration.updateBuildConfiguration": "automatic"
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "arb-editor.suppressedWarnings": "all",
+    "flutter-intl.suppressWarnings": true,
+    "dart.showTodos": false,
+    "dart.showLints": false,
+    "json.validate.enable": false,
+    "files.associations": {
+        "*.arb": "plaintext"
+    },
+    "json.schemas": [],
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "json.maxItemsComputed": 0,
+    "problems.decorations.enabled": false,
+    "dart.previewLsp": false,
+    "dart.analysisServerFolding": false
 }

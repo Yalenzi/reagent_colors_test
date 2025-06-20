@@ -109,9 +109,16 @@ class SettingsPage extends ConsumerWidget {
                   ),
                 ],
                 onChanged: (value) {
-                  // Will implement functionality later
                   if (value != null) {
-                    _showComingSoonDialog(context, l10n, l10n.theme);
+                    final themeMode = switch (value) {
+                      'light' => ThemeMode.light,
+                      'dark' => ThemeMode.dark,
+                      'system' => ThemeMode.system,
+                      _ => ThemeMode.system,
+                    };
+                    ref
+                        .read(settingsControllerProvider.notifier)
+                        .updateTheme(themeMode);
                   }
                 },
                 isFirst: true,

@@ -9,6 +9,7 @@ class RemoteConfigService {
   static const String _safetyInstructionsKey = 'safety_instructions';
   static const String _availableReagentsKey = 'available_reagents';
   static const String _reagentVersionKey = 'reagent_version';
+  static const String _geminiApiKeyKey = 'gemini_api_key';
 
   final FirebaseRemoteConfig _remoteConfig;
 
@@ -32,6 +33,7 @@ class RemoteConfigService {
         _safetyInstructionsKey: '{}',
         _availableReagentsKey: '[]',
         _reagentVersionKey: '1.0.0',
+        _geminiApiKeyKey: '', // No default for security
       });
 
       // Fetch and activate
@@ -223,5 +225,41 @@ class RemoteConfigService {
       Logger.info('❌ Error activating Remote Config: $e');
       return false;
     }
+  }
+
+  /// Get Gemini API key from Remote Config
+  String getGeminiApiKey() {
+    final apiKey = _remoteConfig.getString(_geminiApiKeyKey);
+    if (apiKey.isNotEmpty) {
+      Logger.info('🔑 Gemini API key loaded from Remote Config');
+    } else {
+      Logger.info('⚠️ No Gemini API key found in Remote Config');
+    }
+    return apiKey;
+  }
+
+  /// Check if Gemini API key is available in Remote Config
+  bool hasGeminiApiKey() {
+    final apiKey = _remoteConfig.getString(_geminiApiKeyKey);
+    return apiKey.isNotEmpty;
+  }
+
+  /// Get Gemini API key with fallback to environment variable
+  String getGeminiApiKeyWithFallback() {
+    // First try Remote Config
+    final remoteApiKey = getGeminiApiKey();
+    if (remoteApiKey.isNotEmpty) {
+      return remoteApiKey;
+    }
+
+    // Fallback to environment variable
+    const envApiKey = String.fromEnvironment('GEMINI_API_KEY');
+    if (envApiKey.isNotEmpty) {
+      Logger.info('🔑 Using Gemini API key from environment variable');
+      return envApiKey;
+    }
+
+    Logger.error('❌ No Gemini API key found in Remote Config or environment');
+    return '';
   }
 }

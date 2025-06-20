@@ -95,6 +95,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
+    final theme = Theme.of(context);
 
     // Set context for notifications
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -102,38 +103,36 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     });
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFC),
-      appBar: _buildModernAppBar(authState),
-      body: _buildBody(authState),
+      backgroundColor: theme.colorScheme.surface,
+      appBar: _buildModernAppBar(authState, theme),
+      body: _buildBody(authState, theme),
     );
   }
 
-  PreferredSizeWidget _buildModernAppBar(AuthState authState) {
-    final l10n = AppLocalizations.of(context)!;
+  PreferredSizeWidget _buildModernAppBar(AuthState authState, ThemeData theme) {
     return AppBar(
       elevation: 0,
-      backgroundColor: Colors.white,
+      backgroundColor: theme.colorScheme.surface,
       surfaceTintColor: Colors.transparent,
       title: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+              color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(12),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.science_outlined,
-              color: Color(0xFF3B82F6),
+              color: theme.colorScheme.onPrimaryContainer,
               size: 24,
             ),
           ),
           const SizedBox(width: 12),
           Text(
             _getAppBarTitle(authState),
-            style: const TextStyle(
-              color: Color(0xFF1E293B),
-              fontSize: 20,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -151,10 +150,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return _isLoginMode ? l10n.labAccess : l10n.joinLaboratory;
   }
 
-  Widget _buildBody(AuthState authState) {
+  Widget _buildBody(AuthState authState, ThemeData theme) {
     final l10n = AppLocalizations.of(context)!;
     if (authState is AuthAuthenticated) {
-      return _buildModernProfileView(authState.user);
+      return _buildModernProfileView(authState.user, theme);
     }
 
     return SingleChildScrollView(
@@ -162,62 +161,63 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildModernWelcomeSection(l10n),
+          _buildModernWelcomeSection(l10n, theme),
           const SizedBox(height: 24),
-          _buildModernAuthForm(authState, l10n),
+          _buildModernAuthForm(authState, l10n, theme),
           const SizedBox(height: 20),
-          _buildModernGoogleSignInButton(authState, l10n),
+          _buildModernGoogleSignInButton(authState, l10n, theme),
           const SizedBox(height: 20),
-          _buildToggleAuthModeButton(l10n),
+          _buildToggleAuthModeButton(l10n, theme),
           if (authState is AuthError) ...[
             const SizedBox(height: 20),
-            _buildModernErrorMessage(authState.message),
+            _buildModernErrorMessage(authState.message, theme),
           ],
           if (authState is AuthSuccess) ...[
             const SizedBox(height: 20),
-            _buildModernSuccessMessage(authState.message),
+            _buildModernSuccessMessage(authState.message, theme),
           ],
         ],
       ),
     );
   }
 
-  Widget _buildModernProfileView(user) {
+  Widget _buildModernProfileView(user, ThemeData theme) {
     final l10n = AppLocalizations.of(context)!;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildProfileHeader(user, l10n),
+          _buildProfileHeader(user, l10n, theme),
           const SizedBox(height: 24),
-          _buildTestingStats(l10n),
+          _buildRecentActivity(l10n, theme),
           const SizedBox(height: 24),
-          _buildRecentActivity(l10n),
+          _buildSafetySection(l10n, theme),
           const SizedBox(height: 24),
-          _buildSafetySection(l10n),
+          _buildAccountSection(user, l10n, theme),
           const SizedBox(height: 24),
-          _buildAccountSection(user, l10n),
-          const SizedBox(height: 24),
-          _buildSignOutButton(l10n),
+          _buildSignOutButton(l10n, theme),
         ],
       ),
     );
   }
 
-  Widget _buildProfileHeader(user, AppLocalizations l10n) {
+  Widget _buildProfileHeader(user, AppLocalizations l10n, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+          colors: [
+            theme.colorScheme.primary,
+            theme.colorScheme.primary.withValues(alpha: 0.8),
+          ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF3B82F6).withValues(alpha: 0.3),
+            color: theme.colorScheme.primary.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -229,10 +229,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             width: 80,
             height: 80,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
+              color: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.3),
+                color: theme.colorScheme.onPrimary.withValues(alpha: 0.3),
                 width: 2,
               ),
             ),
@@ -246,10 +246,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       user.username.isNotEmpty
                           ? user.username[0].toUpperCase()
                           : 'L',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: theme.colorScheme.onPrimary,
                       ),
                     ),
                   ),
@@ -261,10 +261,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               children: [
                 Text(
                   user.username,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: theme.colorScheme.onPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -272,7 +272,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   l10n.laboratoryTechnician,
                   style: TextStyle(
                     fontSize: 16,
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: theme.colorScheme.onPrimary.withValues(alpha: 0.9),
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -283,7 +283,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     vertical: 6,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.2),
+                    color: theme.colorScheme.onPrimary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Row(
@@ -292,7 +292,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                       Icon(
                         user.isEmailVerified ? Icons.verified : Icons.pending,
                         size: 16,
-                        color: Colors.white,
+                        color: theme.colorScheme.onPrimary,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -314,139 +314,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildTestingStats(AppLocalizations l10n) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          l10n.testingStatistics,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
-          ),
-        ),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                l10n.testsPerformed,
-                '47',
-                Icons.science,
-                const Color(0xFF10B981),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                l10n.reagentsUsed,
-                '12',
-                Icons.colorize,
-                const Color(0xFF8B5CF6),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: _buildStatCard(
-                l10n.successRate,
-                '94%',
-                Icons.check_circle,
-                const Color(0xFF06B6D4),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: _buildStatCard(
-                l10n.labHours,
-                '28h',
-                Icons.access_time,
-                const Color(0xFFF59E0B),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStatCard(
-    String title,
-    String value,
-    IconData icon,
-    Color color,
-  ) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF64748B),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildRecentActivity(AppLocalizations l10n) {
+  Widget _buildRecentActivity(AppLocalizations l10n, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           l10n.recentActivity,
-          style: const TextStyle(
-            fontSize: 20,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
           ),
         ),
         const SizedBox(height: 16),
         Container(
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: theme.colorScheme.shadow.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -458,19 +344,22 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 'Marquis Test',
                 'MDMA Sample',
                 '2 hours ago',
-                const Color(0xFF8B5CF6),
+                theme.colorScheme.secondary,
+                theme,
               ),
               _buildActivityItem(
                 'Ehrlich Test',
                 'LSD Sample',
                 '1 day ago',
-                const Color(0xFF10B981),
+                theme.colorScheme.primary,
+                theme,
               ),
               _buildActivityItem(
                 'Scott Test',
                 'Cocaine Sample',
                 '2 days ago',
-                const Color(0xFF06B6D4),
+                theme.colorScheme.tertiary,
+                theme,
               ),
             ],
           ),
@@ -484,6 +373,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     String sample,
     String time,
     Color color,
+    ThemeData theme,
   ) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -504,17 +394,15 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               children: [
                 Text(
                   reagent,
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: theme.textTheme.bodyLarge?.copyWith(
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E293B),
+                    color: theme.colorScheme.onSurface,
                   ),
                 ),
                 Text(
                   sample,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF64748B),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -522,21 +410,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           Text(
             time,
-            style: const TextStyle(fontSize: 12, color: Color(0xFF94A3B8)),
+            style: theme.textTheme.bodySmall?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSafetySection(AppLocalizations l10n) {
+  Widget _buildSafetySection(AppLocalizations l10n, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF3C7),
+        color: theme.colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFF59E0B).withValues(alpha: 0.3),
+          color: theme.colorScheme.outline.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -547,22 +437,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF59E0B).withValues(alpha: 0.2),
+                  color: theme.colorScheme.outline.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.warning_amber,
-                  color: Color(0xFFF59E0B),
+                  color: Colors.white,
                   size: 20,
                 ),
               ),
               const SizedBox(width: 12),
               Text(
                 l10n.safetyReminder,
-                style: const TextStyle(
-                  fontSize: 18,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  color: theme.colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF92400E),
                 ),
               ),
             ],
@@ -570,9 +459,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           const SizedBox(height: 12),
           Text(
             l10n.safetyReminderText,
-            style: const TextStyle(
-              fontSize: 14,
-              color: Color(0xFF92400E),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
               height: 1.5,
             ),
           ),
@@ -581,27 +469,26 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildAccountSection(user, AppLocalizations l10n) {
+  Widget _buildAccountSection(user, AppLocalizations l10n, ThemeData theme) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           l10n.accountInformation,
-          style: const TextStyle(
-            fontSize: 20,
+          style: theme.textTheme.titleLarge?.copyWith(
+            color: theme.colorScheme.onSurface,
             fontWeight: FontWeight.bold,
-            color: Color(0xFF1E293B),
           ),
         ),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.colorScheme.surfaceContainerHigh,
             borderRadius: BorderRadius.circular(16),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
+                color: theme.colorScheme.shadow.withValues(alpha: 0.05),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -609,14 +496,25 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
           child: Column(
             children: [
-              _buildInfoRow(Icons.person_outline, l10n.username, user.username),
+              _buildInfoRow(
+                Icons.person_outline,
+                l10n.username,
+                user.username,
+                theme,
+              ),
               const Divider(height: 32),
-              _buildInfoRow(Icons.email_outlined, l10n.email, user.email),
+              _buildInfoRow(
+                Icons.email_outlined,
+                l10n.email,
+                user.email,
+                theme,
+              ),
               const Divider(height: 32),
               _buildInfoRow(
                 Icons.calendar_today_outlined,
                 l10n.memberSince,
                 _formatDate(user.registeredAt),
+                theme,
               ),
             ],
           ),
@@ -625,16 +523,21 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String value) {
+  Widget _buildInfoRow(
+    IconData icon,
+    String label,
+    String value,
+    ThemeData theme,
+  ) {
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+            color: theme.colorScheme.outline.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(icon, color: const Color(0xFF3B82F6), size: 20),
+          child: Icon(icon, color: theme.colorScheme.outline, size: 20),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -643,18 +546,16 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             children: [
               Text(
                 label,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Color(0xFF64748B),
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
                   fontWeight: FontWeight.w500,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: const TextStyle(
-                  fontSize: 16,
-                  color: Color(0xFF1E293B),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -665,24 +566,23 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildSignOutButton(AppLocalizations l10n) {
+  Widget _buildSignOutButton(AppLocalizations l10n, ThemeData theme) {
     return Container(
       width: double.infinity,
       height: 56,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+          color: theme.colorScheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: TextButton.icon(
         onPressed: _signOut,
-        icon: const Icon(Icons.logout, color: Color(0xFFEF4444)),
+        icon: Icon(Icons.logout, color: theme.colorScheme.error),
         label: Text(
           l10n.signOut,
-          style: const TextStyle(
-            color: Color(0xFFEF4444),
-            fontSize: 16,
+          style: theme.textTheme.bodyLarge?.copyWith(
+            color: theme.colorScheme.error,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -713,7 +613,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }
 
-  Widget _buildModernWelcomeSection(AppLocalizations l10n) {
+  Widget _buildModernWelcomeSection(AppLocalizations l10n, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
@@ -732,30 +632,28 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+              color: theme.colorScheme.primaryContainer,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Icon(
               _isLoginMode ? Icons.science : Icons.person_add,
               size: 48,
-              color: const Color(0xFF3B82F6),
+              color: theme.colorScheme.onPrimaryContainer,
             ),
           ),
           const SizedBox(height: 20),
           Text(
             _isLoginMode ? l10n.welcomeBack : l10n.joinOurLab,
-            style: const TextStyle(
-              fontSize: 28,
+            style: theme.textTheme.titleLarge?.copyWith(
+              color: theme.colorScheme.onSurface,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF1E293B),
             ),
           ),
           const SizedBox(height: 8),
           Text(
             _isLoginMode ? l10n.accessYourLab : l10n.startYourJourney,
-            style: const TextStyle(
-              fontSize: 16,
-              color: Color(0xFF64748B),
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.colorScheme.onSurfaceVariant,
               height: 1.5,
             ),
             textAlign: TextAlign.center,
@@ -765,7 +663,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildModernAuthForm(AuthState authState, AppLocalizations l10n) {
+  Widget _buildModernAuthForm(
+    AuthState authState,
+    AppLocalizations l10n,
+    ThemeData theme,
+  ) {
     final isLoading = authState is AuthLoading;
 
     return Container(
@@ -1010,6 +912,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget _buildModernGoogleSignInButton(
     AuthState authState,
     AppLocalizations l10n,
+    ThemeData theme,
   ) {
     final isLoading = authState is AuthLoading;
 
@@ -1090,7 +993,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildToggleAuthModeButton(AppLocalizations l10n) {
+  Widget _buildToggleAuthModeButton(AppLocalizations l10n, ThemeData theme) {
     return TextButton(
       onPressed: _toggleAuthMode,
       child: RichText(
@@ -1115,14 +1018,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildModernErrorMessage(String message) {
+  Widget _buildModernErrorMessage(String message, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFFEF2F2),
+        color: theme.colorScheme.errorContainer,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFFEF4444).withValues(alpha: 0.3),
+          color: theme.colorScheme.error.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -1146,14 +1049,14 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 
-  Widget _buildModernSuccessMessage(String message) {
+  Widget _buildModernSuccessMessage(String message, ThemeData theme) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF0FDF4),
+        color: theme.colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: const Color(0xFF10B981).withValues(alpha: 0.3),
+          color: theme.colorScheme.primary.withValues(alpha: 0.3),
         ),
       ),
       child: Row(

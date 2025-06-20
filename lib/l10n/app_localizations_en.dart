@@ -356,6 +356,16 @@ class AppLocalizationsEn extends AppLocalizations {
       'Are you sure you want to delete this test result?';
 
   @override
+  String get confirmExit => 'Confirm Exit';
+
+  @override
+  String get testProgressWillBeLost =>
+      'Your test progress will be lost. Are you sure you want to exit?';
+
+  @override
+  String get exit => 'Exit';
+
+  @override
   String get loadingTestHistory => 'Loading test history...';
 
   @override

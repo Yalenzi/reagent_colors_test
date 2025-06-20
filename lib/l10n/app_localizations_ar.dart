@@ -257,7 +257,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get testResults => 'نتائج الاختبار';
 
   @override
-  String get testHistory => 'سجل الاختبارات';
+  String get testHistory => 'تاريخ الاختبارات';
 
   @override
   String get statistics => 'الإحصائيات';
@@ -350,6 +350,16 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get deleteTestConfirmation =>
       'هل أنت متأكد من أنك تريد حذف نتيجة هذا الاختبار؟';
+
+  @override
+  String get confirmExit => 'تأكيد الخروج';
+
+  @override
+  String get testProgressWillBeLost =>
+      'ستفقد تقدم الاختبار. هل أنت متأكد من أنك تريد الخروج؟';
+
+  @override
+  String get exit => 'خروج';
 
   @override
   String get loadingTestHistory => 'جاري تحميل سجل الاختبارات...';
@@ -456,7 +466,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get takePhoto => 'التقاط صورة';
 
   @override
-  String get fromGallery => 'من المعرض';
+  String get fromGallery => ' الصور';
 
   @override
   String get uploadImageDescription =>

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../data/repositories/settings_repository_impl.dart';
 import '../../data/services/shared_preferences_service.dart';
 import '../../domain/repositories/settings_repository.dart';
-import '../../domain/entities/settings_entity.dart';
+
 import '../controllers/settings_controller.dart';
 import '../states/settings_state.dart';
 

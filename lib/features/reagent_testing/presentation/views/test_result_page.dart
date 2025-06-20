@@ -1,312 +1,160 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/entities/test_result_entity.dart';
+import 'package:reagent_colors_test/features/reagent_testing/domain/entities/test_result_entity.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/states/test_result_state.dart';
 import '../../../../l10n/app_localizations.dart';
 
 class TestResultPage extends ConsumerWidget {
-  final TestResultEntity testResult;
-
-  const TestResultPage({super.key, required this.testResult});
+  const TestResultPage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
+    final state = ref.watch(testResultControllerProvider);
     final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.testResults),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildResultsCard(context, theme, l10n),
-                    const SizedBox(height: 24),
-                    if (testResult.notes != null &&
-                        testResult.notes!.isNotEmpty)
-                      _buildNotesCard(context, theme, l10n),
-                  ],
-                ),
-              ),
-            ),
-            _buildBottomButton(context, theme, l10n),
-          ],
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: () =>
+              Navigator.of(context).popUntil((route) => route.isFirst),
+          tooltip: 'Back to Home',
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.share),
+            onPressed: () {
+              // TODO: Implement share functionality
+            },
+            tooltip: 'Share Results',
+          ),
+        ],
       ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: _buildBody(context, state),
     );
   }
 
-  String _translateSubstanceName(
-    String substanceName,
-    AppLocalizations l10n,
-    BuildContext context,
-  ) {
-    // Handle the unknown substance case
-    if (substanceName == 'Unknown substance or impure sample') {
-      return l10n.unknownSubstance;
+  Widget _buildBody(BuildContext context, TestResultState state) {
+    if (state is TestResultLoading) {
+      return const Center(child: CircularProgressIndicator());
+    } else if (state is TestResultLoaded) {
+      return Column(
+        children: [
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: TestResultContent(testResult: state.testResult),
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 48.0),
+            child: ElevatedButton.icon(
+              onPressed: () =>
+                  Navigator.of(context).popUntil((route) => route.isFirst),
+              icon: const Icon(Icons.home),
+              label: const Text('Back to Home'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                backgroundColor: Theme.of(context).primaryColor,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else if (state is TestResultError) {
+      return Center(child: Text('Error: ${state.message}'));
+    } else {
+      return const Center(child: Text('No result yet.'));
     }
-
-    // Check if current locale is Arabic
-    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
-
-    if (!isArabic) {
-      return substanceName; // Return original for English
-    }
-
-    // Map common drug names to Arabic
-    final drugNameTranslations = {
-      'Amphetamine': 'الأمفيتامين',
-      '2C-B': '2C-B',
-      'Cocaine': 'الكوكايين',
-      'DMT': 'DMT',
-      'Ketamine': 'الكيتامين',
-      'LSD': 'LSD',
-      'MDA': 'MDA',
-      'MDMA': 'MDMA',
-      'Mephedrone': 'الميفيدرون',
-      'Methamphetamine': 'الميثامفيتامين',
-      'Psilocybin': 'السيلوسيبين',
-      'No Change': 'لا يوجد تغيير',
-      'AI Analysis Result': 'نتيجة تحليل الذكاء الاصطناعي',
-    };
-
-    return drugNameTranslations[substanceName] ?? substanceName;
   }
+}
 
-  String _getLocalizedSubstances(AppLocalizations l10n, BuildContext context) {
-    final translatedSubstances = testResult.possibleSubstances
-        .map((substance) => _translateSubstanceName(substance, l10n, context))
-        .toList();
+class TestResultContent extends StatelessWidget {
+  final TestResultEntity testResult;
 
-    return translatedSubstances.join('، '); // Use Arabic comma for Arabic text
-  }
+  const TestResultContent({super.key, required this.testResult});
 
-  String _translateColor(
-    String colorName,
-    AppLocalizations l10n,
-    BuildContext context,
-  ) {
-    // Check if current locale is Arabic
-    final isArabic = Localizations.localeOf(context).languageCode == 'ar';
-
-    if (!isArabic) {
-      return colorName; // Return original for English
-    }
-
-    // Map common color names to Arabic
-    final colorTranslations = {
-      'red': 'أحمر',
-      'orange': 'برتقالي',
-      'yellow': 'أصفر',
-      'green': 'أخضر',
-      'blue': 'أزرق',
-      'purple': 'بنفسجي',
-      'violet': 'بنفسجي',
-      'pink': 'وردي',
-      'brown': 'بني',
-      'black': 'أسود',
-      'white': 'أبيض',
-      'grey': 'رمادي',
-      'gray': 'رمادي',
-      'clear': 'شفاف',
-      'no color change': 'لا يوجد تغير في اللون',
-      'no change': 'لا يوجد تغيير',
-      'light': 'فاتح',
-      'dark': 'داكن',
-      'bright': 'ساطع',
-      'pale': 'باهت',
-      'deep': 'عميق',
-    };
-
-    // Handle complex color descriptions
-    String translatedColor = colorName.toLowerCase();
-
-    // Replace each color word with its Arabic equivalent
-    colorTranslations.forEach((english, arabic) {
-      translatedColor = translatedColor.replaceAll(english, arabic);
-    });
-
-    // Capitalize first letter if it was capitalized in original
-    if (colorName.isNotEmpty && colorName[0] == colorName[0].toUpperCase()) {
-      translatedColor =
-          translatedColor[0].toUpperCase() + translatedColor.substring(1);
-    }
-
-    return translatedColor;
-  }
-
-  Widget _buildResultsCard(
-    BuildContext context,
-    ThemeData theme,
-    AppLocalizations l10n,
-  ) {
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
+      elevation: 4,
+      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              l10n.testResults,
+              'Test Results',
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24),
+            _buildResultRow(context, 'Reagent:', testResult.reagentName),
+            const SizedBox(height: 8),
             _buildResultRow(
               context,
-              '${l10n.reagent}:',
-              testResult.reagentName,
-              theme,
+              'Observed Color:',
+              testResult.observedColor,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             _buildResultRow(
               context,
-              '${l10n.observedColorLabel}:',
-              _translateColor(testResult.observedColor, l10n, context),
-              theme,
+              'Possible Substances:',
+              testResult.possibleSubstances.join(', '),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             _buildResultRow(
               context,
-              '${l10n.possibleSubstances}:',
-              _getLocalizedSubstances(l10n, context),
-              theme,
-            ),
-            const SizedBox(height: 16),
-            _buildResultRow(
-              context,
-              '${l10n.confidence}:',
+              'Confidence:',
               '${testResult.confidencePercentage}%',
-              theme,
             ),
+            if (testResult.notes != null && testResult.notes!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              _buildResultRow(context, 'Notes:', testResult.notes!),
+            ],
           ],
         ),
       ),
     );
   }
 
-  Widget _buildResultRow(
-    BuildContext context,
-    String label,
-    String value,
-    ThemeData theme,
-  ) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: 140,
-          child: Text(
-            label,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w500,
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            value,
-            style: theme.textTheme.bodyLarge?.copyWith(
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildNotesCard(
-    BuildContext context,
-    ThemeData theme,
-    AppLocalizations l10n,
-  ) {
-    return Card(
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.grey.shade300),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.note_outlined,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  l10n.testNotes,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withValues(
-                  alpha: 0.3,
-                ),
-                borderRadius: BorderRadius.circular(8),
+  Widget _buildResultRow(BuildContext context, String label, String value) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(
+              label,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.textTheme.bodySmall?.color,
               ),
-              child: Text(testResult.notes!, style: theme.textTheme.bodyMedium),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBottomButton(
-    BuildContext context,
-    ThemeData theme,
-    AppLocalizations l10n,
-  ) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 16),
-      child: SafeArea(
-        child: ElevatedButton(
-          onPressed: () {
-            // Navigate back to home (pop all test-related pages)
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          },
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            backgroundColor: theme.colorScheme.surfaceContainerHighest
-                .withValues(alpha: 0.8),
-            foregroundColor: theme.colorScheme.onSurfaceVariant,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Text(
-            l10n.backToHome,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+          Expanded(
+            child: Text(
+              value,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

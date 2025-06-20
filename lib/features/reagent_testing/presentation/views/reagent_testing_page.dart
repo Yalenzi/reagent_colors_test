@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/reagent_entity.dart';
-import '../controllers/reagent_testing_controller.dart';
+
 import '../providers/reagent_testing_providers.dart';
 import '../states/reagent_testing_state.dart';
 import '../widgets/reagent_card.dart';

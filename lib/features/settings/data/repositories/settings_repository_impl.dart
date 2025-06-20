@@ -100,16 +100,4 @@ class SettingsRepositoryImpl implements SettingsRepository {
         return 'system';
     }
   }
-
-  ThemeMode _stringToThemeMode(String mode) {
-    switch (mode) {
-      case 'light':
-        return ThemeMode.light;
-      case 'dark':
-        return ThemeMode.dark;
-      case 'system':
-      default:
-        return ThemeMode.system;
-    }
-  }
 }

@@ -740,6 +740,24 @@ abstract class AppLocalizations {
   /// **'Are you sure you want to delete this test result?'**
   String get deleteTestConfirmation;
 
+  /// No description provided for @confirmExit.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Exit'**
+  String get confirmExit;
+
+  /// No description provided for @testProgressWillBeLost.
+  ///
+  /// In en, this message translates to:
+  /// **'Your test progress will be lost. Are you sure you want to exit?'**
+  String get testProgressWillBeLost;
+
+  /// No description provided for @exit.
+  ///
+  /// In en, this message translates to:
+  /// **'Exit'**
+  String get exit;
+
   /// No description provided for @loadingTestHistory.
   ///
   /// In en, this message translates to:

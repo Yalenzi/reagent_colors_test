@@ -14,6 +14,10 @@ import '../states/reagent_testing_state.dart';
 import '../states/test_execution_state.dart';
 import '../states/test_result_state.dart';
 import '../states/test_result_history_state.dart';
+import 'package:reagent_colors_test/core/services/gemini_image_analysis_service.dart';
+
+import 'package:reagent_colors_test/core/config/api_keys.dart';
+import 'package:reagent_colors_test/core/config/get_it_config.dart';
 
 // Remote Config Service Provider
 final remoteConfigServiceProvider = Provider<RemoteConfigService>((ref) {
@@ -135,4 +139,19 @@ final dataSourceInfoProvider = Provider<String>((ref) {
 final remoteConfigRefreshProvider = FutureProvider<bool>((ref) async {
   final jsonDataService = ref.watch(jsonDataServiceProvider);
   return await jsonDataService.refreshFromRemoteConfig();
+});
+
+// Gemini Analysis Service Provider (async)
+final geminiAnalysisServiceProvider = FutureProvider<GeminiImageAnalysisService>((
+  ref,
+) async {
+  try {
+    // Get the service from GetIt async factory
+    return await getIt.getAsync<GeminiImageAnalysisService>();
+  } catch (e) {
+    Logger.error('❌ Failed to initialize Gemini service: $e');
+    throw Exception(
+      'Gemini API service not available. Please ensure API key is set in Firebase Remote Config or environment variables.',
+    );
+  }
 });
