@@ -58,22 +58,152 @@ class _TestExecutionPageState extends ConsumerState<TestExecutionPage> {
 
   Future<bool?> _showExitConfirmation(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+
     return showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.confirmExit),
-        content: Text(l10n.testProgressWillBeLost),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(l10n.cancel),
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(28)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(28),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
           ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: Text(l10n.exit),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Warning Icon with gradient background
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.orange.withValues(alpha: 0.2),
+                      Colors.red.withValues(alpha: 0.2),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(40),
+                ),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  size: 40,
+                  color: Colors.orange.shade700,
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Title
+              Text(
+                l10n.confirmExit,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: theme.colorScheme.onSurface,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+
+              // Content
+              Text(
+                l10n.testProgressWillBeLost,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                  height: 1.5,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+
+              // Action buttons
+              Row(
+                children: [
+                  // Cancel button
+                  Expanded(
+                    child: Container(
+                      height: 52,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: theme.colorScheme.outline.withValues(
+                            alpha: 0.3,
+                          ),
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        style: TextButton.styleFrom(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          l10n.cancel,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+
+                  // Exit button
+                  Expanded(
+                    child: Container(
+                      height: 52,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [Colors.red.shade500, Colors.red.shade600],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.red.withValues(alpha: 0.3),
+                            blurRadius: 8,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: TextButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          l10n.exit,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

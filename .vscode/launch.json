@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "lib/main.dart",
             "toolArgs": [
-                "--dart-define=GEMINI_API_KEY=AIzaSyAqzCV-NRbR0xn2t0ZtY9T0ofdOTebCviM"
+                "--dart-define=GEMINI_API_KEY= "
             ]
         },
         {
@@ -17,7 +17,7 @@
             "program": "lib/main.dart",
             "flutterMode": "release",
             "toolArgs": [
-                "--dart-define=GEMINI_API_KEY=AIzaSyAqzCV-NRbR0xn2t0ZtY9T0ofdOTebCviM"
+                "--dart-define=GEMINI_API_KEY= "
             ]
         },
         {
@@ -27,7 +27,7 @@
             "program": "lib/main.dart",
             "flutterMode": "profile",
             "toolArgs": [
-                "--dart-define=GEMINI_API_KEY=AIzaSyAqzCV-NRbR0xn2t0ZtY9T0ofdOTebCviM"
+                "--dart-define=GEMINI_API_KEY= "
             ]
         }
     ]
