@@ -40,10 +40,33 @@ class _LoadingScreen extends StatelessWidget {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: Theme.of(context).primaryColor,
                 borderRadius: BorderRadius.circular(20),
               ),
-              child: const Icon(Icons.science, size: 40, color: Colors.white),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: Image.asset(
+                  'assets/images/reagent_icon.png',
+                  width: 80,
+                  height: 80,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    // Fallback to science icon if image fails to load
+                    return Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).primaryColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: const Icon(
+                        Icons.science,
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
             const SizedBox(height: 24),
 

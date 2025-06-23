@@ -27,7 +27,7 @@ class SettingsPage extends ConsumerWidget {
             end: Alignment.bottomRight,
             colors: [
               theme.colorScheme.surface,
-              theme.colorScheme.surface.withOpacity(0.8),
+              theme.colorScheme.surface.withValues(alpha: 0.8),
               theme.colorScheme.surfaceContainerLowest,
             ],
           ),
@@ -49,7 +49,7 @@ class SettingsPage extends ConsumerWidget {
                         gradient: LinearGradient(
                           colors: [
                             theme.colorScheme.primary,
-                            theme.colorScheme.primary.withOpacity(0.8),
+                            theme.colorScheme.primary.withValues(alpha: 0.8),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(12),
@@ -112,10 +112,13 @@ class SettingsPage extends ConsumerWidget {
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.red.withOpacity(0.1), Colors.red.withOpacity(0.05)],
+            colors: [
+              Colors.red.withValues(alpha: 0.1),
+              Colors.red.withValues(alpha: 0.05),
+            ],
           ),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.red.withOpacity(0.3)),
+          border: Border.all(color: Colors.red.withValues(alpha: 0.3)),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -123,7 +126,7 @@ class SettingsPage extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.1),
+                color: Colors.red.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(50),
               ),
               child: Icon(
@@ -181,8 +184,8 @@ class SettingsPage extends ConsumerWidget {
           title: l10n.appearance,
           icon: HeroIcons.paint_brush,
           gradient: [
-            Colors.purple.withOpacity(0.1),
-            Colors.blue.withOpacity(0.1),
+            Colors.purple.withValues(alpha: 0.1),
+            Colors.blue.withValues(alpha: 0.1),
           ],
           children: [
             SettingsDropdownTile<String>(
@@ -246,8 +249,8 @@ class SettingsPage extends ConsumerWidget {
           title: l10n.language,
           icon: HeroIcons.language,
           gradient: [
-            Colors.green.withOpacity(0.1),
-            Colors.teal.withOpacity(0.1),
+            Colors.green.withValues(alpha: 0.1),
+            Colors.teal.withValues(alpha: 0.1),
           ],
           children: [
             SettingsDropdownTile<String>(
@@ -329,8 +332,8 @@ class SettingsPage extends ConsumerWidget {
           title: l10n.about,
           icon: HeroIcons.information_circle,
           gradient: [
-            Colors.indigo.withOpacity(0.1),
-            Colors.purple.withOpacity(0.1),
+            Colors.indigo.withValues(alpha: 0.1),
+            Colors.purple.withValues(alpha: 0.1),
           ],
           children: [
             SettingsTile(
@@ -354,8 +357,8 @@ class SettingsPage extends ConsumerWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      theme.colorScheme.primary.withOpacity(0.2),
-                      theme.colorScheme.primary.withOpacity(0.1),
+                      theme.colorScheme.primary.withValues(alpha: 0.2),
+                      theme.colorScheme.primary.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
@@ -395,7 +398,10 @@ class SettingsPage extends ConsumerWidget {
           colors: gradient,
         ),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: gradient.first.withOpacity(0.3), width: 1),
+        border: Border.all(
+          color: gradient.first.withValues(alpha: 0.3),
+          width: 1,
+        ),
       ),
       child: SettingsSection(title: title, icon: icon, children: children),
     );
@@ -408,94 +414,6 @@ class SettingsPage extends ConsumerWidget {
       'system' => HeroIcons.computer_desktop,
       _ => HeroIcons.computer_desktop,
     };
-  }
-
-  void _showComingSoonDialog(
-    BuildContext context,
-    AppLocalizations l10n,
-    String feature,
-  ) {
-    final theme = Theme.of(context);
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                theme.colorScheme.surface,
-                theme.colorScheme.surface.withOpacity(0.8),
-              ],
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.blue.withOpacity(0.2),
-                      Colors.purple.withOpacity(0.2),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Icon(
-                  HeroIcons.clock,
-                  size: 30,
-                  color: Colors.blue.shade600,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                l10n.comingSoonTitle,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n.comingSoonContent(feature),
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 24),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: theme.colorScheme.primary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 32,
-                    vertical: 12,
-                  ),
-                ),
-                child: Text(
-                  l10n.ok,
-                  style: TextStyle(
-                    color: theme.colorScheme.onPrimary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 
   void _showDevelopersDialog(BuildContext context, AppLocalizations l10n) {
@@ -514,7 +432,7 @@ class SettingsPage extends ConsumerWidget {
               end: Alignment.bottomRight,
               colors: [
                 theme.colorScheme.surface,
-                theme.colorScheme.surface.withOpacity(0.8),
+                theme.colorScheme.surface.withValues(alpha: 0.8),
               ],
             ),
           ),

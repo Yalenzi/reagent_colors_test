@@ -99,13 +99,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reagentTestingApp => 'Reagent Testing App';
 
   @override
-  String get theDevelopers => '👨‍💻 The Developers';
+  String get theDevelopers => 'Developers';
 
   @override
-  String get developerOneName => 'Yousef Mesir Al-Enezi';
+  String get developerOneName => 'يوسف مسير العنزي';
 
   @override
-  String get developerTwoName => 'Mohammed Nafa Al-Ruwayli';
+  String get developerTwoName => ' محمد نفاع الرويلي';
 
   @override
   String get aboutTheApp => '🧪 About the App:';
@@ -634,7 +634,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signOut => 'Sign Out';
 
   @override
-  String get welcomeBack => 'Welcome Back!';
+  String get welcomeBack => 'Welcome';
 
   @override
   String get joinOurLab => 'Join Our Lab';
@@ -726,6 +726,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordsDoNotMatch => 'Passwords do not match';
+
+  @override
+  String get forgotPassword => 'Forgot Password?';
+
+  @override
+  String get resetPassword => 'Reset Password';
+
+  @override
+  String get resetPasswordTitle => 'Reset Your Password';
+
+  @override
+  String get resetPasswordDescription =>
+      'Enter your email address and we\'ll send you instructions to reset your password.';
+
+  @override
+  String get sendResetEmail => 'Send Reset Email';
+
+  @override
+  String get backToLogin => 'Back to Login';
+
+  @override
+  String get enterEmailToReset =>
+      'Enter your email address to reset your password';
+
+  @override
+  String get passwordResetEmailSent =>
+      'Password reset email sent! Check your inbox.';
+
+  @override
+  String get resetEmailSending => 'Sending reset email...';
 
   @override
   String get useAiResults => 'Use AI Results';

@@ -545,7 +545,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get maroon => 'كستنائي';
 
   @override
-  String get navy => 'أزرق حربي';
+  String get navy => 'أزرق نيفي';
 
   @override
   String get teal => 'أزرق مخضر';
@@ -630,7 +630,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get signOut => 'تسجيل الخروج';
 
   @override
-  String get welcomeBack => 'أهلاً بعودتك!';
+  String get welcomeBack => 'أهلاً بك';
 
   @override
   String get joinOurLab => 'انضم لمختبرنا';
@@ -722,6 +722,36 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get passwordsDoNotMatch => 'كلمات المرور غير متطابقة';
+
+  @override
+  String get forgotPassword => 'نسيت كلمة المرور؟';
+
+  @override
+  String get resetPassword => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get resetPasswordTitle => 'إعادة تعيين كلمة المرور';
+
+  @override
+  String get resetPasswordDescription =>
+      'أدخل عنوان بريدك الإلكتروني وسنرسل لك تعليمات لإعادة تعيين كلمة المرور.';
+
+  @override
+  String get sendResetEmail => 'إرسال بريد الإعادة';
+
+  @override
+  String get backToLogin => 'العودة لتسجيل الدخول';
+
+  @override
+  String get enterEmailToReset =>
+      'أدخل عنوان بريدك الإلكتروني لإعادة تعيين كلمة المرور';
+
+  @override
+  String get passwordResetEmailSent =>
+      'تم إرسال بريد إعادة تعيين كلمة المرور! تحقق من صندوق الوارد.';
+
+  @override
+  String get resetEmailSending => 'جاري إرسال بريد الإعادة...';
 
   @override
   String get useAiResults => 'استخدام نتائج الذكاء الاصطناعي';

@@ -256,12 +256,52 @@ class AuthService {
     }
   }
 
-  // Send password reset email
+  // Send password reset email with enhanced security
   Future<void> sendPasswordResetEmail(String email) async {
     try {
+      // Validate email format before sending request
+      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
+        throw Exception('Please enter a valid email address');
+      }
+
+      // Log security event (without including email for privacy)
+      Logger.info('🔐 AuthService: Password reset requested');
+
       await _auth.sendPasswordResetEmail(email: email);
+
+      // Log successful password reset email send
+      Logger.info('✅ AuthService: Password reset email sent successfully');
     } on FirebaseAuthException catch (e) {
-      throw _handleAuthException(e);
+      // Log security attempt with error (without including email)
+      Logger.info('❌ AuthService: Password reset failed - ${e.code}');
+
+      // Handle specific Firebase Auth errors with security-conscious messages
+      switch (e.code) {
+        case 'user-not-found':
+          // Don't reveal if user exists or not for security
+          throw Exception(
+            'If this email is registered, you will receive a password reset link',
+          );
+        case 'invalid-email':
+          throw Exception('Please enter a valid email address');
+        case 'too-many-requests':
+          throw Exception(
+            'Too many reset attempts. Please wait before trying again',
+          );
+        case 'user-disabled':
+          throw Exception(
+            'This account has been disabled. Contact support if you believe this is an error',
+          );
+        default:
+          throw Exception(
+            'Unable to send password reset email. Please try again later',
+          );
+      }
+    } catch (e) {
+      Logger.info('❌ AuthService: Password reset error: $e');
+      throw Exception(
+        'Unable to send password reset email. Please try again later',
+      );
     }
   }
 

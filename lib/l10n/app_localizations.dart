@@ -275,19 +275,19 @@ abstract class AppLocalizations {
   /// No description provided for @theDevelopers.
   ///
   /// In en, this message translates to:
-  /// **'👨‍💻 The Developers'**
+  /// **'Developers'**
   String get theDevelopers;
 
   /// No description provided for @developerOneName.
   ///
   /// In en, this message translates to:
-  /// **'Yousef Mesir Al-Enezi'**
+  /// **'يوسف مسير العنزي'**
   String get developerOneName;
 
   /// No description provided for @developerTwoName.
   ///
   /// In en, this message translates to:
-  /// **'Mohammed Nafa Al-Ruwayli'**
+  /// **' محمد نفاع الرويلي'**
   String get developerTwoName;
 
   /// No description provided for @aboutTheApp.
@@ -1289,7 +1289,7 @@ abstract class AppLocalizations {
   /// No description provided for @welcomeBack.
   ///
   /// In en, this message translates to:
-  /// **'Welcome Back!'**
+  /// **'Welcome'**
   String get welcomeBack;
 
   /// No description provided for @joinOurLab.
@@ -1471,6 +1471,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Passwords do not match'**
   String get passwordsDoNotMatch;
+
+  /// No description provided for @forgotPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot Password?'**
+  String get forgotPassword;
+
+  /// No description provided for @resetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get resetPassword;
+
+  /// No description provided for @resetPasswordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Your Password'**
+  String get resetPasswordTitle;
+
+  /// No description provided for @resetPasswordDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address and we\'ll send you instructions to reset your password.'**
+  String get resetPasswordDescription;
+
+  /// No description provided for @sendResetEmail.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Reset Email'**
+  String get sendResetEmail;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Login'**
+  String get backToLogin;
+
+  /// No description provided for @enterEmailToReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address to reset your password'**
+  String get enterEmailToReset;
+
+  /// No description provided for @passwordResetEmailSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Password reset email sent! Check your inbox.'**
+  String get passwordResetEmailSent;
+
+  /// No description provided for @resetEmailSending.
+  ///
+  /// In en, this message translates to:
+  /// **'Sending reset email...'**
+  String get resetEmailSending;
 
   /// No description provided for @useAiResults.
   ///

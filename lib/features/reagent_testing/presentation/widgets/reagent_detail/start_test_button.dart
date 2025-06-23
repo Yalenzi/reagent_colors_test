@@ -23,7 +23,7 @@ class StartTestButton extends ConsumerWidget {
         color: Theme.of(context).colorScheme.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, -2),
           ),
@@ -36,6 +36,20 @@ class StartTestButton extends ConsumerWidget {
             onPressed: isAcknowledged ? () => _navigateToTest(context) : null,
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
+              backgroundColor: isAcknowledged
+                  ? const Color(0xFF10B981) // Vibrant green for enabled state
+                  : Theme.of(context).colorScheme.onSurface.withValues(
+                      alpha: 0.12,
+                    ), // Disabled color
+              foregroundColor: isAcknowledged
+                  ? Colors.white
+                  : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.38),
+              elevation: isAcknowledged ? 2 : 0,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,

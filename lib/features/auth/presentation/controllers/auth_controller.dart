@@ -257,7 +257,7 @@ class AuthController extends StateNotifier<AuthState> {
               context: _context!,
               title: '🚀 Google Sign-In Success',
               message:
-                  'Welcome back ${userProfile.username}! Ready to continue testing?',
+                  'Welcome ${userProfile.username}! Ready to continue testing?',
             );
           }
 

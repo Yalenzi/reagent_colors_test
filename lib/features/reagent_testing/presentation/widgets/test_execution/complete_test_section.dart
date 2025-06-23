@@ -43,6 +43,18 @@ class CompleteTestSection extends ConsumerWidget {
         style: ElevatedButton.styleFrom(
           minimumSize: const Size(double.infinity, 56),
           padding: const EdgeInsets.symmetric(vertical: 16),
+          backgroundColor: isReady
+              ? const Color(0xFF10B981) // Vibrant green for enabled state
+              : Theme.of(context).colorScheme.onSurface.withValues(
+                  alpha: 0.12,
+                ), // Disabled color
+          foregroundColor: isReady
+              ? Colors.white
+              : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.38),
+          elevation: isReady ? 2 : 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
         onPressed: isReady ? () => _completeTest(context, ref, reagent) : null,
         icon: Icon(
