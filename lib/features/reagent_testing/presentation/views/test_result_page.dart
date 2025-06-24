@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:reagent_colors_test/features/reagent_testing/domain/entities/test_result_entity.dart';
-import 'package:reagent_colors_test/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
-import 'package:reagent_colors_test/features/reagent_testing/presentation/states/test_result_state.dart';
+import 'package:reagentkit/features/reagent_testing/domain/entities/test_result_entity.dart';
+import 'package:reagentkit/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
+import 'package:reagentkit/features/reagent_testing/presentation/states/test_result_state.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/localization_helper.dart';
 
@@ -43,32 +43,43 @@ class TestResultPage extends ConsumerWidget {
     if (state is TestResultLoading) {
       return const Center(child: CircularProgressIndicator());
     } else if (state is TestResultLoaded) {
-      return Column(
-        children: [
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: TestResultContent(testResult: state.testResult),
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 48.0),
-            child: ElevatedButton.icon(
-              onPressed: () =>
-                  Navigator.of(context).popUntil((route) => route.isFirst),
-              icon: Icon(HeroIcons.home),
-              label: const Text('Back to Home'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
+      return SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight:
+                  MediaQuery.of(context).size.height -
+                  AppBar().preferredSize.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom -
+                  48, // Extra padding
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(height: 32),
+                TestResultContent(testResult: state.testResult),
+                const SizedBox(height: 48),
+                ElevatedButton.icon(
+                  onPressed: () =>
+                      Navigator.of(context).popUntil((route) => route.isFirst),
+                  icon: Icon(HeroIcons.home),
+                  label: const Text('Back to Home'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 12,
+                    ),
+                    backgroundColor: Theme.of(context).primaryColor,
+                    foregroundColor: Colors.white,
+                  ),
                 ),
-                backgroundColor: Theme.of(context).primaryColor,
-                foregroundColor: Colors.white,
-              ),
+                const SizedBox(height: 32),
+              ],
             ),
           ),
-        ],
+        ),
       );
     } else if (state is TestResultError) {
       return Center(child: Text('Error: ${state.message}'));
@@ -136,24 +147,26 @@ class TestResultContent extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SizedBox(
-            width: 140,
-            child: Text(
-              label,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.textTheme.bodySmall?.color,
-              ),
+          Text(
+            label,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: theme.textTheme.bodySmall?.color,
+              fontWeight: FontWeight.w500,
             ),
           ),
-          Expanded(
+          const SizedBox(height: 4),
+          SizedBox(
+            width: double.infinity,
             child: Text(
               value,
               style: theme.textTheme.bodyLarge?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
+              softWrap: true,
+              overflow: TextOverflow.visible,
             ),
           ),
         ],

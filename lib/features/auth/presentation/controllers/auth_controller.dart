@@ -18,6 +18,15 @@ class AuthController extends StateNotifier<AuthState> {
     _initializeAuthState();
   }
 
+  // Helper method to extract clean error messages without Exception prefix
+  String _extractErrorMessage(dynamic error) {
+    String errorMessage = error.toString();
+    if (errorMessage.startsWith('Exception: ')) {
+      return errorMessage.substring(11);
+    }
+    return errorMessage;
+  }
+
   // Set context for notifications
   void setContext(BuildContext context) {
     _context = context;
@@ -136,7 +145,9 @@ class AuthController extends StateNotifier<AuthState> {
         }
       }
     } catch (e) {
-      state = AuthError(e.toString());
+      // Extract clean error message without Exception prefix
+      String errorMessage = _extractErrorMessage(e);
+      state = AuthError(errorMessage);
     }
   }
 
@@ -207,7 +218,9 @@ class AuthController extends StateNotifier<AuthState> {
         );
       }
 
-      state = AuthError(e.toString());
+      // Extract clean error message without Exception prefix
+      String errorMessage = _extractErrorMessage(e);
+      state = AuthError(errorMessage);
     }
   }
 
@@ -279,7 +292,9 @@ class AuthController extends StateNotifier<AuthState> {
       }
     } catch (e) {
       Logger.info('❌ AuthController: Google Sign-In error: $e');
-      state = AuthError('Google Sign-In failed: ${e.toString()}');
+      // Extract clean error message without Exception prefix
+      String errorMessage = _extractErrorMessage(e);
+      state = AuthError('Google Sign-In failed: $errorMessage');
     }
   }
 
@@ -290,7 +305,9 @@ class AuthController extends StateNotifier<AuthState> {
       await _authService.signOut();
       state = const AuthUnauthenticated();
     } catch (e) {
-      state = AuthError(e.toString());
+      // Extract clean error message without Exception prefix
+      String errorMessage = _extractErrorMessage(e);
+      state = AuthError(errorMessage);
     }
   }
 
@@ -303,7 +320,9 @@ class AuthController extends StateNotifier<AuthState> {
         '📧 Password reset email sent! Check your inbox.',
       );
     } catch (e) {
-      state = AuthError(e.toString());
+      // Extract clean error message without Exception prefix
+      String errorMessage = _extractErrorMessage(e);
+      state = AuthError(errorMessage);
     }
   }
 

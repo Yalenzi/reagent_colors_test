@@ -16,8 +16,25 @@ class GeminiImageAnalysisService {
 
   /// Create instance with Remote Config API key
   static Future<GeminiImageAnalysisService> createWithRemoteConfig() async {
-    final apiKey = await ApiKeys.getGeminiApiKey();
-    return GeminiImageAnalysisService(apiKey: apiKey);
+    try {
+      Logger.info('🔑 Getting Gemini API key from Remote Config...');
+      final apiKey = await ApiKeys.getGeminiApiKey();
+
+      if (apiKey.isEmpty) {
+        Logger.error(
+          '❌ No Gemini API key found in Remote Config or environment',
+        );
+        throw Exception(
+          'Gemini API key not found. Please ensure "gemini_api_key" is set in Firebase Remote Config with your Google AI API key.',
+        );
+      }
+
+      Logger.info('✅ Gemini API key retrieved successfully');
+      return GeminiImageAnalysisService(apiKey: apiKey);
+    } catch (e) {
+      Logger.error('❌ Failed to create Gemini service with Remote Config: $e');
+      rethrow;
+    }
   }
 
   void _initializeModel(String? providedApiKey) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
-import 'package:reagent_colors_test/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
-import 'package:reagent_colors_test/l10n/app_localizations.dart';
+import 'package:reagentkit/features/reagent_testing/domain/entities/reagent_entity.dart';
+import 'package:reagentkit/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
+import 'package:reagentkit/l10n/app_localizations.dart';
 
 class TestProcedureSection extends ConsumerWidget {
   final ReagentEntity reagent;

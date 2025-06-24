@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reagent_colors_test/l10n/app_localizations.dart';
+import 'package:reagentkit/l10n/app_localizations.dart';
 import 'core/config/get_it_config.dart';
 import 'core/navigation/auth_wrapper.dart';
 import 'features/settings/presentation/providers/settings_providers.dart';
 import 'features/settings/presentation/states/settings_state.dart';
+import 'features/reagent_testing/data/services/remote_config_service.dart';
+import 'core/utils/logger.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -14,7 +16,17 @@ void main() async {
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Configure dependencies
+  // Initialize Remote Config FIRST to ensure API keys are available
+  try {
+    final remoteConfigService = RemoteConfigService();
+    await remoteConfigService.initialize();
+    Logger.info('✅ Remote Config initialized successfully in main()');
+  } catch (e) {
+    Logger.info('⚠️ Remote Config initialization failed in main(): $e');
+    // Continue without Remote Config - app will use fallbacks
+  }
+
+  // Configure dependencies (now Remote Config is ready)
   await configureDependencies();
 
   runApp(const ProviderScope(child: ReagentTestingApp()));
@@ -35,7 +47,7 @@ class ReagentTestingApp extends ConsumerWidget {
     }
 
     return MaterialApp(
-      title: 'Reagent Testing App',
+      title: 'ReagentKit',
       theme: _buildLightTheme(),
       darkTheme: _buildDarkTheme(),
       themeMode: themeMode,

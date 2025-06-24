@@ -278,29 +278,28 @@ class AuthService {
       // Handle specific Firebase Auth errors with security-conscious messages
       switch (e.code) {
         case 'user-not-found':
-          // Don't reveal if user exists or not for security
-          throw Exception(
-            'If this email is registered, you will receive a password reset link',
-          );
         case 'invalid-email':
-          throw Exception('Please enter a valid email address');
+          // Don't reveal if user exists or not for security - use generic message
+          throw Exception(
+            'If that email address is in our database, we will send you an email to reset your password.',
+          );
         case 'too-many-requests':
           throw Exception(
-            'Too many reset attempts. Please wait before trying again',
+            'Too many reset attempts. Please wait before trying again.',
           );
         case 'user-disabled':
           throw Exception(
-            'This account has been disabled. Contact support if you believe this is an error',
+            'This account has been disabled. Contact support if you believe this is an error.',
           );
         default:
           throw Exception(
-            'Unable to send password reset email. Please try again later',
+            'If that email address is in our database, we will send you an email to reset your password.',
           );
       }
     } catch (e) {
       Logger.info('❌ AuthService: Password reset error: $e');
       throw Exception(
-        'Unable to send password reset email. Please try again later',
+        'If that email address is in our database, we will send you an email to reset your password.',
       );
     }
   }
@@ -370,27 +369,55 @@ class AuthService {
     }
   }
 
-  // Handle Firebase Auth exceptions
+  // Handle Firebase Auth exceptions with security best practices
   String _handleAuthException(FirebaseAuthException e) {
+    Logger.info(
+      '🔥 AuthService: Firebase Auth Error - Code: ${e.code}, Message: ${e.message}',
+    );
+
+    // Follow OWASP Authentication Security Best Practices:
+    // Use generic error messages to prevent user enumeration attacks
+    // and avoid revealing technical details about the authentication system
+
     switch (e.code) {
+      // Authentication failures - use generic message
       case 'user-not-found':
-        return 'No user found with this email address.';
       case 'wrong-password':
-        return 'Wrong password provided.';
-      case 'email-already-in-use':
-        return 'An account already exists with this email address.';
-      case 'weak-password':
-        return 'The password provided is too weak.';
+      case 'invalid-credential':
       case 'invalid-email':
-        return 'The email address is not valid.';
+        return 'Invalid email or password. Please try again.';
+
+      // Account creation conflicts
+      case 'email-already-in-use':
+        // Generic message for account creation to prevent email enumeration
+        return 'If this email is not already registered, an account will be created.';
+
+      // Password policy violations
+      case 'weak-password':
+        return 'Password must be at least 6 characters long.';
+
+      // Account status issues
       case 'user-disabled':
-        return 'This user account has been disabled.';
+        return 'This account has been temporarily disabled. Please contact support.';
+
+      // Rate limiting
       case 'too-many-requests':
-        return 'Too many requests. Try again later.';
+        return 'Too many login attempts. Please wait a few minutes before trying again.';
+
+      // Service configuration issues
       case 'operation-not-allowed':
-        return 'This operation is not allowed.';
+        return 'This sign-in method is currently unavailable. Please try again later.';
+
+      // Network or service issues
+      case 'network-request-failed':
+        return 'Network error. Please check your connection and try again.';
+
+      // Credential expiration/malformation (the error you encountered)
+      case 'credential-already-in-use':
+      case 'auth-domain-config-required':
       default:
-        return 'An error occurred: ${e.message}';
+        // Generic fallback message - never expose technical Firebase errors
+        return 'Unable to sign in at this time. Please try again later.';
     }
   }
 }

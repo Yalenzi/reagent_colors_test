@@ -269,7 +269,7 @@ abstract class AppLocalizations {
   /// No description provided for @reagentTestingApp.
   ///
   /// In en, this message translates to:
-  /// **'Reagent Testing App'**
+  /// **'ReagentKit'**
   String get reagentTestingApp;
 
   /// No description provided for @theDevelopers.
@@ -305,7 +305,7 @@ abstract class AppLocalizations {
   /// No description provided for @contact.
   ///
   /// In en, this message translates to:
-  /// **'📧 Contact: '**
+  /// **'📧 Contact:testscolors@gmail.com'**
   String get contact;
 
   /// No description provided for @reagentTesting.

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:reagent_colors_test/l10n/app_localizations.dart';
+import 'package:reagentkit/l10n/app_localizations.dart';
 import '../states/settings_state.dart';
 import '../widgets/settings_section.dart';
 import '../widgets/settings_tile.dart';

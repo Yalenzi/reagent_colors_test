@@ -95,7 +95,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get developersDialogTitle => 'المطورون';
 
   @override
-  String get reagentTestingApp => 'تطبيق اختبار الكواشف';
+  String get reagentTestingApp => 'ReagentKit';
 
   @override
   String get theDevelopers => '👨‍💻 المطورين';
@@ -114,7 +114,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'هذا التطبيق يساعد المستخدمين على اختبار المواد بأمان باستخدام الكواشف الكيميائية.';
 
   @override
-  String get contact => '📧 للتواصل: ';
+  String get contact => '📧 للتواصل: testscolors@gmail.com';
 
   @override
   String get reagentTesting => 'اختبار الكواشف';

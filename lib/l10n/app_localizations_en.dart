@@ -96,7 +96,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get developersDialogTitle => 'Developers';
 
   @override
-  String get reagentTestingApp => 'Reagent Testing App';
+  String get reagentTestingApp => 'ReagentKit';
 
   @override
   String get theDevelopers => 'Developers';
@@ -115,7 +115,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'This app helps users safely test substances using chemical reagents.';
 
   @override
-  String get contact => '📧 Contact: ';
+  String get contact => '📧 Contact:testscolors@gmail.com';
 
   @override
   String get reagentTesting => 'Reagent Testing';

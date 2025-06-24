@@ -1,5 +1,5 @@
 # Firebase Implementation Guide
-## Project: Reagent Testing App (flut-reagent)
+## Project: Reagent Testing App (flutter-reagent-test)
 
 ### 📋 Implementation Overview
 This guide tracks the Firebase integration progress following Clean Architecture principles with MVVM pattern.
@@ -21,7 +21,7 @@ This guide tracks the Firebase integration progress following Clean Architecture
 
 ### Phase 3: Firebase Project Configuration ✅
 - [x] **Task 3.1**: Installed Firebase CLI and FlutterFire CLI
-- [x] **Task 3.2**: Ran `flutterfire configure --project=flut-reagent`
+- [x] **Task 3.2**: Ran `flutterfire configure --project=flutter-reagent-test`
 - [x] **Task 3.3**: Generated `lib/firebase_options.dart` with platform configs
 - [x] **Task 3.4**: Updated `main.dart` with `DefaultFirebaseOptions.currentPlatform`
 - [x] **Task 3.5**: Created `android/app/google-services.json` configuration
@@ -156,7 +156,7 @@ lib/
 ## 🔥 **FIRESTORE DATABASE STRUCTURE**
 
 ```
-flut-reagent (Firebase Project)
+flutter-reagent-test (Firebase Project)
 └── users (Collection)
     └── {userId} (Document)
         ├── email: "user@example.com"

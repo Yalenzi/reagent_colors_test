@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reagent_colors_test/core/utils/logger.dart';
-import 'package:reagent_colors_test/l10n/app_localizations.dart';
+import 'package:reagentkit/core/utils/logger.dart';
+import 'package:reagentkit/l10n/app_localizations.dart';
 import '../../providers/reagent_testing_providers.dart';
 import '../../states/test_execution_state.dart';
 

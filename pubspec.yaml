@@ -1,5 +1,5 @@
-name: reagent_colors_test
-description: "A reagent testing app with Firebase integration."
+name: reagentkit
+description: "ReagentKit - A professional reagent testing app with Firebase integration."
 publish_to: 'none'
 version: 0.1.0
 

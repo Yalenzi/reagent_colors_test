@@ -1,49 +1,34 @@
 {
   "project_info": {
-    "project_number": "664679183291",
-    "project_id": "flut-reagent",
-    "storage_bucket": "flut-reagent.firebasestorage.app"
+    "project_number": "76342007759",
+    "project_id": "flutter-reagent-test",
+    "storage_bucket": "flutter-reagent-test.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:664679183291:android:9124746a8fc517c1ef8a9e",
+        "mobilesdk_app_id": "1:76342007759:android:1d8bec4e1e5955d43164ba",
         "android_client_info": {
-          "package_name": "com.example.reagent_colors_test"
+          "package_name": "com.example.reagentkit"
         }
       },
       "oauth_client": [
         {
-          "client_id": "664679183291-13ou3jjndhb4u6pmlod5bd425b85ea2v.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.reagent_colors_test",
-            "certificate_hash": "4d2b906cd316641278c864dbbb24811287b114c5"
-          }
-        },
-        {
-          "client_id": "664679183291-hobf7nf3hflf61jgsqdsl4lfk3j56c6c.apps.googleusercontent.com",
+          "client_id": "76342007759-80mka1har3blp9agpld84hqmfi4eg79l.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyACEfpp4AwjuvQr68sUu0ZhupcPYTsWvzI"
+          "current_key": "AIzaSyACZoxTtCY8TLEljnl2fI_vI9zlDHRwgHI"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "664679183291-hobf7nf3hflf61jgsqdsl4lfk3j56c6c.apps.googleusercontent.com",
+              "client_id": "76342007759-80mka1har3blp9agpld84hqmfi4eg79l.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "664679183291-037ccq2lqr4l76omp5kelrsc9g0rpcql.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.reagentColorsTest"
-              }
             }
           ]
         }

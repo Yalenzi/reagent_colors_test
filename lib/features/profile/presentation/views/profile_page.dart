@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import '../../../auth/presentation/controllers/auth_controller.dart';
 import '../../../auth/presentation/states/auth_state.dart';
+import '../../../../core/widgets/notification_demo_widget.dart';
 
 import '../../../../l10n/app_localizations.dart';
 
@@ -295,10 +296,26 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authControllerProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
-    // Set context for notifications
+    // Set context for the auth controller
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(authControllerProvider.notifier).setContext(context);
+
+      // Show top notification for errors and success messages
+      if (authState is AuthError) {
+        TopNotificationOverlay.show(
+          context: context,
+          message: authState.message,
+          isError: true,
+        );
+      } else if (authState is AuthSuccess) {
+        TopNotificationOverlay.show(
+          context: context,
+          message: authState.message,
+          isError: false,
+        );
+      }
     });
 
     return Scaffold(
@@ -379,14 +396,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           _buildModernGoogleSignInButton(authState, l10n, theme),
           const SizedBox(height: 20),
           _buildToggleAuthModeButton(l10n, theme),
-          if (authState is AuthError) ...[
-            const SizedBox(height: 20),
-            _buildModernErrorMessage(authState.message, theme),
-          ],
-          if (authState is AuthSuccess) ...[
-            const SizedBox(height: 20),
-            _buildModernSuccessMessage(authState.message, theme),
-          ],
         ],
       ),
     );
@@ -1251,68 +1260,6 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildModernErrorMessage(String message, ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.errorContainer,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.error.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(HeroIcons.exclamation_triangle, color: Color(0xFFEF4444)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(color: Color(0xFFDC2626)),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(HeroIcons.x_mark, color: Color(0xFFEF4444)),
-            onPressed: () {
-              ref.read(authControllerProvider.notifier).clearError();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildModernSuccessMessage(String message, ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: theme.colorScheme.primary.withValues(alpha: 0.3),
-        ),
-      ),
-      child: Row(
-        children: [
-          const Icon(HeroIcons.check_circle, color: Color(0xFF10B981)),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              message,
-              style: const TextStyle(color: Color(0xFF059669)),
-            ),
-          ),
-          IconButton(
-            icon: const Icon(HeroIcons.x_mark, color: Color(0xFF10B981)),
-            onPressed: () {
-              ref.read(authControllerProvider.notifier).clearError();
-            },
-          ),
-        ],
       ),
     );
   }
