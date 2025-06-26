@@ -22,7 +22,7 @@ class TestResultPage extends ConsumerWidget {
           icon: Icon(LocalizationHelper.getBackChevronIcon(context)),
           onPressed: () =>
               Navigator.of(context).popUntil((route) => route.isFirst),
-          tooltip: 'Back to Home',
+          tooltip: l10n.backToHome,
         ),
         actions: [
           IconButton(
@@ -30,18 +30,22 @@ class TestResultPage extends ConsumerWidget {
             onPressed: () {
               // TODO: Implement share functionality
             },
-            tooltip: 'Share Results',
+            tooltip: l10n.share,
           ),
         ],
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,
-      body: _buildBody(context, state),
+      body: _buildBody(context, state, l10n),
     );
   }
 
-  Widget _buildBody(BuildContext context, TestResultState state) {
+  Widget _buildBody(
+    BuildContext context,
+    TestResultState state,
+    AppLocalizations l10n,
+  ) {
     if (state is TestResultLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(child: Text(l10n.loading));
     } else if (state is TestResultLoaded) {
       return SafeArea(
         child: SingleChildScrollView(
@@ -60,21 +64,6 @@ class TestResultPage extends ConsumerWidget {
               children: [
                 const SizedBox(height: 32),
                 TestResultContent(testResult: state.testResult),
-                const SizedBox(height: 48),
-                ElevatedButton.icon(
-                  onPressed: () =>
-                      Navigator.of(context).popUntil((route) => route.isFirst),
-                  icon: Icon(HeroIcons.home),
-                  label: const Text('Back to Home'),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                    backgroundColor: Theme.of(context).primaryColor,
-                    foregroundColor: Colors.white,
-                  ),
-                ),
                 const SizedBox(height: 32),
               ],
             ),
@@ -82,9 +71,9 @@ class TestResultPage extends ConsumerWidget {
         ),
       );
     } else if (state is TestResultError) {
-      return Center(child: Text('Error: ${state.message}'));
+      return Center(child: Text(l10n.error(state.message)));
     } else {
-      return const Center(child: Text('No result yet.'));
+      return Center(child: Text(l10n.noTestResultsYet));
     }
   }
 }
@@ -97,9 +86,10 @@ class TestResultContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 4,
-      shadowColor: Colors.black.withValues(alpha: 0.1),
+      shadowColor: Colors.black.withOpacity(0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
@@ -108,69 +98,100 @@ class TestResultContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              'Test Results',
+              l10n.testResults,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 24),
-            _buildResultRow(context, 'Reagent:', testResult.reagentName),
-            const SizedBox(height: 8),
             _buildResultRow(
               context,
-              'Observed Color:',
-              testResult.observedColor,
+              label: l10n.reagent,
+              value: testResult.reagentName,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             _buildResultRow(
               context,
-              'Possible Substances:',
-              testResult.possibleSubstances.join(', '),
+              label: l10n.observedColor,
+              value: testResult.observedColor,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 16),
             _buildResultRow(
               context,
-              'Confidence:',
-              '${testResult.confidencePercentage}%',
+              label: l10n.possibleSubstances,
+              value: testResult.possibleSubstances.join(', '),
             ),
-            if (testResult.notes != null && testResult.notes!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              _buildResultRow(context, 'Notes:', testResult.notes!),
+            const SizedBox(height: 16),
+            _buildResultRow(
+              context,
+              label: l10n.confidence,
+              value: '${testResult.confidencePercentage}%',
+            ),
+            if (testResult.notes?.isNotEmpty ?? false) ...[
+              const SizedBox(height: 16),
+              _buildResultRow(
+                context,
+                label: l10n.notes,
+                value: testResult.notes!,
+              ),
             ],
+            if (testResult.references?.isNotEmpty ?? false) ...[
+              const SizedBox(height: 24),
+              Text(
+                l10n.references,
+                style: theme.textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              ...testResult.references!.map(
+                (reference) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Text(reference, style: theme.textTheme.bodyMedium),
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: () =>
+                    Navigator.of(context).popUntil((route) => route.isFirst),
+                icon: const Icon(HeroIcons.home),
+                label: Text(l10n.backToHome),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildResultRow(BuildContext context, String label, String value) {
+  Widget _buildResultRow(
+    BuildContext context, {
+    required String label,
+    required String value,
+  }) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.textTheme.bodySmall?.color,
-              fontWeight: FontWeight.w500,
-            ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
           ),
-          const SizedBox(height: 4),
-          SizedBox(
-            width: double.infinity,
-            child: Text(
-              value,
-              style: theme.textTheme.bodyLarge?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-              softWrap: true,
-              overflow: TextOverflow.visible,
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        Text(value, style: theme.textTheme.bodyLarge),
+      ],
     );
   }
 }
