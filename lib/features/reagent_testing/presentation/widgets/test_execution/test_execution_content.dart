@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:reagentkit/features/reagent_testing/domain/entities/reagent_entity.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/widgets/test_execution/test_procedure_section.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/widgets/test_execution/reaction_timer_section.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/widgets/test_execution/ai_image_analysis_section.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/widgets/test_execution/observed_color_section.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/widgets/test_execution/test_notes_section.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/widgets/test_execution/complete_test_section.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
+import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/widgets/test_execution/test_procedure_section.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/widgets/test_execution/reaction_timer_section.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/widgets/test_execution/ai_image_analysis_section.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/widgets/test_execution/observed_color_section.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/widgets/test_execution/test_notes_section.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/widgets/test_execution/complete_test_section.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
 
 class TestExecutionContent extends ConsumerWidget {
   final ReagentEntity reagent;

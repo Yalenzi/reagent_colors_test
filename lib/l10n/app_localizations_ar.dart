@@ -95,7 +95,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get developersDialogTitle => 'المطورون';
 
   @override
-  String get reagentTestingApp => 'ReagentKit';
+  String get reagentTestingApp => 'CTDs';
 
   @override
   String get theDevelopers => '👨‍💻 المطورين';
@@ -117,7 +117,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get contact => '📧 للتواصل: testscolors@gmail.com';
 
   @override
-  String get reagentTesting => 'اختبار الكواشف';
+  String get reagentTesting => 'اختبار الالوان لكشف المخدرات';
 
   @override
   String get searchReagents => 'البحث في الكواشف...';
@@ -758,4 +758,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get aiResultsApplied => 'تم تطبيق اختيار لون الذكاء الاصطناعي بنجاح!';
+
+  @override
+  String get share => 'مشاركة النتائج';
+
+  @override
+  String get references => 'المراجع';
 }

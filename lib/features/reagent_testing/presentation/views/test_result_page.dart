@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:reagentkit/features/reagent_testing/domain/entities/test_result_entity.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/states/test_result_state.dart';
+import 'package:ctds/features/reagent_testing/domain/entities/test_result_entity.dart';
+import 'package:ctds/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
+import 'package:ctds/features/reagent_testing/presentation/states/test_result_state.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/localization_helper.dart';
 
@@ -89,7 +89,7 @@ class TestResultContent extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Card(
       elevation: 4,
-      shadowColor: Colors.black.withOpacity(0.1),
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(24.0),

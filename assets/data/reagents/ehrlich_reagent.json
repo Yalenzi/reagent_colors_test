@@ -62,38 +62,5 @@
       "color": "purple",
       "color_ar": "بنفسجي"
     }
-  ],
-  "equipment": [
-    "Chemical-resistant safety goggles",
-    "Chemical-resistant gloves (nitrile or neoprene)",
-    "Lab coat with long sleeves",
-    "Closed-toe chemical-resistant shoes",
-    "Respirator when necessary"
-  ],
-  "handlingProcedures": [
-    "Work under fume hood mandatory",
-    "Wear acid-resistant gloves",
-    "Use safety goggles and face shield",
-    "Keep sodium bicarbonate handy for neutralization",
-    "Use only small drops",
-    "Never mix reagent directly with water"
-  ],
-  "specificHazards": [
-    "Highly corrosive - contains concentrated acid",
-    "Causes severe chemical burns",
-    "Dangerous fumes"
-  ],
-  "storage": [
-    "Store in cool, dry place",
-    "Away from flammable materials",
-    "In dedicated acid storage cabinet",
-    "Label with clear warning"
-  ],
-  "instructions": [
-    "Prepare a small sample of the substance to test",
-    "Add 1-2 drops of Ehrlich reagent to the sample",
-    "Observe the color change for up to 5 minutes",
-    "Compare the resulting color with expected results",
-    "Record your observations and dispose of materials safely"
   ]
 }

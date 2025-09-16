@@ -10,6 +10,7 @@ class RemoteConfigService {
   static const String _availableReagentsKey = 'available_reagents';
   static const String _reagentVersionKey = 'reagent_version';
   static const String _geminiApiKeyKey = 'gemini_api_key';
+  static const String _referenceListKey = 'reference_list';
 
   final FirebaseRemoteConfig _remoteConfig;
 
@@ -34,6 +35,7 @@ class RemoteConfigService {
         _availableReagentsKey: '[]',
         _reagentVersionKey: '1.0.0',
         _geminiApiKeyKey: '', // No default for security
+        _referenceListKey: '{}',
       });
 
       // Fetch and activate
@@ -261,5 +263,37 @@ class RemoteConfigService {
 
     Logger.error('❌ No Gemini API key found in Remote Config or environment');
     return '';
+  }
+
+  /// Get references for a specific reagent
+  Future<List<String>> getReferencesForReagent(String reagentName) async {
+    try {
+      final String referenceListJson = _remoteConfig.getString(
+        _referenceListKey,
+      );
+      if (referenceListJson.isEmpty || referenceListJson == '{}') {
+        Logger.info('⚠️ No references found in Remote Config for $reagentName');
+        return [];
+      }
+
+      final Map<String, dynamic> referenceList = json.decode(referenceListJson);
+      if (!referenceList.containsKey(reagentName)) {
+        Logger.info('⚠️ No references found for reagent: $reagentName');
+        return [];
+      }
+
+      final List<dynamic> references =
+          referenceList[reagentName]['reference'] ?? [];
+      return references.cast<String>();
+    } catch (e) {
+      Logger.info('❌ Error getting references for $reagentName: $e');
+      return [];
+    }
+  }
+
+  /// Check if references are available in Remote Config
+  bool hasReferences() {
+    final String referenceListJson = _remoteConfig.getString(_referenceListKey);
+    return referenceListJson.isNotEmpty && referenceListJson != '{}';
   }
 }

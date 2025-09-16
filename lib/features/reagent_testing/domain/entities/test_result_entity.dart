@@ -6,6 +6,7 @@ class TestResultEntity {
   final int confidencePercentage;
   final String? notes;
   final DateTime testCompletedAt;
+  final List<String>? references;
 
   const TestResultEntity({
     required this.id,
@@ -15,6 +16,7 @@ class TestResultEntity {
     required this.confidencePercentage,
     this.notes,
     required this.testCompletedAt,
+    this.references,
   });
 
   TestResultEntity copyWith({
@@ -25,6 +27,7 @@ class TestResultEntity {
     int? confidencePercentage,
     String? notes,
     DateTime? testCompletedAt,
+    List<String>? references,
   }) {
     return TestResultEntity(
       id: id ?? this.id,
@@ -34,6 +37,7 @@ class TestResultEntity {
       confidencePercentage: confidencePercentage ?? this.confidencePercentage,
       notes: notes ?? this.notes,
       testCompletedAt: testCompletedAt ?? this.testCompletedAt,
+      references: references ?? this.references,
     );
   }
 
@@ -46,6 +50,7 @@ class TestResultEntity {
       'confidencePercentage': confidencePercentage,
       'notes': notes,
       'testCompletedAt': testCompletedAt.toIso8601String(),
+      'references': references,
     };
   }
 
@@ -58,6 +63,9 @@ class TestResultEntity {
       confidencePercentage: json['confidencePercentage'] as int,
       notes: json['notes'] as String?,
       testCompletedAt: DateTime.parse(json['testCompletedAt'] as String),
+      references: json['references'] != null
+          ? List<String>.from(json['references'] as List)
+          : null,
     );
   }
 
@@ -71,7 +79,8 @@ class TestResultEntity {
         other.possibleSubstances.toString() == possibleSubstances.toString() &&
         other.confidencePercentage == confidencePercentage &&
         other.notes == notes &&
-        other.testCompletedAt == testCompletedAt;
+        other.testCompletedAt == testCompletedAt &&
+        other.references?.toString() == references?.toString();
   }
 
   @override
@@ -84,6 +93,7 @@ class TestResultEntity {
       confidencePercentage,
       notes,
       testCompletedAt,
+      references,
     );
   }
 }

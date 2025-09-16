@@ -1,3 +1,14 @@
+import java.util.Properties
+import java.io.FileInputStream
+
+val keystorePropertiesFile = rootProject.file("key.properties")
+val hasReleaseKeystore = keystorePropertiesFile.exists()
+val keystoreProperties = Properties().apply {
+    if (hasReleaseKeystore) {
+        load(FileInputStream(keystorePropertiesFile))
+    }
+}
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -9,8 +20,8 @@ plugins {
 }
 
 android {
-    namespace = "com.example.reagentkit"
-    compileSdk = 35
+    namespace = "com.alenezi.reagentkit"
+    compileSdk = flutter.compileSdkVersion
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -23,31 +34,46 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.reagentkit"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = 23
-        targetSdk = 35
+        // Unique Application ID required by Play Console
+        applicationId = "com.alenezi.reagentkit"
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        manifestPlaceholders["applicationName"] = "android.app.Application"
+    }
+
+    // Keystore properties are loaded at top-level (see imports above)
+
+    if (hasReleaseKeystore) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+            }
+        }
     }
 
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
-            isMinifyEnabled = false
-            isShrinkResources = false
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
+            // Use proper release signing if key.properties exists; otherwise fallback to debug for local runs
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    // Removed deprecated Play Core for apps targeting SDK 34
+    // implementation("com.google.android.play:core:1.10.3")
+    // If needed later: implementation("com.google.android.play:app-update-ktx:2.1.0")
 }

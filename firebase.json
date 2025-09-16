@@ -1,1 +1,45 @@
-{"hosting":{"public":"build/web","ignore":["firebase.json","**/.*","**/node_modules/**"],"rewrites":[{"source":"**","destination":"/index.html"}]},"firestore":{"rules":"firestore.rules","indexes":"firestore.indexes.json"},"auth":{"settings":{"enableEmailEnumerationProtection":true}},"flutter":{"platforms":{"android":{"default":{"projectId":"flutter-reagent-test","appId":"1:76342007759:android:1d8bec4e1e5955d43164ba","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"flutter-reagent-test","appId":"1:76342007759:ios:585b35dec8e2e35b3164ba","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"macos":{"default":{"projectId":"flutter-reagent-test","appId":"1:76342007759:ios:585b35dec8e2e35b3164ba","uploadDebugSymbols":false,"fileOutput":"macos/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"flutter-reagent-test","configurations":{"android":"1:76342007759:android:1d8bec4e1e5955d43164ba","ios":"1:76342007759:ios:585b35dec8e2e35b3164ba","macos":"1:76342007759:ios:585b35dec8e2e35b3164ba","web":"1:76342007759:web:ec5cd1f83580a0fb3164ba","windows":"1:76342007759:web:0318c3f7a6adef6e3164ba"}}}}}}
+{
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "flut-reagent",
+          "appId": "1:664679183291:android:9124746a8fc517c1ef8a9e",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "flut-reagent",
+          "appId": "1:664679183291:ios:8c329d7a513e0b68ef8a9e",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "macos": {
+        "default": {
+          "projectId": "flut-reagent",
+          "appId": "1:664679183291:ios:8c329d7a513e0b68ef8a9e",
+          "uploadDebugSymbols": false,
+          "fileOutput": "macos/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "flut-reagent",
+          "configurations": {
+            "android": "1:664679183291:android:9124746a8fc517c1ef8a9e",
+            "ios": "1:664679183291:ios:8c329d7a513e0b68ef8a9e",
+            "macos": "1:664679183291:ios:8c329d7a513e0b68ef8a9e",
+            "web": "1:664679183291:web:b3a295407d35547cef8a9e",
+            "windows": "1:664679183291:web:336d33e2fdc631f0ef8a9e"
+          }
+        }
+      }
+    }
+  }
+}

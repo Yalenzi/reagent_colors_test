@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>76342007759-lfrim4jh8fkntca1o7mlsvldaaqbomaa.apps.googleusercontent.com</string>
+	<string>664679183291-037ccq2lqr4l76omp5kelrsc9g0rpcql.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.76342007759-lfrim4jh8fkntca1o7mlsvldaaqbomaa</string>
+	<string>com.googleusercontent.apps.664679183291-037ccq2lqr4l76omp5kelrsc9g0rpcql</string>
 	<key>API_KEY</key>
-	<string>AIzaSyDpek992tVFKJe4OK5eLSvj1bAGqrl5Lmw</string>
+	<string>AIzaSyCWbDUGLiLVolihpBjHFd6HRgFgOOpKFiA</string>
 	<key>GCM_SENDER_ID</key>
-	<string>76342007759</string>
+	<string>664679183291</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.reagentColorsTest</string>
 	<key>PROJECT_ID</key>
-	<string>flutter-reagent-test</string>
+	<string>flut-reagent</string>
 	<key>STORAGE_BUCKET</key>
-	<string>flutter-reagent-test.firebasestorage.app</string>
+	<string>flut-reagent.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:76342007759:ios:585b35dec8e2e35b3164ba</string>
+	<string>1:664679183291:ios:8c329d7a513e0b68ef8a9e</string>
 </dict>
 </plist>

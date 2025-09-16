@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../../core/services/firestore_service.dart';
+import '../../../../core/config/get_it_config.dart';
 
 class AuthDebugPage extends ConsumerStatefulWidget {
   const AuthDebugPage({super.key});
@@ -11,6 +13,7 @@ class AuthDebugPage extends ConsumerStatefulWidget {
 }
 
 class _AuthDebugPageState extends ConsumerState<AuthDebugPage> {
+  final FirestoreService _firestoreService = getIt<FirestoreService>();
   String _debugOutput = '';
   bool _isLoading = false;
 
@@ -47,17 +50,17 @@ class _AuthDebugPageState extends ConsumerState<AuthDebugPage> {
           '👤 Current user: ${currentUser.email} (${currentUser.uid})',
         );
 
-        // Test 4: Try to create a test document as authenticated user
+        // Test 4: Try to create a test document as authenticated user (write to own user doc)
         _addDebugMessage('📝 Creating test document as authenticated user...');
-        final testDocRef = firestore
-            .collection('users')
-            .doc('test-user-${DateTime.now().millisecondsSinceEpoch}');
-        await testDocRef.set({
-          'email': 'test@example.com',
-          'username': 'testuser',
-          'registeredAt': Timestamp.now(),
-          'isTest': true,
-        });
+        final uid = currentUser.uid;
+        final testDocRef = firestore.collection('users').doc(uid);
+        await testDocRef.set(
+          {
+            'debugTestAt': Timestamp.now(),
+            'isTest': true,
+          },
+          SetOptions(merge: true),
+        );
         _addDebugMessage('✅ Test document created successfully');
 
         // Test 5: Read the test document back
@@ -144,7 +147,7 @@ class _AuthDebugPageState extends ConsumerState<AuthDebugPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('🔧 Firestore Debug'),
-        backgroundColor: Colors.orange.withValues(alpha: 0.1),
+        backgroundColor: Colors.orange.withOpacity(0.1),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

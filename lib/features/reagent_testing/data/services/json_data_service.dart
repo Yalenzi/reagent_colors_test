@@ -47,19 +47,54 @@ class JsonDataService {
         Logger.info('📡 Loading reagents from Remote Config...');
         final remoteReagents = await _remoteConfigService.getReagents();
         if (remoteReagents.isNotEmpty) {
+          // Add references from reference_list for each reagent
+          final List<ReagentModel> updatedReagents = [];
+          for (final reagent in remoteReagents) {
+            final additionalRefs = await _remoteConfigService
+                .getReferencesForReagent(reagent.reagentName);
+            if (additionalRefs.isNotEmpty) {
+              final mergedRefs = [...reagent.references, ...additionalRefs];
+              final updatedReagent = reagent.copyWith(references: mergedRefs);
+              updatedReagents.add(updatedReagent);
+              Logger.info(
+                '✅ Added ${additionalRefs.length} references to ${reagent.reagentName}',
+              );
+            } else {
+              updatedReagents.add(reagent);
+            }
+          }
           Logger.info(
-            '✅ Loaded ${remoteReagents.length} reagents from Remote Config',
+            '✅ Loaded ${updatedReagents.length} reagents from Remote Config',
           );
-          return remoteReagents;
+          return updatedReagents;
         }
       }
 
       // Fallback to local assets
       Logger.info('📁 Falling back to local asset files...');
-      return await _loadReagentsFromAssets();
+      final localReagents = await _loadReagentsFromAssets();
+
+      // Try to add references from reference_list to local reagents
+      final List<ReagentModel> updatedLocalReagents = [];
+      for (final reagent in localReagents) {
+        final additionalRefs = await _remoteConfigService
+            .getReferencesForReagent(reagent.reagentName);
+        if (additionalRefs.isNotEmpty) {
+          final mergedRefs = [...reagent.references, ...additionalRefs];
+          final updatedReagent = reagent.copyWith(references: mergedRefs);
+          updatedLocalReagents.add(updatedReagent);
+          Logger.info(
+            '✅ Added ${additionalRefs.length} references to local reagent ${reagent.reagentName}',
+          );
+        } else {
+          updatedLocalReagents.add(reagent);
+        }
+      }
+
+      return updatedLocalReagents;
     } catch (e) {
       Logger.info('❌ Error in loadAllReagents: $e');
-      // Final fallback to local assets
+      // Final fallback to local assets without remote references
       return await _loadReagentsFromAssets();
     }
   }
@@ -99,14 +134,49 @@ class JsonDataService {
           reagentName,
         );
         if (remoteReagent != null) {
-          Logger.info('✅ Loaded $reagentName from Remote Config');
+          // Get additional references from reference_list
+          final additionalRefs = await _remoteConfigService
+              .getReferencesForReagent(remoteReagent.reagentName);
+
+          // Merge references if there are additional ones
+          if (additionalRefs.isNotEmpty) {
+            final mergedRefs = [...remoteReagent.references, ...additionalRefs];
+            final updatedReagent = remoteReagent.copyWith(
+              references: mergedRefs,
+            );
+            Logger.info(
+              '✅ Loaded ${remoteReagent.reagentName} from Remote Config with ${additionalRefs.length} additional references',
+            );
+            return updatedReagent;
+          }
+
+          Logger.info(
+            '✅ Loaded ${remoteReagent.reagentName} from Remote Config',
+          );
           return remoteReagent;
         }
       }
 
       // Fallback to local assets
       Logger.info('📁 Loading $reagentName from local assets...');
-      return await _loadReagentFromAssetsByName(reagentName);
+      final localReagent = await _loadReagentFromAssetsByName(reagentName);
+
+      if (localReagent != null) {
+        // Try to get additional references from reference_list even for local reagents
+        final additionalRefs = await _remoteConfigService
+            .getReferencesForReagent(localReagent.reagentName);
+
+        if (additionalRefs.isNotEmpty) {
+          final mergedRefs = [...localReagent.references, ...additionalRefs];
+          final updatedReagent = localReagent.copyWith(references: mergedRefs);
+          Logger.info(
+            '✅ Added ${additionalRefs.length} references from Remote Config to local reagent ${localReagent.reagentName}',
+          );
+          return updatedReagent;
+        }
+      }
+
+      return localReagent;
     } catch (e) {
       Logger.info('❌ Error loading reagent $reagentName: $e');
       return await _loadReagentFromAssetsByName(reagentName);

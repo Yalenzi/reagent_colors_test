@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:reagentkit/features/reagent_testing/domain/entities/reagent_entity.dart';
-import 'package:reagentkit/features/reagent_testing/data/models/gemini_analysis_models.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
-import 'package:reagentkit/core/utils/logger.dart';
-import 'package:reagentkit/l10n/app_localizations.dart';
+import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
+import 'package:reagent_colors_test/features/reagent_testing/data/models/gemini_analysis_models.dart';
+import 'package:reagent_colors_test/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
+import 'package:reagent_colors_test/core/utils/logger.dart';
+import 'package:reagent_colors_test/l10n/app_localizations.dart';
 
 class AIImageAnalysisSection extends ConsumerStatefulWidget {
   final ReagentEntity reagent;

@@ -43,12 +43,3 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
-
-# Security: API Keys and Environment Variables
-.env
-.env.local
-.env.development
-.env.production
-api_keys.txt
-secrets.dart
-run_with_api_key.sh

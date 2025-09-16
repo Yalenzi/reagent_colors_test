@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:reagentkit/features/reagent_testing/domain/entities/reagent_entity.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
-import 'package:reagentkit/features/reagent_testing/presentation/widgets/test_execution/test_execution_content.dart';
-import 'package:reagentkit/l10n/app_localizations.dart';
-import 'package:reagentkit/core/utils/localization_helper.dart';
+import 'package:ctds/features/reagent_testing/domain/entities/reagent_entity.dart';
+import 'package:ctds/features/reagent_testing/presentation/providers/reagent_testing_providers.dart';
+import 'package:ctds/features/reagent_testing/presentation/widgets/test_execution/test_execution_content.dart';
+import 'package:ctds/l10n/app_localizations.dart';
+import 'package:ctds/core/utils/localization_helper.dart';
 
 class TestExecutionPage extends ConsumerStatefulWidget {
   final ReagentEntity reagent;

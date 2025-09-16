@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:icons_plus/icons_plus.dart';
-import 'package:reagentkit/features/reagent_testing/domain/entities/reagent_entity.dart';
+import 'package:reagent_colors_test/features/reagent_testing/domain/entities/reagent_entity.dart';
 
 class ColorOption {
   final String englishName;

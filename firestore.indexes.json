@@ -1,15 +1,21 @@
 {
   "indexes": [
     {
-      "collectionGroup": "tests",
+      "collectionGroup": "users",
       "queryScope": "COLLECTION",
       "fields": [
         {
-          "fieldPath": "reagentName",
+          "fieldPath": "username",
           "order": "ASCENDING"
-        },
+        }
+      ]
+    },
+    {
+      "collectionGroup": "users",
+      "queryScope": "COLLECTION",
+      "fields": [
         {
-          "fieldPath": "testCompletedAt",
+          "fieldPath": "registeredAt",
           "order": "DESCENDING"
         }
       ]

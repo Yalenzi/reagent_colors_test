@@ -32,6 +32,7 @@ class TestResultController extends StateNotifier<TestResultState> {
         confidencePercentage: analysisResult['confidence'] as int,
         notes: notes,
         testCompletedAt: DateTime.now(),
+        references: _mergeReferences(reagent, observedColor),
       );
 
       state = TestResultLoaded(testResult: testResult);
@@ -101,6 +102,7 @@ class TestResultController extends StateNotifier<TestResultState> {
         confidencePercentage: confidencePercentage,
         notes: notes,
         testCompletedAt: DateTime.now(),
+        references: _mergeReferences(reagent, aiResult.observedColorDescription),
       );
 
       state = TestResultLoaded(testResult: testResult);
@@ -290,6 +292,23 @@ class TestResultController extends StateNotifier<TestResultState> {
     return lowerDescription.contains('no color change') ||
         lowerDescription.contains('no change') ||
         lowerDescription.contains('no instant reaction');
+  }
+
+  List<String> _mergeReferences(ReagentEntity reagent, String observedColor) {
+    final merged = <String>{}..addAll(reagent.references);
+    final map = reagent.referencesByColor;
+    if (map != null && map.isNotEmpty) {
+      final normalizedObserved = _normalizeColor(observedColor);
+      for (final entry in map.entries) {
+        final key = entry.key;
+        final keyNorm = _normalizeColor(key);
+        if (keyNorm == normalizedObserved ||
+            key.toLowerCase().trim() == observedColor.toLowerCase().trim()) {
+          merged.addAll(entry.value);
+        }
+      }
+    }
+    return merged.toList();
   }
 
   void reset() {

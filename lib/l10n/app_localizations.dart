@@ -269,7 +269,7 @@ abstract class AppLocalizations {
   /// No description provided for @reagentTestingApp.
   ///
   /// In en, this message translates to:
-  /// **'ReagentKit'**
+  /// **'CTDs'**
   String get reagentTestingApp;
 
   /// No description provided for @theDevelopers.
@@ -311,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @reagentTesting.
   ///
   /// In en, this message translates to:
-  /// **'Reagent Testing'**
+  /// **'Color Tests for Drug Detection'**
   String get reagentTesting;
 
   /// No description provided for @searchReagents.
@@ -1537,6 +1537,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI color selection applied successfully!'**
   String get aiResultsApplied;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share Results'**
+  String get share;
+
+  /// No description provided for @references.
+  ///
+  /// In en, this message translates to:
+  /// **'References'**
+  String get references;
 }
 
 class _AppLocalizationsDelegate

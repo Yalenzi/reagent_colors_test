@@ -7,9 +7,53 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:76342007759:android:48d7e9cff9285d083164ba",
+        "android_client_info": {
+          "package_name": "com.alenezi.reagentkit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "76342007759-8h2pmf7jk6spjpk33md0pro7rmd1es81.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.alenezi.reagentkit",
+            "certificate_hash": "045e23c03a5f7aa8e4b55dd36358e3a9b8be8d78"
+          }
+        },
+        {
+          "client_id": "76342007759-80mka1har3blp9agpld84hqmfi4eg79l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACZoxTtCY8TLEljnl2fI_vI9zlDHRwgHI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "76342007759-80mka1har3blp9agpld84hqmfi4eg79l.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "76342007759-lfrim4jh8fkntca1o7mlsvldaaqbomaa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.reagentColorsTest"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:76342007759:android:1d8bec4e1e5955d43164ba",
         "android_client_info": {
-          "package_name": "com.example.reagentkit"
+          "package_name": "com.example.reagent_colors_test"
         }
       },
       "oauth_client": [
@@ -29,6 +73,13 @@
             {
               "client_id": "76342007759-80mka1har3blp9agpld84hqmfi4eg79l.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "76342007759-lfrim4jh8fkntca1o7mlsvldaaqbomaa.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.reagentColorsTest"
+              }
             }
           ]
         }

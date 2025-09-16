@@ -1,13 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../features/auth/data/models/user_model.dart';
 import 'firestore_service.dart';
-import '../utils/logger.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email', 'profile']);
+  // Explicitly set the Web client ID to avoid DEVELOPER_ERROR (status 10) on release builds
+  final GoogleSignIn _googleSignIn = GoogleSignIn(
+    serverClientId: '76342007759-80mka1har3blp9agpld84hqmfi4eg79l.apps.googleusercontent.com',
+  );
   final FirestoreService _firestoreService = FirestoreService();
 
   // Get current user
@@ -29,12 +30,16 @@ class AuthService {
         password: password,
       );
 
-      // 🔥 CRITICAL: Clear any existing local data before signing in existing user
-      await _clearAllLocalData();
-
-      // Update last sign-in time
-      if (result.user != null) {
-        await _updateUserLastSignIn(result.user!.uid);
+      // Ensure user profile exists/updated in Firestore
+      final user = result.user;
+      if (user != null) {
+        await _firestoreService.ensureUserProfileExists(
+          uid: user.uid,
+          email: user.email ?? email,
+          displayName: user.displayName,
+          photoUrl: user.photoURL,
+          isEmailVerified: user.emailVerified,
+        );
       }
 
       return result;
@@ -48,8 +53,6 @@ class AuthService {
     required String email,
     required String password,
     required String username,
-    String? preferredLanguage,
-    String? timezone,
   }) async {
     try {
       // Check if username is available
@@ -65,48 +68,22 @@ class AuthService {
         password: password,
       );
 
-      // 🔥 CRITICAL: Clear any existing local data before creating new user
-      await _clearAllLocalData();
-
       // Create user profile in Firestore
       if (result.user != null) {
-        Logger.info(
-          '🔧 AuthService: Creating user profile for ${result.user!.uid}',
+        print('🔧 AuthService: Creating user profile for ${result.user!.uid}');
+        final userModel = UserModel(
+          uid: result.user!.uid,
+          email: email,
+          username: username,
+          registeredAt: DateTime.now(),
+          photoUrl: result.user!.photoURL,
+          displayName: result.user!.displayName ?? username,
+          isEmailVerified: result.user!.emailVerified,
         );
-        Logger.info('🔧 AuthService: User email: ${result.user!.email}');
-        Logger.info('🔧 AuthService: Username: $username');
 
-        try {
-          final userModel = UserModel.fromFirebaseUser(
-            uid: result.user!.uid,
-            email: email,
-            username: username,
-            photoUrl: result.user!.photoURL,
-            displayName: result.user!.displayName ?? username,
-            isEmailVerified: result.user!.emailVerified,
-            phoneNumber: result.user!.phoneNumber,
-            signInMethods: ['password'],
-            preferredLanguage: preferredLanguage,
-            timezone: timezone,
-          );
-
-          Logger.info('🔧 AuthService: User model created successfully');
-          Logger.info(
-            '🔧 AuthService: Calling FirestoreService.createUserProfile...',
-          );
-
-          await _firestoreService.createUserProfile(userModel);
-          Logger.info(
-            '✅ AuthService: User profile created successfully in Firestore',
-          );
-        } catch (e, stackTrace) {
-          Logger.info('❌ AuthService: Error creating user profile: $e');
-          Logger.info('❌ AuthService: Stack trace: $stackTrace');
-          // Don't throw here, let the user be created in Auth even if Firestore fails
-          Logger.info(
-            '⚠️ AuthService: User created in Firebase Auth but Firestore profile creation failed',
-          );
-        }
+        print('🔧 AuthService: User model created, calling Firestore...');
+        await _firestoreService.createUserProfile(userModel);
+        print('✅ AuthService: User profile created successfully in Firestore');
       }
 
       return result;
@@ -143,72 +120,20 @@ class AuthService {
         credential,
       );
 
-      // Check if this is a new user and create profile if needed
+      // Ensure profile exists/updated for Google sign-in
       if (result.user != null) {
-        // First, check if user profile exists in Firestore
-        Logger.info(
-          '🔧 AuthService: Checking if user profile exists for ${result.user!.uid}',
+        // If new user, try create unique username; otherwise still ensure doc exists
+        String baseUsername = _generateUsernameFromEmail(result.user!.email ?? '');
+        String username = await _ensureUniqueUsername(baseUsername);
+
+        await _firestoreService.ensureUserProfileExists(
+          uid: result.user!.uid,
+          email: result.user!.email ?? '',
+          username: username,
+          displayName: result.user!.displayName,
+          photoUrl: result.user!.photoURL,
+          isEmailVerified: result.user!.emailVerified,
         );
-        final existingProfile = await _firestoreService.getUserProfile(
-          result.user!.uid,
-        );
-
-        if (existingProfile == null) {
-          // No profile exists - create one (could be new or existing user without profile)
-          Logger.info(
-            '🔧 AuthService: No profile found, creating profile for ${result.user!.uid}',
-          );
-          Logger.info('🔧 AuthService: User email: ${result.user!.email}');
-
-          // 🔥 CRITICAL: Clear any existing local data before creating new user profile
-          await _clearAllLocalData();
-
-          try {
-            // Generate username from display name (first name + last name)
-            String username = _generateUsernameFromDisplayName(
-              result.user!.displayName ?? result.user!.email ?? '',
-            );
-            Logger.info('🔧 AuthService: Generated username: $username');
-
-            final userModel = UserModel.fromFirebaseUser(
-              uid: result.user!.uid,
-              email: result.user!.email ?? '',
-              username: username,
-              photoUrl: result.user!.photoURL,
-              displayName: result.user!.displayName,
-              isEmailVerified: result.user!.emailVerified,
-              phoneNumber: result.user!.phoneNumber,
-              signInMethods: ['google.com'],
-            );
-
-            Logger.info(
-              '🔧 AuthService: User model created, calling FirestoreService.createUserProfile...',
-            );
-            await _firestoreService.createUserProfile(userModel);
-            Logger.info(
-              '✅ AuthService: Google user profile created successfully in Firestore',
-            );
-          } catch (e, stackTrace) {
-            Logger.info(
-              '❌ AuthService: Error creating Google user profile: $e',
-            );
-            Logger.info('❌ AuthService: Stack trace: $stackTrace');
-            // Don't throw here, let the user be signed in even if Firestore fails
-            Logger.info(
-              '⚠️ AuthService: Google user signed in but Firestore profile creation failed',
-            );
-          }
-        } else {
-          Logger.info(
-            '🔧 AuthService: Existing Google user with profile, updating last sign-in time',
-          );
-
-          // 🔥 CRITICAL: Clear any existing local data before signing in existing user
-          await _clearAllLocalData();
-
-          // Update last sign in time for existing users
-          await _updateUserLastSignIn(result.user!.uid);
-        }
       }
 
       return result;
@@ -220,87 +145,18 @@ class AuthService {
   // Sign out
   Future<void> signOut() async {
     try {
-      // Clear Firestore cache on logout
-      _firestoreService.clearAllCache();
-
-      // 🔥 CRITICAL: Clear all local storage to prevent data bleeding between users
-      await _clearAllLocalData();
-
       await Future.wait([_auth.signOut(), _googleSignIn.signOut()]);
     } catch (e) {
       throw Exception('Failed to sign out: $e');
     }
   }
 
-  // Clear all local data on logout to prevent user data bleeding
-  Future<void> _clearAllLocalData() async {
-    try {
-      // Import and clear test results local storage
-      // Note: We can't directly import TestResultHistoryRepository here due to circular dependency
-      // So we'll clear the SharedPreferences keys directly
-      final prefs = await SharedPreferences.getInstance();
-
-      // Clear test results
-      await prefs.remove('test_result_history');
-
-      // Clear sync queue
-      await prefs.remove('sync_queue');
-
-      // Clear last sync timestamp
-      await prefs.remove('last_firestore_sync');
-
-      Logger.info('✅ AuthService: All local data cleared on logout');
-    } catch (e) {
-      Logger.info('❌ AuthService: Failed to clear local data: $e');
-      // Don't throw error, logout should still proceed
-    }
-  }
-
-  // Send password reset email with enhanced security
+  // Send password reset email
   Future<void> sendPasswordResetEmail(String email) async {
     try {
-      // Validate email format before sending request
-      if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(email)) {
-        throw Exception('Please enter a valid email address');
-      }
-
-      // Log security event (without including email for privacy)
-      Logger.info('🔐 AuthService: Password reset requested');
-
       await _auth.sendPasswordResetEmail(email: email);
-
-      // Log successful password reset email send
-      Logger.info('✅ AuthService: Password reset email sent successfully');
     } on FirebaseAuthException catch (e) {
-      // Log security attempt with error (without including email)
-      Logger.info('❌ AuthService: Password reset failed - ${e.code}');
-
-      // Handle specific Firebase Auth errors with security-conscious messages
-      switch (e.code) {
-        case 'user-not-found':
-        case 'invalid-email':
-          // Don't reveal if user exists or not for security - use generic message
-          throw Exception(
-            'If that email address is in our database, we will send you an email to reset your password.',
-          );
-        case 'too-many-requests':
-          throw Exception(
-            'Too many reset attempts. Please wait before trying again.',
-          );
-        case 'user-disabled':
-          throw Exception(
-            'This account has been disabled. Contact support if you believe this is an error.',
-          );
-        default:
-          throw Exception(
-            'If that email address is in our database, we will send you an email to reset your password.',
-          );
-      }
-    } catch (e) {
-      Logger.info('❌ AuthService: Password reset error: $e');
-      throw Exception(
-        'If that email address is in our database, we will send you an email to reset your password.',
-      );
+      throw _handleAuthException(e);
     }
   }
 
@@ -314,110 +170,49 @@ class AuthService {
     return _firestoreService.streamUserProfile(uid);
   }
 
-  // Helper method to generate username from display name (first name + last name)
-  String _generateUsernameFromDisplayName(String displayName) {
-    if (displayName.isEmpty) {
-      return 'user${DateTime.now().millisecondsSinceEpoch}';
+  // Helper method to generate username from email
+  String _generateUsernameFromEmail(String email) {
+    final emailParts = email.split('@');
+    if (emailParts.isNotEmpty) {
+      return emailParts[0].toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
     }
-
-    // Split display name into parts (first name, last name, etc.)
-    final nameParts = displayName.trim().split(' ');
-
-    if (nameParts.length >= 2) {
-      // Use first name + underscore + last name format
-      final firstName = nameParts[0].toLowerCase();
-      final lastName = nameParts[1].toLowerCase();
-
-      // Clean the names (remove special characters, keep only letters)
-      final cleanFirstName = firstName.replaceAll(RegExp(r'[^a-z]'), '');
-      final cleanLastName = lastName.replaceAll(RegExp(r'[^a-z]'), '');
-
-      if (cleanFirstName.isNotEmpty && cleanLastName.isNotEmpty) {
-        // Capitalize first letter of each name
-        final formattedFirstName =
-            cleanFirstName[0].toUpperCase() +
-            (cleanFirstName.length > 1 ? cleanFirstName.substring(1) : '');
-        final formattedLastName =
-            cleanLastName[0].toUpperCase() +
-            (cleanLastName.length > 1 ? cleanLastName.substring(1) : '');
-
-        return '${formattedFirstName}_$formattedLastName';
-      }
-    }
-
-    // Fallback: use the whole display name, cleaned up
-    final cleanedName = displayName
-        .toLowerCase()
-        .replaceAll(RegExp(r'[^a-z0-9]'), '')
-        .trim();
-
-    if (cleanedName.isNotEmpty) {
-      // Capitalize first letter
-      return cleanedName[0].toUpperCase() +
-          (cleanedName.length > 1 ? cleanedName.substring(1) : '');
-    }
-
     return 'user${DateTime.now().millisecondsSinceEpoch}';
   }
 
-  // Helper method to update user's last sign-in time
-  Future<void> _updateUserLastSignIn(String uid) async {
-    try {
-      await _firestoreService.updateUserLastSignIn(uid);
-    } catch (e) {
-      Logger.info('⚠️ AuthService: Failed to update last sign-in time: $e');
+  // Helper method to ensure username is unique
+  Future<String> _ensureUniqueUsername(String baseUsername) async {
+    String username = baseUsername;
+    int counter = 1;
+
+    while (!(await _firestoreService.isUsernameAvailable(username))) {
+      username = '$baseUsername$counter';
+      counter++;
     }
+
+    return username;
   }
 
-  // Handle Firebase Auth exceptions with security best practices
+  // Handle Firebase Auth exceptions
   String _handleAuthException(FirebaseAuthException e) {
-    Logger.info(
-      '🔥 AuthService: Firebase Auth Error - Code: ${e.code}, Message: ${e.message}',
-    );
-
-    // Follow OWASP Authentication Security Best Practices:
-    // Use generic error messages to prevent user enumeration attacks
-    // and avoid revealing technical details about the authentication system
-
     switch (e.code) {
-      // Authentication failures - use generic message
       case 'user-not-found':
+        return 'No user found with this email address.';
       case 'wrong-password':
-      case 'invalid-credential':
-      case 'invalid-email':
-        return 'Invalid email or password. Please try again.';
-
-      // Account creation conflicts
+        return 'Wrong password provided.';
       case 'email-already-in-use':
-        // Generic message for account creation to prevent email enumeration
-        return 'If this email is not already registered, an account will be created.';
-
-      // Password policy violations
+        return 'An account already exists with this email address.';
       case 'weak-password':
-        return 'Password must be at least 6 characters long.';
-
-      // Account status issues
+        return 'The password provided is too weak.';
+      case 'invalid-email':
+        return 'The email address is not valid.';
       case 'user-disabled':
-        return 'This account has been temporarily disabled. Please contact support.';
-
-      // Rate limiting
+        return 'This user account has been disabled.';
       case 'too-many-requests':
-        return 'Too many login attempts. Please wait a few minutes before trying again.';
-
-      // Service configuration issues
+        return 'Too many requests. Try again later.';
       case 'operation-not-allowed':
-        return 'This sign-in method is currently unavailable. Please try again later.';
-
-      // Network or service issues
-      case 'network-request-failed':
-        return 'Network error. Please check your connection and try again.';
-
-      // Credential expiration/malformation (the error you encountered)
-      case 'credential-already-in-use':
-      case 'auth-domain-config-required':
+        return 'This operation is not allowed.';
       default:
-        // Generic fallback message - never expose technical Firebase errors
-        return 'Unable to sign in at this time. Please try again later.';
+        return 'An error occurred: ${e.message}';
     }
   }
 }

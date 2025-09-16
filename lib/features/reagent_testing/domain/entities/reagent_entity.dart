@@ -11,6 +11,9 @@ class ReagentEntity {
   final List<String> chemicals;
   final List<DrugResultEntity> drugResults;
   final String category;
+  final List<String> references;
+  // Optional: map observedColor -> list of references specific to that color
+  final Map<String, List<String>>? referencesByColor;
 
   const ReagentEntity({
     required this.reagentName,
@@ -23,6 +26,8 @@ class ReagentEntity {
     required this.chemicals,
     required this.drugResults,
     required this.category,
+    this.references = const [],
+    this.referencesByColor,
   });
 
   @override
@@ -38,6 +43,8 @@ class ReagentEntity {
         other.testDuration == testDuration &&
         _listEquals(other.chemicals, chemicals) &&
         _listEquals(other.drugResults, drugResults) &&
+        _listEquals(other.references, references) &&
+        _mapListEquals(other.referencesByColor, referencesByColor) &&
         other.category == category;
   }
 
@@ -52,6 +59,8 @@ class ReagentEntity {
         testDuration.hashCode ^
         chemicals.hashCode ^
         drugResults.hashCode ^
+        references.hashCode ^
+        (referencesByColor?.hashCode ?? 0) ^
         category.hashCode;
   }
 
@@ -63,8 +72,19 @@ class ReagentEntity {
     return true;
   }
 
+  bool _mapListEquals(Map<String, List<String>>? a, Map<String, List<String>>? b) {
+    if (a == null && b == null) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+    for (final key in a.keys) {
+      if (!b.containsKey(key)) return false;
+      if (!_listEquals(a[key]!, b[key]!)) return false;
+    }
+    return true;
+  }
+
   @override
   String toString() {
-    return 'ReagentEntity(reagentName: $reagentName, description: $description, safetyLevel: $safetyLevel, testDuration: $testDuration, chemicals: $chemicals, drugResults: ${drugResults.length} results, category: $category)';
+    return 'ReagentEntity(reagentName: $reagentName, description: $description, safetyLevel: $safetyLevel, testDuration: $testDuration, chemicals: $chemicals, drugResults: ${drugResults.length} results, category: $category, references: $references, referencesByColor keys: ${referencesByColor?.keys.toList()})';
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../features/auth/presentation/controllers/auth_controller.dart';
 import '../../features/auth/presentation/states/auth_state.dart';
 import '../../features/profile/presentation/views/profile_page.dart';
@@ -72,7 +73,7 @@ class _LoadingScreen extends StatelessWidget {
 
             // App Title
             Text(
-              'Reagent Testing',
+              AppLocalizations.of(context)!.reagentTestingApp,
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: const Color(0xFF1E293B),
@@ -82,7 +83,7 @@ class _LoadingScreen extends StatelessWidget {
 
             // Subtitle
             Text(
-              'Professional Testing Solutions',
+              AppLocalizations.of(context)!.reagentTesting,
               style: Theme.of(
                 context,
               ).textTheme.bodyLarge?.copyWith(color: const Color(0xFF64748B)),

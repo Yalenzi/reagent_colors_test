@@ -14,10 +14,10 @@ import '../states/reagent_testing_state.dart';
 import '../states/test_execution_state.dart';
 import '../states/test_result_state.dart';
 import '../states/test_result_history_state.dart';
-import 'package:reagentkit/core/services/gemini_image_analysis_service.dart';
+import 'package:reagent_colors_test/core/services/gemini_image_analysis_service.dart';
 
 //
-import 'package:reagentkit/core/config/get_it_config.dart';
+import 'package:reagent_colors_test/core/config/get_it_config.dart';
 
 // Remote Config Service Provider
 final remoteConfigServiceProvider = Provider<RemoteConfigService>((ref) {
